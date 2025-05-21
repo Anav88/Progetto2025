@@ -233,7 +233,8 @@ void init_tr(Boid &b, sf::ConvexShape &triangles) {
   triangles.setFillColor(sf::Color::Black);
 
   float angle = std::atan2(b.get_vel().y, b.get_vel().x) * 180.f / PI;
-  triangles.setRotation(sf::degrees(angle));
+  triangles.setRotation(0);
+  // triangles.setRotation(sf::degrees(angle));
 }
 
 void update_correction(std::vector<Boid> &vec) {
