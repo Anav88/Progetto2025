@@ -1,0 +1,20 @@
+# ninja log v6
+3797	3938	1747823405611720467	Debug/boids.t	701c224c824c871c
+9	3797	1747823401823831587	CMakeFiles/boids.t.dir/Debug/boids.test.cpp.o	cb3076cf4640fc7a
+9	100	1747823288207094476	Debug/main	72c6ac0c1cc9d9b
+9	1458	1747823274558358455	CMakeFiles/main.dir/Debug/boids.cpp.o	31cc57809d3d8c21
+9	1385	1747823246479567167	CMakeFiles/main.dir/Debug/main.cpp.o	b548ced916c3cb39
+3	315	1747823457354037821	CMakeFiles/impl-Debug.ninja	2cdd886077d4e4d9
+3	315	1747823457354037821	build-Debug.ninja	2cdd886077d4e4d9
+3	315	1747823457354037821	CMakeFiles/impl-Release.ninja	2cdd886077d4e4d9
+3	315	1747823457354037821	build-Release.ninja	2cdd886077d4e4d9
+3	315	1747823457354037821	CMakeFiles/impl-RelWithDebInfo.ninja	2cdd886077d4e4d9
+3	315	1747823457354037821	build-RelWithDebInfo.ninja	2cdd886077d4e4d9
+3	315	1747823457354037821	build.ninja	2cdd886077d4e4d9
+3	315	1747823457354037821	/Users/bixiosun1/Desktop/Progetto2025/vec/build/cmake_install.cmake	2cdd886077d4e4d9
+3	315	1747823457354037821	/Users/bixiosun1/Desktop/Progetto2025/vec/build/CTestTestfile.cmake	2cdd886077d4e4d9
+8	1367	1747823457370704807	CMakeFiles/boids.t.dir/Debug/boids.cpp.o	ae2848a2172440f8
+7	3896	1747823457370126618	CMakeFiles/boids.t.dir/Debug/boids.test.cpp.o	cb3076cf4640fc7a
+3896	3999	1747823461259205376	Debug/boids.t	b394ead811ffa4f3
+8	4031	1747823592825463228	CMakeFiles/boids.t.dir/Debug/boids.test.cpp.o	cb3076cf4640fc7a
+4031	4137	1747823596848401715	Debug/boids.t	b394ead811ffa4f3

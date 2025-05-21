@@ -219,8 +219,6 @@ build CMakeFiles/main.dir/RelWithDebInfo/main.cpp.o: CXX_COMPILER__main_unscanne
   INCLUDES = -isystem /usr/local/opt/sfml@2/include
   OBJECT_DIR = CMakeFiles/main.dir/RelWithDebInfo
   OBJECT_FILE_DIR = CMakeFiles/main.dir/RelWithDebInfo
-  TARGET_COMPILE_PDB = CMakeFiles/main.dir/RelWithDebInfo/
-  TARGET_PDB = RelWithDebInfo/main.pdb
 
 build CMakeFiles/main.dir/RelWithDebInfo/boids.cpp.o: CXX_COMPILER__main_unscanned_RelWithDebInfo /Users/bixiosun1/Desktop/Progetto2025/vec/boids.cpp || cmake_object_order_depends_target_main_RELWITHDEBINFO
   CONFIG = RelWithDebInfo
@@ -230,8 +228,6 @@ build CMakeFiles/main.dir/RelWithDebInfo/boids.cpp.o: CXX_COMPILER__main_unscann
   INCLUDES = -isystem /usr/local/opt/sfml@2/include
   OBJECT_DIR = CMakeFiles/main.dir/RelWithDebInfo
   OBJECT_FILE_DIR = CMakeFiles/main.dir/RelWithDebInfo
-  TARGET_COMPILE_PDB = CMakeFiles/main.dir/RelWithDebInfo/
-  TARGET_PDB = RelWithDebInfo/main.pdb
 
 
 # =============================================================================
@@ -248,9 +244,8 @@ build RelWithDebInfo/main: CXX_EXECUTABLE_LINKER__main_RelWithDebInfo CMakeFiles
   OBJECT_DIR = CMakeFiles/main.dir/RelWithDebInfo
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/main.dir/RelWithDebInfo/
   TARGET_FILE = RelWithDebInfo/main
-  TARGET_PDB = RelWithDebInfo/main.pdb
+  TARGET_PDB = main.dbg
 
 # =============================================================================
 # Object build statements for EXECUTABLE target boids.t
@@ -268,8 +263,14 @@ build CMakeFiles/boids.t.dir/RelWithDebInfo/boids.test.cpp.o: CXX_COMPILER__boid
   FLAGS = -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wimplicit-fallthrough -Wextra-semi -Wold-style-cast -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -O2 -g -DNDEBUG -std=c++20
   OBJECT_DIR = CMakeFiles/boids.t.dir/RelWithDebInfo
   OBJECT_FILE_DIR = CMakeFiles/boids.t.dir/RelWithDebInfo
-  TARGET_COMPILE_PDB = CMakeFiles/boids.t.dir/RelWithDebInfo/
-  TARGET_PDB = RelWithDebInfo/boids.t.pdb
+
+build CMakeFiles/boids.t.dir/RelWithDebInfo/boids.cpp.o: CXX_COMPILER__boids.2et_unscanned_RelWithDebInfo /Users/bixiosun1/Desktop/Progetto2025/vec/boids.cpp || cmake_object_order_depends_target_boids.t_RELWITHDEBINFO
+  CONFIG = RelWithDebInfo
+  DEFINES = -DCMAKE_INTDIR=\"RelWithDebInfo\"
+  DEP_FILE = CMakeFiles/boids.t.dir/RelWithDebInfo/boids.cpp.o.d
+  FLAGS = -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wimplicit-fallthrough -Wextra-semi -Wold-style-cast -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -O2 -g -DNDEBUG -std=c++20
+  OBJECT_DIR = CMakeFiles/boids.t.dir/RelWithDebInfo
+  OBJECT_FILE_DIR = CMakeFiles/boids.t.dir/RelWithDebInfo
 
 
 # =============================================================================
@@ -279,15 +280,14 @@ build CMakeFiles/boids.t.dir/RelWithDebInfo/boids.test.cpp.o: CXX_COMPILER__boid
 #############################################
 # Link the executable RelWithDebInfo/boids.t
 
-build RelWithDebInfo/boids.t: CXX_EXECUTABLE_LINKER__boids.2et_RelWithDebInfo CMakeFiles/boids.t.dir/RelWithDebInfo/boids.test.cpp.o
+build RelWithDebInfo/boids.t: CXX_EXECUTABLE_LINKER__boids.2et_RelWithDebInfo CMakeFiles/boids.t.dir/RelWithDebInfo/boids.test.cpp.o CMakeFiles/boids.t.dir/RelWithDebInfo/boids.cpp.o
   CONFIG = RelWithDebInfo
   FLAGS = -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wimplicit-fallthrough -Wextra-semi -Wold-style-cast -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -O2 -g -DNDEBUG
   OBJECT_DIR = CMakeFiles/boids.t.dir/RelWithDebInfo
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/boids.t.dir/RelWithDebInfo/
   TARGET_FILE = RelWithDebInfo/boids.t
-  TARGET_PDB = RelWithDebInfo/boids.t.pdb
+  TARGET_PDB = boids.t.dbg
 
 
 #############################################

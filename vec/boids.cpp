@@ -1,6 +1,6 @@
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
+// #include <SFML/Graphics.hpp>
+// #include <SFML/Window.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -14,8 +14,15 @@
 Vec operator-(Vec f1, Vec f2) { return {f1.x - f2.x, f1.y - f2.y}; }
 Vec operator+(Vec f1, Vec f2) { return {f1.x + f2.x, f1.y + f2.y}; }
 Vec operator*(Vec f1, Vec f2) { return {f1.x * f2.x, f1.y * f2.y}; }
-Vec operator*(Vec f1, float d) { return {f1.x * d, f1.y * d}; }
-Vec operator/(Vec f1, float d) { return {f1.x / d, f1.y / d}; }
+Vec operator*(Vec f1, double d) { return {f1.x * d, f1.y * d}; }
+Vec operator/(Vec f1, double d) { return {f1.x / d, f1.y / d}; }
+bool operator==(Vec v1, Vec v2) {
+  if (v1.x == v2.x && v1.y == v2.y) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 Boid::Boid(Vec p, Vec v) : pos_{p}, vel_{v} {}
 Boid::Boid(Two_Vec vec) : pos_{vec.a}, vel_{vec.b} {}
@@ -74,13 +81,6 @@ void Boid::vel_max() {
   }
 }
 
-bool operator==(Vec v1, Vec v2) {
-  if (v1.x == v2.x && v1.y == v2.y) {
-    return true;
-  } else {
-    return false;
-  }
-}
 bool operator==(Boid b1, Boid b2) {
   if (b1.get_pos() == b2.get_pos() && b1.get_vel() == b2.get_vel()) {
     return true;
@@ -108,13 +108,13 @@ int init_size(int n) {
   return n;
 }
 
-float abs(Vec f1, Vec f2) {
+double abs(Vec f1, Vec f2) {
   return sqrt(
       pow(f1.x - f2.x, 2) +
       pow(f1.y - f2.y, 2));  // calcola il modulo della diff di sue vettori
 }
 
-float distance(Boid b1, Boid b2) { return abs(b1.get_pos(), b2.get_pos()); }
+double distance(Boid b1, Boid b2) { return abs(b1.get_pos(), b2.get_pos()); }
 
 Vec mean_velocity(std::vector<Boid> const vec) {
   Vec sum_vel{0., 0.};
@@ -166,10 +166,10 @@ void mean_deviation_algo(std::vector<Boid> const vec) {
 Two_Vec rand_num() {
   std::random_device r;
   std::default_random_engine eng{r()};
-  std::uniform_real_distribution<float> pos_x{MIN_POS, MAX_POS};
-  std::uniform_real_distribution<float> pos_y{MIN_POS, MAX_POS};
-  std::uniform_real_distribution<float> vel_x{MIN_VEL, MAX_VEL};
-  std::uniform_real_distribution<float> vel_y{MIN_VEL, MAX_VEL};
+  std::uniform_real_distribution<double> pos_x{MIN_POS, MAX_POS};
+  std::uniform_real_distribution<double> pos_y{MIN_POS, MAX_POS};
+  std::uniform_real_distribution<double> vel_x{MIN_VEL, MAX_VEL};
+  std::uniform_real_distribution<double> vel_y{MIN_VEL, MAX_VEL};
 
   return {{pos_x(eng), pos_y(eng)}, {vel_x(eng), vel_x(eng)}};
 }
@@ -189,7 +189,7 @@ void evaluate_correction(std::vector<Boid> &vec) {
 
     for (auto it_j = vec.begin(); it_j != vec.end(); ++it_j) {
       if (it_i != it_j) {
-        float dist = distance(*it_i, *it_j);
+        double dist = distance(*it_i, *it_j);
 
         if (dist < d) {
           ++neighbor_count;
@@ -217,25 +217,25 @@ void evaluate_correction(std::vector<Boid> &vec) {
   }
 }
 
-void add_triangle(std::vector<sf::ConvexShape> &triangles) {
-  for (auto it = triangles.begin(); it != triangles.end(); ++it) {
-    (*it).setPointCount(3);
-  }
-}
+// void add_triangle(std::vector<sf::ConvexShape> &triangles) {
+//   for (auto it = triangles.begin(); it != triangles.end(); ++it) {
+//     (*it).setPointCount(3);
+//   }
+// }
 
-void init_tr(Boid &b, sf::ConvexShape &triangles) {
-  triangles.setPoint(0, {2.0f, 0.f});
-  triangles.setPoint(1, {-1.0f, -1.0f});
-  triangles.setPoint(2, {-1.0f, 1.0f});
-  sf::Vector2f pos(b.get_pos().x + 100.0f, b.get_pos().y + 100.0f);
-  triangles.setPosition(pos);
+// void init_tr(Boid &b, sf::ConvexShape &triangles) {
+//   triangles.setPoint(0, {2.0f, 0.f});
+//   triangles.setPoint(1, {-1.0f, -1.0f});
+//   triangles.setPoint(2, {-1.0f, 1.0f});
+//   sf::Vector2f pos(b.get_pos().x + 100.0f, b.get_pos().y + 100.0f);
+//   triangles.setPosition(pos);
 
-  triangles.setFillColor(sf::Color::Black);
+//   triangles.setFillColor(sf::Color::Black);
 
-  float angle = std::atan2(b.get_vel().y, b.get_vel().x) * 180.f / PI;
-  triangles.setRotation(0);
-  // triangles.setRotation(sf::degrees(angle));
-}
+//   float angle = std::atan2(b.get_vel().y, b.get_vel().x) * 180.f / PI;
+//   triangles.setRotation(0);
+//   // triangles.setRotation(sf::degrees(angle));
+// }
 
 void update_correction(std::vector<Boid> &vec) {
   evaluate_correction(vec);
@@ -246,18 +246,19 @@ void update_correction(std::vector<Boid> &vec) {
   });
 }
 
-void print(std::vector<sf::ConvexShape> &tr, std::vector<Boid> &arr,
-           sf::RenderWindow &window) {
-  // window.clear(sf::Color::White);
+// void print(std::vector<sf::ConvexShape> &tr, std::vector<Boid> &arr,
+//            sf::RenderWindow &window) {
+//   // window.clear(sf::Color::White);
 
-  auto it_b = arr.begin();
+//   auto it_b = arr.begin();
 
-  for (std::vector<sf::ConvexShape>::iterator it = tr.begin(); it != tr.end();
-       ++it, ++it_b) {
-    init_tr((*it_b), (*it));
+//   for (std::vector<sf::ConvexShape>::iterator it = tr.begin(); it !=
+//   tr.end();
+//        ++it, ++it_b) {
+//     init_tr((*it_b), (*it));
 
-    window.draw(*it);
-  }
+//     window.draw(*it);
+//   }
 
-  window.display();
-}
+//   window.display();
+// }

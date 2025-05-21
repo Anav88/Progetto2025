@@ -87,7 +87,7 @@ TEST_CASE("Correzione delle velocità") {
   }
 
   SUBCASE("") {
-    init_size(0);
+    // init_size(0);
     Boid b1 = {{100.f, 100.f}, {2.f, 2.f}};
     Boid b2 = {{120.f, 120.f}, {-1.f, 3.f}};
     Boid b3 = {{80.f, 85.f}, {4.f, -2.f}};

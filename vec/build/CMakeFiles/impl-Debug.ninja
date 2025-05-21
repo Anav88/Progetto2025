@@ -219,8 +219,6 @@ build CMakeFiles/main.dir/Debug/main.cpp.o: CXX_COMPILER__main_unscanned_Debug /
   INCLUDES = -isystem /usr/local/opt/sfml@2/include
   OBJECT_DIR = CMakeFiles/main.dir/Debug
   OBJECT_FILE_DIR = CMakeFiles/main.dir/Debug
-  TARGET_COMPILE_PDB = CMakeFiles/main.dir/Debug/
-  TARGET_PDB = Debug/main.pdb
 
 build CMakeFiles/main.dir/Debug/boids.cpp.o: CXX_COMPILER__main_unscanned_Debug /Users/bixiosun1/Desktop/Progetto2025/vec/boids.cpp || cmake_object_order_depends_target_main_DEBUG
   CONFIG = Debug
@@ -230,8 +228,6 @@ build CMakeFiles/main.dir/Debug/boids.cpp.o: CXX_COMPILER__main_unscanned_Debug 
   INCLUDES = -isystem /usr/local/opt/sfml@2/include
   OBJECT_DIR = CMakeFiles/main.dir/Debug
   OBJECT_FILE_DIR = CMakeFiles/main.dir/Debug
-  TARGET_COMPILE_PDB = CMakeFiles/main.dir/Debug/
-  TARGET_PDB = Debug/main.pdb
 
 
 # =============================================================================
@@ -249,9 +245,8 @@ build Debug/main: CXX_EXECUTABLE_LINKER__main_Debug CMakeFiles/main.dir/Debug/ma
   OBJECT_DIR = CMakeFiles/main.dir/Debug
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/main.dir/Debug/
   TARGET_FILE = Debug/main
-  TARGET_PDB = Debug/main.pdb
+  TARGET_PDB = main.dbg
 
 # =============================================================================
 # Object build statements for EXECUTABLE target boids.t
@@ -269,8 +264,14 @@ build CMakeFiles/boids.t.dir/Debug/boids.test.cpp.o: CXX_COMPILER__boids.2et_uns
   FLAGS = -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wimplicit-fallthrough -Wextra-semi -Wold-style-cast -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -g -fsanitize=address,undefined -std=c++20
   OBJECT_DIR = CMakeFiles/boids.t.dir/Debug
   OBJECT_FILE_DIR = CMakeFiles/boids.t.dir/Debug
-  TARGET_COMPILE_PDB = CMakeFiles/boids.t.dir/Debug/
-  TARGET_PDB = Debug/boids.t.pdb
+
+build CMakeFiles/boids.t.dir/Debug/boids.cpp.o: CXX_COMPILER__boids.2et_unscanned_Debug /Users/bixiosun1/Desktop/Progetto2025/vec/boids.cpp || cmake_object_order_depends_target_boids.t_DEBUG
+  CONFIG = Debug
+  DEFINES = -DCMAKE_INTDIR=\"Debug\"
+  DEP_FILE = CMakeFiles/boids.t.dir/Debug/boids.cpp.o.d
+  FLAGS = -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wimplicit-fallthrough -Wextra-semi -Wold-style-cast -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -g -fsanitize=address,undefined -std=c++20
+  OBJECT_DIR = CMakeFiles/boids.t.dir/Debug
+  OBJECT_FILE_DIR = CMakeFiles/boids.t.dir/Debug
 
 
 # =============================================================================
@@ -280,16 +281,15 @@ build CMakeFiles/boids.t.dir/Debug/boids.test.cpp.o: CXX_COMPILER__boids.2et_uns
 #############################################
 # Link the executable Debug/boids.t
 
-build Debug/boids.t: CXX_EXECUTABLE_LINKER__boids.2et_Debug CMakeFiles/boids.t.dir/Debug/boids.test.cpp.o
+build Debug/boids.t: CXX_EXECUTABLE_LINKER__boids.2et_Debug CMakeFiles/boids.t.dir/Debug/boids.test.cpp.o CMakeFiles/boids.t.dir/Debug/boids.cpp.o
   CONFIG = Debug
   FLAGS = -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wimplicit-fallthrough -Wextra-semi -Wold-style-cast -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -g -fsanitize=address,undefined
   LINK_FLAGS = -fsanitize=address,undefined
   OBJECT_DIR = CMakeFiles/boids.t.dir/Debug
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/boids.t.dir/Debug/
   TARGET_FILE = Debug/boids.t
-  TARGET_PDB = Debug/boids.t.pdb
+  TARGET_PDB = boids.t.dbg
 
 
 #############################################
