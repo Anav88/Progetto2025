@@ -1,5 +1,5 @@
 
-#include <time.h> //ciao
+#include <time.h>  //ciao
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -59,6 +59,7 @@ int main() {
         (*it_b).limit();
         (*it_b).vel_max();
         window.draw(*it);
+        // (*it_b).reset_corr();
       }
 
       window.display();

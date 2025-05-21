@@ -20,6 +20,7 @@ Vec operator/(Vec f1, float d) { return {f1.x / d, f1.y / d}; }
 Boid::Boid(Vec p, Vec v) : pos_{p}, vel_{v} {}
 Boid::Boid(Two_Vec vec) : pos_{vec.a}, vel_{vec.b} {}
 Boid::Boid() : pos_{0, 0}, vel_{0, 0} {}
+
 Vec Boid::get_pos() const { return pos_; }
 Vec Boid::get_vel() const { return vel_; }
 Vec Boid::get_corr_v1() const { return corr_v1_; }
@@ -53,6 +54,7 @@ void Boid::reset_corr() {
   corr_v2_ = {0, 0};
   corr_v3_ = {0, 0};
 }
+
 void Boid::vel_max() {
   if (vel_.x > MAX_VEL) {
     vel_.y *= (MAX_VEL / vel_.x);
@@ -202,7 +204,6 @@ void evaluate_correction(std::vector<Boid> &vec) {
         }
       }
     }
-
     if (separation_count > 0) {
       (*it_i).vel_sep(sum_diff_pos);
     }
@@ -210,7 +211,6 @@ void evaluate_correction(std::vector<Boid> &vec) {
     if (neighbor_count > 1) {
       Vec mean_vel = sum_diff_vel / (neighbor_count - 1);
       Vec cdm = sum_coord / (neighbor_count - 1);
-
       (*it_i).vel_all(mean_vel);
       (*it_i).vel_coes(cdm);
     }

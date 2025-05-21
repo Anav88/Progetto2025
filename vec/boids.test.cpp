@@ -40,6 +40,7 @@ TEST_CASE("Verifica dei comportamenti ai bordi") {
   b2.limit();
   b3.limit();
   b4.limit();
+
   CHECK(b1.get_pos().x == 7.f);
   CHECK(b1.get_pos().y == 10.f);
   CHECK(b2.get_pos().x == 50.f);
@@ -77,22 +78,19 @@ TEST_CASE("Correzione delle velocità") {
 
     evaluate_correction(vec);
     Vec v = {0.f, 0.f};
-    CHECK(b1.get_corr_v1() == v);
-    CHECK(b1.get_corr_v2() == v);
-    CHECK(b1.get_corr_v3() == v);
-
-    // CHECK(b1.get_corr_v1().x == 0.f);
-    // CHECK(b1.get_corr_v1().y == 0.f);
-    // CHECK(b1.get_corr_v2().x == 0.f);
-    // CHECK(b1.get_corr_v2().y == 0.f);
-    // CHECK(b1.get_corr_v3().x == 0.f);
-    // CHECK(b1.get_corr_v3().y == 0.f);
+    CHECK(vec[0].get_corr_v1() == v);
+    CHECK(vec[0].get_corr_v2() == v);
+    CHECK(vec[0].get_corr_v3() == v);
+    CHECK(vec[2].get_corr_v1() == v);
+    CHECK(vec[2].get_corr_v2() == v);
+    CHECK(vec[2].get_corr_v3() == v);
   }
 
   SUBCASE("") {
+    init_size(0);
     Boid b1 = {{100.f, 100.f}, {2.f, 2.f}};
     Boid b2 = {{120.f, 120.f}, {-1.f, 3.f}};
-    Boid b3 = {{80.f, 80.f}, {4.f, -2.f}};
+    Boid b3 = {{80.f, 85.f}, {4.f, -2.f}};
 
     vec.push_back(b1);
     vec.push_back(b2);
@@ -100,12 +98,13 @@ TEST_CASE("Correzione delle velocità") {
 
     evaluate_correction(vec);
 
-    CHECK(b3.get_corr_v1().x == 0.f);
-    CHECK(b3.get_corr_v1().y == 0.f);
-    CHECK(b3.get_corr_v2().x == 0.f);
-    CHECK(b3.get_corr_v2().y == 0.f);
-    CHECK(b3.get_corr_v3().x == 0.f);
-    CHECK(b3.get_corr_v3().y == 0.f);
+    CHECK(vec[0].get_corr_v1() == Vec{0.f, 0.f});
+    CHECK(vec[0].get_corr_v2().x == doctest::Approx(a * 1 * (-1)));
+    CHECK(vec[0].get_corr_v2().y == doctest::Approx(a * 1 * (-3)));
+    CHECK(vec[0].get_corr_v3().x == doctest::Approx(c * (100)));
+    CHECK(vec[0].get_corr_v3().y == doctest::Approx(c * (105)));
+
+    
   }
   SUBCASE("Velocità di separazione") {}
 }

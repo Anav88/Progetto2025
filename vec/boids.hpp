@@ -12,8 +12,8 @@
 #include <random>
 
 float const s = 0.4;
-float const a = 0.2;
-int const d = 200;
+float const a = 0.9;
+int const d = 50;
 float const c = 0.03;
 int const ds = 15;
 // int const NUM_BOIDS{100};
