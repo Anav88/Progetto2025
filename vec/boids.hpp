@@ -1,21 +1,15 @@
 #ifndef PF_REGRESSION_HPP
 #define PF_REGRESSION_HPP
 
-// #include <SFML/Graphics.hpp>
-// #include <SFML/Window.hpp>
-#include <algorithm>
-#include <cassert>
-#include <cmath>
-#include <vector>
-// #include <execution>
-#include <iostream>
-#include <random>
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
 
-double const s = 0.4;
-double const a = 0.9;
-int const d = 50;
-double const c = 0.03;
-int const ds = 15;
+
+// double const s = 0.4;
+// double const a = 0.9;
+// int const d = 50;
+// double const c = 0.03;
+// int const ds = 15;
 // int const NUM_BOIDS{100};
 int const MIN_POS{0};
 int const MAX_POS{400};
@@ -31,6 +25,15 @@ struct Vec {
 struct Two_Vec {
   Vec a;
   Vec b;
+};
+
+struct Par{
+  double s;
+  double a;
+  double c;
+  int d;
+  int ds;
+  int N;
 };
 
 Vec operator-(Vec f1, Vec f2);
@@ -58,9 +61,9 @@ class Boid {
   Vec get_corr_v2() const;
   Vec get_corr_v3() const;
 
-  void vel_sep(Vec ds);
-  void vel_all(Vec vds);
-  void vel_coes(Vec cdm);
+  void vel_sep(Vec ds, double);
+  void vel_all(Vec vds, double);
+  void vel_coes(Vec cdm, double);
 
   void correction();
   void limit();
@@ -77,6 +80,10 @@ double distance(Boid b1, Boid b2);
 int init_size();
 int init_size(int);
 
+Par init_parametres();
+
+
+
 Vec mean_velocity(std::vector<Boid> const arr);
 Vec mean_velocity_algo(std::vector<Boid> const vec);
 
@@ -85,16 +92,11 @@ void mean_deviation_algo(std::vector<Boid> const vec);
 
 Two_Vec rand_num();
 
-void add_boid(std::vector<Boid> &add_arr);
+void add_boid(std::vector<Boid> &add_vec);
 
-void evaluate_correction(std::vector<Boid> &arr);
-// void add_triangle(std::vector<sf::ConvexShape> &triangles);
+void evaluate_correction(std::vector<Boid> &vec, Par);
+void add_triangle(std::vector<sf::ConvexShape> &triangles);
 
-// void init_tr(Boid &b, sf::ConvexShape &triangles);
-
-void update_correction(std::vector<Boid> &arr);
-
-// void print(std::vector<sf::ConvexShape> &tr, std::vector<Boid> &arr,
-//            sf::RenderWindow &window);
+void init_tr(Boid &b, sf::ConvexShape &triangles);
 
 #endif

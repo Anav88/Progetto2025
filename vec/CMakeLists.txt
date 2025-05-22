@@ -50,6 +50,7 @@ if (BUILD_TESTING)
 
   # aggiungi l'eseguibile progetto.t
   add_executable(boids.t boids.test.cpp boids.cpp)
+  target_link_libraries(boids.t PRIVATE sfml-graphics)
   # aggiungi l'eseguibile progetto.t alla lista dei test
   add_test(NAME boids.t COMMAND boids.t)
 

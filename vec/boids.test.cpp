@@ -76,7 +76,9 @@ TEST_CASE("Correzione delle velocità") {
     vec.push_back(b3);
     vec.push_back(b4);
 
-    evaluate_correction(vec);
+    Par prova = {0.4 , 0.9 , 0.03, 50 , 15};
+
+    evaluate_correction(vec, prova);
     Vec v = {0.f, 0.f};
     CHECK(vec[0].get_corr_v1() == v);
     CHECK(vec[0].get_corr_v2() == v);
@@ -95,14 +97,16 @@ TEST_CASE("Correzione delle velocità") {
     vec.push_back(b1);
     vec.push_back(b2);
     vec.push_back(b3);
+    Par prova = {0.4 , 0.9 , 0.03, 50 , 15};
 
-    evaluate_correction(vec);
+
+    evaluate_correction(vec, prova);
 
     CHECK(vec[0].get_corr_v1() == Vec{0.f, 0.f});
-    CHECK(vec[0].get_corr_v2().x == doctest::Approx(a * 1 * (-1)));
-    CHECK(vec[0].get_corr_v2().y == doctest::Approx(a * 1 * (-3)));
-    CHECK(vec[0].get_corr_v3().x == doctest::Approx(c * (100)));
-    CHECK(vec[0].get_corr_v3().y == doctest::Approx(c * (105)));
+    CHECK(vec[0].get_corr_v2().x == doctest::Approx(prova.a * 1 * (-1)));
+    CHECK(vec[0].get_corr_v2().y == doctest::Approx(prova.a * 1 * (-3)));
+    CHECK(vec[0].get_corr_v3().x == doctest::Approx(prova.c * (100)));
+    CHECK(vec[0].get_corr_v3().y == doctest::Approx(prova.c * (105)));
 
     
   }

@@ -1,6 +1,3 @@
-
-// #include <SFML/Graphics.hpp>
-// #include <SFML/Window.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -34,9 +31,9 @@ Vec Boid::get_corr_v1() const { return corr_v1_; }
 Vec Boid::get_corr_v2() const { return corr_v2_; }
 Vec Boid::get_corr_v3() const { return corr_v3_; }
 
-void Boid::vel_sep(Vec ds) { corr_v1_ = ds * (-s); }
-void Boid::vel_all(Vec vds) { corr_v2_ = (vds) * (a); }
-void Boid::vel_coes(Vec cdm) { corr_v3_ = (cdm - pos_) * c; }
+void Boid::vel_sep(Vec ds, double s) { corr_v1_ = ds * (-s); }
+void Boid::vel_all(Vec vds, double a) { corr_v2_ = (vds) * (a); }
+void Boid::vel_coes(Vec cdm, double c) { corr_v3_ = (cdm - pos_) * c; }
 
 void Boid::correction() {
   vel_ = vel_ + corr_v1_ + corr_v2_ + corr_v3_;
@@ -106,6 +103,18 @@ int init_size(int n) {
     throw std::runtime_error{"Impossibile avere un numero negativo di boid"};
   }
   return n;
+}
+
+Par init_parametres(){
+  Par in;
+  std::cout << "Inserisci i valori dei parametri s, a, c\n";
+  std::cin >> in.s >> in.a >> in.c;
+  std::cout << "Inserisci i valori dei parametri d, ds\n";
+  std::cin >> in.d >> in.ds;
+  std::cout << "Inserisci il numero dei boid\n";
+  std::cin >> in.N;
+
+  return in;
 }
 
 double abs(Vec f1, Vec f2) {
@@ -179,7 +188,7 @@ void add_boid(std::vector<Boid> &add_vec) {
                 []() { return (Boid(rand_num())); });
 }
 
-void evaluate_correction(std::vector<Boid> &vec) {
+void evaluate_correction(std::vector<Boid> &vec, Par parametres) {
   for (auto it_i = vec.begin(); it_i != vec.end(); ++it_i) {
     Vec sum_diff_pos = {0., 0.};  // per il calcolo vel sep
     Vec sum_diff_vel = {0., 0.};  // per il calcolo vel all
@@ -191,12 +200,12 @@ void evaluate_correction(std::vector<Boid> &vec) {
       if (it_i != it_j) {
         double dist = distance(*it_i, *it_j);
 
-        if (dist < d) {
+        if (dist < parametres.d) {
           ++neighbor_count;
           sum_diff_vel = sum_diff_vel + ((*it_j).get_vel() - (*it_i).get_vel());
           sum_coord = sum_coord + (*it_j).get_pos();
 
-          if (dist < ds) {
+          if (dist < parametres.ds) {
             sum_diff_pos =
                 sum_diff_pos + ((*it_j).get_pos() - (*it_i).get_pos());
             ++separation_count;
@@ -205,60 +214,32 @@ void evaluate_correction(std::vector<Boid> &vec) {
       }
     }
     if (separation_count > 0) {
-      (*it_i).vel_sep(sum_diff_pos);
+      (*it_i).vel_sep(sum_diff_pos, parametres.s);
     }
 
     if (neighbor_count > 1) {
       Vec mean_vel = sum_diff_vel / (neighbor_count - 1);
       Vec cdm = sum_coord / (neighbor_count - 1);
-      (*it_i).vel_all(mean_vel);
-      (*it_i).vel_coes(cdm);
+      (*it_i).vel_all(mean_vel, parametres.a);
+      (*it_i).vel_coes(cdm, parametres.c);
     }
   }
 }
 
-// void add_triangle(std::vector<sf::ConvexShape> &triangles) {
-//   for (auto it = triangles.begin(); it != triangles.end(); ++it) {
-//     (*it).setPointCount(3);
-//   }
-// }
-
-// void init_tr(Boid &b, sf::ConvexShape &triangles) {
-//   triangles.setPoint(0, {2.0f, 0.f});
-//   triangles.setPoint(1, {-1.0f, -1.0f});
-//   triangles.setPoint(2, {-1.0f, 1.0f});
-//   sf::Vector2f pos(b.get_pos().x + 100.0f, b.get_pos().y + 100.0f);
-//   triangles.setPosition(pos);
-
-//   triangles.setFillColor(sf::Color::Black);
-
-//   float angle = std::atan2(b.get_vel().y, b.get_vel().x) * 180.f / PI;
-//   triangles.setRotation(0);
-//   // triangles.setRotation(sf::degrees(angle));
-// }
-
-void update_correction(std::vector<Boid> &vec) {
-  evaluate_correction(vec);
-  std::for_each(vec.begin(), vec.end(), [](Boid &boid) {
-    (boid).correction();
-    (boid).limit();
-    (boid).vel_max();
-  });
+void add_triangle(std::vector<sf::ConvexShape> &triangles) {
+  for (auto it = triangles.begin(); it != triangles.end(); ++it) {
+    (*it).setPointCount(3);
+  }
 }
 
-// void print(std::vector<sf::ConvexShape> &tr, std::vector<Boid> &arr,
-//            sf::RenderWindow &window) {
-//   // window.clear(sf::Color::White);
+void init_tr(Boid &b, sf::ConvexShape &triangles) {
+  triangles.setPoint(0, {2.0f, 0.f});
+  triangles.setPoint(1, {-1.0f, -1.0f});
+  triangles.setPoint(2, {-1.0f, 1.0f});
+  sf::Vector2f pos(b.get_pos().x + 100.0f, b.get_pos().y + 100.0f);
+  triangles.setPosition(pos);
 
-//   auto it_b = arr.begin();
+  triangles.setFillColor(sf::Color::Black);
+  triangles.setRotation(std::atan2(b.get_vel().y, b.get_vel().x) * 180.f / PI);
+}
 
-//   for (std::vector<sf::ConvexShape>::iterator it = tr.begin(); it !=
-//   tr.end();
-//        ++it, ++it_b) {
-//     init_tr((*it_b), (*it));
-
-//     window.draw(*it);
-//   }
-
-//   window.display();
-// }
