@@ -66,6 +66,7 @@ TEST_CASE("Correzione delle velocità") {
   std::vector<Boid> vec;
 
   SUBCASE("Nessuna interazione") {
+    Par prova = {0.4f , 0.9f , 0.03f, 50 , 15, 0};
     Boid b1 = {{0.f, 0.f}, {0.f, -1.f}};
     Boid b2 = {{100.f, 100.f}, {-1.f, -3.f}};
     Boid b3 = {{200.f, 200.f}, {2.f, 1.f}};
@@ -76,7 +77,7 @@ TEST_CASE("Correzione delle velocità") {
     vec.push_back(b3);
     vec.push_back(b4);
 
-    Par prova = {0.4 , 0.9 , 0.03, 50 , 15};
+    
 
     evaluate_correction(vec, prova);
     Vec v = {0.f, 0.f};
@@ -89,7 +90,8 @@ TEST_CASE("Correzione delle velocità") {
   }
 
   SUBCASE("") {
-    // init_size(0);
+
+    Par prova = {0.4f , 0.9f , 0.03f, 50 , 15, 0};
     Boid b1 = {{100.f, 100.f}, {2.f, 2.f}};
     Boid b2 = {{120.f, 120.f}, {-1.f, 3.f}};
     Boid b3 = {{80.f, 85.f}, {4.f, -2.f}};
@@ -97,7 +99,7 @@ TEST_CASE("Correzione delle velocità") {
     vec.push_back(b1);
     vec.push_back(b2);
     vec.push_back(b3);
-    Par prova = {0.4 , 0.9 , 0.03, 50 , 15};
+    
 
 
     evaluate_correction(vec, prova);

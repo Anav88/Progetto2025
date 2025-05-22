@@ -11,8 +11,8 @@
 Vec operator-(Vec f1, Vec f2) { return {f1.x - f2.x, f1.y - f2.y}; }
 Vec operator+(Vec f1, Vec f2) { return {f1.x + f2.x, f1.y + f2.y}; }
 Vec operator*(Vec f1, Vec f2) { return {f1.x * f2.x, f1.y * f2.y}; }
-Vec operator*(Vec f1, double d) { return {f1.x * d, f1.y * d}; }
-Vec operator/(Vec f1, double d) { return {f1.x / d, f1.y / d}; }
+Vec operator*(Vec f1, float d) { return {f1.x * d, f1.y * d}; }
+Vec operator/(Vec f1, float d) { return {f1.x / d, f1.y / d}; }
 bool operator==(Vec v1, Vec v2) {
   if (v1.x == v2.x && v1.y == v2.y) {
     return true;
@@ -31,13 +31,13 @@ Vec Boid::get_corr_v1() const { return corr_v1_; }
 Vec Boid::get_corr_v2() const { return corr_v2_; }
 Vec Boid::get_corr_v3() const { return corr_v3_; }
 
-void Boid::vel_sep(Vec ds, double s) { corr_v1_ = ds * (-s); }
-void Boid::vel_all(Vec vds, double a) { corr_v2_ = (vds) * (a); }
-void Boid::vel_coes(Vec cdm, double c) { corr_v3_ = (cdm - pos_) * c; }
+void Boid::vel_sep(Vec ds, float s) { corr_v1_ = ds * (-s); }
+void Boid::vel_all(Vec vds, float a) { corr_v2_ = (vds) * (a); }
+void Boid::vel_coes(Vec cdm, float c) { corr_v3_ = (cdm - pos_) * c; }
 
 void Boid::correction() {
   vel_ = vel_ + corr_v1_ + corr_v2_ + corr_v3_;
-  pos_ = pos_ + (vel_ * (0.017));
+  pos_ = pos_ + (vel_ * (0.017f));
 }
 void Boid::limit() {
   if (pos_.x < MIN_POS) {
@@ -105,25 +105,62 @@ int init_size(int n) {
   return n;
 }
 
-Par init_parametres(){
+Par init_parametres() {
   Par in;
+  int n;
+
   std::cout << "Inserisci i valori dei parametri s, a, c\n";
   std::cin >> in.s >> in.a >> in.c;
+  if (std::cin.fail()) {
+    throw std::invalid_argument("Parameter not valid");
+  }
+  if(in.s < 0 || in.s > 1){
+    throw std::invalid_argument("Parameter s must be in the interval [0,1]");
+  }
+  assert(in.s >= 0 && in.s <= 1);
+  if(in.a < 0 || in.a > 1){
+    throw std::invalid_argument("Parameter a must be in the interval [0,1]");
+  }
+  assert(in.a >= 0 && in.a <= 1);
+  if(in.c < 0 || in.c > 1){
+    throw std::invalid_argument("Parameter c must be in the interval [0,1]");
+  }
+  assert(in.c >= 0 && in.c <= 1);
+
   std::cout << "Inserisci i valori dei parametri d, ds\n";
   std::cin >> in.d >> in.ds;
-  std::cout << "Inserisci il numero dei boid\n";
-  std::cin >> in.N;
+  if (std::cin.fail()) {
+    throw std::invalid_argument("Parameter not valid");
+  }
+  if(in.d < 0 || in.ds < 0){
+    throw std::invalid_argument("Parameter d and ds must be positive");
+  }
+  if(in.d < in.ds){
+    throw std::invalid_argument("Parameter d must be bigger than ds");
+  }
+  assert(in.ds <= in.d && in.ds >= 0);
 
+  std::cout << "Inserisci il numero dei boid\n";
+  std::cin >> n;
+  if (std::cin.fail()) {
+    throw std::invalid_argument("Parameter not valid");
+  }
+  if (n < 0) {
+    throw std::invalid_argument("Parameter N can't be negative");
+  }
+  
+  in.N = static_cast<std::size_t>(n); //chat gpt per evitare warning
+  
   return in;
 }
 
-double abs(Vec f1, Vec f2) {
+float abs(Vec f1, Vec f2) {
   return sqrt(
-      pow(f1.x - f2.x, 2) +
-      pow(f1.y - f2.y, 2));  // calcola il modulo della diff di sue vettori
+      pow(f1.x - f2.x, 2.0f) +
+      pow(f1.y - f2.y, 2.0f));  // calcola il modulo della diff di sue vettori
 }
 
-double distance(Boid b1, Boid b2) { return abs(b1.get_pos(), b2.get_pos()); }
+float distance(Boid b1, Boid b2) { return abs(b1.get_pos(), b2.get_pos()); }
 
 Vec mean_velocity(std::vector<Boid> const vec) {
   Vec sum_vel{0., 0.};
@@ -175,10 +212,10 @@ void mean_deviation_algo(std::vector<Boid> const vec) {
 Two_Vec rand_num() {
   std::random_device r;
   std::default_random_engine eng{r()};
-  std::uniform_real_distribution<double> pos_x{MIN_POS, MAX_POS};
-  std::uniform_real_distribution<double> pos_y{MIN_POS, MAX_POS};
-  std::uniform_real_distribution<double> vel_x{MIN_VEL, MAX_VEL};
-  std::uniform_real_distribution<double> vel_y{MIN_VEL, MAX_VEL};
+  std::uniform_real_distribution<float> pos_x{MIN_POS, MAX_POS};
+  std::uniform_real_distribution<float> pos_y{MIN_POS, MAX_POS};
+  std::uniform_real_distribution<float> vel_x{MIN_VEL, MAX_VEL};
+  std::uniform_real_distribution<float> vel_y{MIN_VEL, MAX_VEL};
 
   return {{pos_x(eng), pos_y(eng)}, {vel_x(eng), vel_x(eng)}};
 }
@@ -198,7 +235,7 @@ void evaluate_correction(std::vector<Boid> &vec, Par parametres) {
 
     for (auto it_j = vec.begin(); it_j != vec.end(); ++it_j) {
       if (it_i != it_j) {
-        double dist = distance(*it_i, *it_j);
+        float dist = distance(*it_i, *it_j);
 
         if (dist < parametres.d) {
           ++neighbor_count;
@@ -233,13 +270,12 @@ void add_triangle(std::vector<sf::ConvexShape> &triangles) {
 }
 
 void init_tr(Boid &b, sf::ConvexShape &triangles) {
-  triangles.setPoint(0, {2.0f, 0.f});
-  triangles.setPoint(1, {-1.0f, -1.0f});
-  triangles.setPoint(2, {-1.0f, 1.0f});
+  triangles.setPoint(0, {3.0f, 0.f});
+  triangles.setPoint(1, {-1.0f, -1.5f});
+  triangles.setPoint(2, {-1.0f, 1.5f});
   sf::Vector2f pos(b.get_pos().x + 100.0f, b.get_pos().y + 100.0f);
   triangles.setPosition(pos);
 
   triangles.setFillColor(sf::Color::Black);
   triangles.setRotation(std::atan2(b.get_vel().y, b.get_vel().x) * 180.f / PI);
 }
-

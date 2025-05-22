@@ -1,5 +1,5 @@
-#ifndef PF_REGRESSION_HPP
-#define PF_REGRESSION_HPP
+#ifndef PF_BOIDS_HPP
+#define PF_BOIDS_HPP
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -15,11 +15,11 @@ int const MIN_POS{0};
 int const MAX_POS{400};
 int const MIN_VEL{-5};
 int const MAX_VEL{5};
-double const PI{3.141593};
+float const PI{3.141593f};
 
 struct Vec {
-  double x;
-  double y;
+  float x;
+  float y;
 };
 
 struct Two_Vec {
@@ -28,19 +28,19 @@ struct Two_Vec {
 };
 
 struct Par{
-  double s;
-  double a;
-  double c;
+  float s;
+  float a;
+  float c;
   int d;
   int ds;
-  int N;
+  std::size_t N;
 };
 
 Vec operator-(Vec f1, Vec f2);
 Vec operator+(Vec f1, Vec f2);
 Vec operator*(Vec f1, Vec f2);
-Vec operator*(Vec f1, double d);
-Vec operator/(Vec f1, double d);
+Vec operator*(Vec f1, float d);
+Vec operator/(Vec f1, float d);
 bool operator==(Vec v1, Vec v2);
 
 class Boid {
@@ -61,9 +61,9 @@ class Boid {
   Vec get_corr_v2() const;
   Vec get_corr_v3() const;
 
-  void vel_sep(Vec ds, double);
-  void vel_all(Vec vds, double);
-  void vel_coes(Vec cdm, double);
+  void vel_sep(Vec ds, float);
+  void vel_all(Vec vds, float);
+  void vel_coes(Vec cdm, float);
 
   void correction();
   void limit();
@@ -74,8 +74,8 @@ class Boid {
 
 bool operator==(Boid b1, Boid b2);
 
-double abs(Vec f1, Vec f2);
-double distance(Boid b1, Boid b2);
+float abs(Vec f1, Vec f2);
+float distance(Boid b1, Boid b2);
 
 int init_size();
 int init_size(int);
