@@ -86,6 +86,11 @@ bool operator==(Boid b1, Boid b2) {
   }
 }
 
+Predator::Predator(Vec p, Vec v) : pos_{p}, vel_{v} {}
+Predator::Predator() : pos_{0, 0}, vel_{0, 0} {}
+Vec Predator::get_pos() { return pos_; }
+Vec Predator::get_vel() { return vel_; }
+
 int init_size() {
   int n;
   std::cout << "Inserire il numero di uccelli \n";
@@ -114,15 +119,15 @@ Par init_parametres() {
   if (std::cin.fail()) {
     throw std::invalid_argument("Parameter not valid");
   }
-  if(in.s < 0 || in.s > 1){
+  if (in.s < 0 || in.s > 1) {
     throw std::invalid_argument("Parameter s must be in the interval [0,1]");
   }
   assert(in.s >= 0 && in.s <= 1);
-  if(in.a < 0 || in.a > 1){
+  if (in.a < 0 || in.a > 1) {
     throw std::invalid_argument("Parameter a must be in the interval [0,1]");
   }
   assert(in.a >= 0 && in.a <= 1);
-  if(in.c < 0 || in.c > 1){
+  if (in.c < 0 || in.c > 1) {
     throw std::invalid_argument("Parameter c must be in the interval [0,1]");
   }
   assert(in.c >= 0 && in.c <= 1);
@@ -132,10 +137,10 @@ Par init_parametres() {
   if (std::cin.fail()) {
     throw std::invalid_argument("Parameter not valid");
   }
-  if(in.d < 0 || in.ds < 0){
+  if (in.d < 0 || in.ds < 0) {
     throw std::invalid_argument("Parameter d and ds must be positive");
   }
-  if(in.d < in.ds){
+  if (in.d < in.ds) {
     throw std::invalid_argument("Parameter d must be bigger than ds");
   }
   assert(in.ds <= in.d && in.ds >= 0);
@@ -148,9 +153,9 @@ Par init_parametres() {
   if (n < 0) {
     throw std::invalid_argument("Parameter N can't be negative");
   }
-  
-  in.N = static_cast<std::size_t>(n); //chat gpt per evitare warning
-  
+
+  in.N = static_cast<std::size_t>(n);  // chat gpt per evitare warning
+
   return in;
 }
 
@@ -278,4 +283,13 @@ void init_tr(Boid &b, sf::ConvexShape &triangles) {
 
   triangles.setFillColor(sf::Color::Black);
   triangles.setRotation(std::atan2(b.get_vel().y, b.get_vel().x) * 180.f / PI);
+}
+
+sf::CircleShape crt_pred(float x, float y) {
+  sf::CircleShape circle{3.0f};
+  // circle.setOrigin(5.0f, 5.f);
+  circle.setPosition({x, y});
+  circle.setFillColor(sf::Color::Blue);
+
+  return circle;
 }

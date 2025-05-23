@@ -25,6 +25,8 @@ int main() {
     rectangle.setOutlineColor(sf::Color::Black);
     rectangle.setOutlineThickness(2.0f);
 
+    std::vector<sf::CircleShape> circles;
+    std::vector<Predator> predators;
     add_boid(boids);
 
     std::vector<sf::ConvexShape> triangles(parametres.N);
@@ -36,9 +38,24 @@ int main() {
         if (event.type == sf::Event::Closed) {
           window.close();
         }
-      }
+        if (event.type == sf::Event::MouseButtonPressed) {
+          float x = event.mouseButton.x;
+          float y = event.mouseButton.y;
+          if (x > 100.f && x < MAX_POS + 100.f && y > 100.f &&
+              y < MAX_POS + 100.f && circles.size() < MAX_PRED) {
+            Predator p(Vec{x, y}, {0.f, 0.f});
+            sf::CircleShape c =
+                crt_pred(event.mouseButton.x, event.mouseButton.y);
 
+            circles.push_back(c);
+            predators.push_back(p);
+          }
+        }
+      }
+      assert(predators.size() < 5);
+      
       window.clear(sf::Color::White);
+
       window.draw(rectangle);
 
       evaluate_correction(boids, parametres);
@@ -46,13 +63,17 @@ int main() {
         auto it_b = boids.begin();
         for (auto it = triangles.begin(); it != triangles.end(); ++it, ++it_b) {
           init_tr((*it_b), (*it));
-          
+
           (*it_b).correction();
           (*it_b).limit();
           (*it_b).vel_max();
-          
+
           window.draw(*it);
         }
+      }
+
+      for (const auto& c : circles) {
+        window.draw(c);
       }
 
       window.display();
