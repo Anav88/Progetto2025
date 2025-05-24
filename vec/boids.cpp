@@ -40,16 +40,16 @@ void Boid::correction() {
   pos_ = pos_ + (vel_ * (0.017f));
 }
 void Boid::limit() {
-  if (pos_.x < MIN_POS) {
+  if (pos_.x < MIN_POS + 100.f) {
     pos_.x += MAX_POS;
   }
-  if (pos_.y < MIN_POS) {
+  if (pos_.y < MIN_POS + 100.f) {
     pos_.y += MAX_POS;
   }
-  if (pos_.x > MAX_POS) {
+  if (pos_.x > MAX_POS + 100.f) {
     pos_.x -= MAX_POS;
   }
-  if (pos_.y > MAX_POS) {
+  if (pos_.y > MAX_POS + 100.f) {
     pos_.y -= MAX_POS;
   }
 }
@@ -86,10 +86,30 @@ bool operator==(Boid b1, Boid b2) {
   }
 }
 
-Predator::Predator(Vec p, Vec v) : pos_{p}, vel_{v} {}
-Predator::Predator() : pos_{0, 0}, vel_{0, 0} {}
-Vec Predator::get_pos() { return pos_; }
+Predator::Predator(Vec p, Vec v) : p_pos_{p}, vel_{v} {}
+Predator::Predator() : p_pos_{0, 0}, vel_{0, 0} {}
+Vec Predator::get_pos() { return p_pos_; }
 Vec Predator::get_vel() { return vel_; }
+void Predator::corr_vel_pred(float f) {
+  vel_.x = VEL_PRED * std::cosf(f);
+  vel_.y = VEL_PRED * std::sinf(f);
+  p_pos_ = p_pos_ + vel_ * 0.017f;
+  this->limit();
+}
+void Predator::limit() {
+  if (p_pos_.x < MIN_POS + 100.f) {
+    p_pos_.x += MAX_POS;
+  }
+  if (p_pos_.y < MIN_POS + 100.f) {
+    p_pos_.y += MAX_POS;
+  }
+  if (p_pos_.x > MAX_POS + 100.f) {
+    p_pos_.x -= MAX_POS;
+  }
+  if (p_pos_.y > MAX_POS + 100.f) {
+    p_pos_.y -= MAX_POS;
+  }
+}
 
 int init_size() {
   int n;
@@ -166,6 +186,7 @@ float abs(Vec f1, Vec f2) {
 }
 
 float distance(Boid b1, Boid b2) { return abs(b1.get_pos(), b2.get_pos()); }
+float distance(Boid b, Predator p) { return abs(b.get_pos(), p.get_pos()); }
 
 Vec mean_velocity(std::vector<Boid> const vec) {
   Vec sum_vel{0., 0.};
@@ -217,8 +238,8 @@ void mean_deviation_algo(std::vector<Boid> const vec) {
 Two_Vec rand_num() {
   std::random_device r;
   std::default_random_engine eng{r()};
-  std::uniform_real_distribution<float> pos_x{MIN_POS, MAX_POS};
-  std::uniform_real_distribution<float> pos_y{MIN_POS, MAX_POS};
+  std::uniform_real_distribution<float> pos_x{MIN_POS + 100.f, MAX_POS + 100.f};
+  std::uniform_real_distribution<float> pos_y{MIN_POS + 100.f, MAX_POS + 100.f};
   std::uniform_real_distribution<float> vel_x{MIN_VEL, MAX_VEL};
   std::uniform_real_distribution<float> vel_y{MIN_VEL, MAX_VEL};
 
@@ -278,18 +299,37 @@ void init_tr(Boid &b, sf::ConvexShape &triangles) {
   triangles.setPoint(0, {3.0f, 0.f});
   triangles.setPoint(1, {-1.0f, -1.5f});
   triangles.setPoint(2, {-1.0f, 1.5f});
-  sf::Vector2f pos(b.get_pos().x + 100.0f, b.get_pos().y + 100.0f);
+  sf::Vector2f pos(b.get_pos().x, b.get_pos().y);
   triangles.setPosition(pos);
 
   triangles.setFillColor(sf::Color::Black);
-  triangles.setRotation(std::atan2(b.get_vel().y, b.get_vel().x) * 180.f / PI);
+  triangles.setRotation(std::atan2f(b.get_vel().y, b.get_vel().x) * 180.f / PI);
 }
 
 sf::CircleShape crt_pred(float x, float y) {
   sf::CircleShape circle{3.0f};
-  // circle.setOrigin(5.0f, 5.f);
+  circle.setOrigin(3.f, 3.f);
   circle.setPosition({x, y});
   circle.setFillColor(sf::Color::Blue);
 
   return circle;
+}
+
+bool erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
+                std::vector<sf::ConvexShape> &triangles) {
+  for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
+    auto it_t = triangles.begin();
+    for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b, ++it_t) {
+      if ((*it_p).get_pos().x - (*it_b).get_pos().x < 1e-1f &&
+          (*it_p).get_pos().x - (*it_b).get_pos().x > -1e-1f &&
+          (*it_p).get_pos().y - (*it_b).get_pos().y < 1e-1f &&
+          (*it_p).get_pos().y - (*it_b).get_pos().y > -1e-1f) {
+        boids.erase(it_b);
+        triangles.erase(it_t);
+
+        return true;
+      }
+    }
+  }
+  return false;
 }
