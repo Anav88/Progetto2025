@@ -37,6 +37,7 @@ void Boid::vel_coes(Vec cdm, float c) { corr_v3_ = (cdm - pos_) * c; }
 
 void Boid::correction() {
   vel_ = vel_ + corr_v1_ + corr_v2_ + corr_v3_;
+  this->vel_max();
   pos_ = pos_ + (vel_ * (0.017f));
 }
 void Boid::limit() {
@@ -95,17 +96,17 @@ void Predator::corr_vel_pred_1(float f) {
   corr_v1_.y = VEL_PRED * std::sinf(f);
 }
 void Predator::corr_vel_pred_2(float f) {
-  corr_v2_.x = corr_v2_.x  -VEL_PRED_SEP * std::cosf(f);
-  corr_v2_.y = corr_v2_.y -VEL_PRED_SEP * std::sinf(f);
+  corr_v2_.x = corr_v2_.x + VEL_PRED_SEP * std::cosf(f);
+  corr_v2_.y = corr_v2_.y + VEL_PRED_SEP * std::sinf(f);
 }
 void Predator::correction() {
   vel_ = corr_v1_ + corr_v2_;
   pos_ = pos_ + vel_ * 0.017f;
 }
-void Predator::zerovel(){
-vel_ = {0.f,0.f};
-corr_v1_ = {0.f,0.f};
-corr_v2_ = {0.f,0.f};
+void Predator::zerovel() {
+  vel_ = {0.f, 0.f};
+  corr_v1_ = {0.f, 0.f};
+  corr_v2_ = {0.f, 0.f};
 }
 void Predator::limit() {
   if (pos_.x < MIN_POS + 100.f) {
@@ -346,4 +347,35 @@ bool erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
     }
   }
   return false;
+}
+
+void evaluate_pred_correction(std::vector<Predator> &predators,
+                              std::vector<Boid> &boids) {
+  for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
+    float min_ds{0};
+    Vec delta_pos{0.f, 0.f};
+    for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b) {
+      if (it_b == boids.begin()) {
+        min_ds = distance(*it_b, *it_p);
+        delta_pos = (*it_b).get_pos() - (*it_p).get_pos();
+      } else {
+        float dist = distance(*it_b, *it_p);
+        if (dist < min_ds) {
+          min_ds = dist;
+          delta_pos = (*it_b).get_pos() - (*it_p).get_pos();
+        }
+      }
+    }
+    if (boids.size() > 0) {
+      (*it_p).corr_vel_pred_1(std::atan2f(delta_pos.y, delta_pos.x));
+    }
+  }
+  for (auto it_i = predators.begin(); it_i != predators.end(); ++it_i) {
+    for (auto it_j = predators.begin(); it_j != predators.end(); ++it_j) {
+      if (distance((*it_i), (*it_j)) < pd) {
+        Vec delta_pos = (*it_i).get_pos() - (*it_j).get_pos();
+        (*it_i).corr_vel_pred_2(std::atan2f(delta_pos.y, delta_pos.x));
+      }
+    }
+  }
 }

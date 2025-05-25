@@ -11,13 +11,13 @@
 // int const ds = 15;
 // int const NUM_BOIDS{100};
 // int const pd = 2000;
-int const pd = 10;
+int const pd = 40;
 int const MIN_POS{0};
 int const MAX_POS{400};
-int const MIN_VEL{0};
-int const MAX_VEL{0};
-int const VEL_PRED{15};
-int const VEL_PRED_SEP{6};
+int const MIN_VEL{-5};
+int const MAX_VEL{5};
+int const VEL_PRED{20};
+int const VEL_PRED_SEP{9};
 std::size_t const MAX_PRED{5};
 float const PI{3.141593f};
 
@@ -125,5 +125,7 @@ sf::CircleShape crt_pred(float, float);
 
 bool erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
                 std::vector<sf::ConvexShape> &triangles);
+
+void evaluate_pred_correction(std::vector<Predator> &predators, std::vector<Boid> &boids);
 
 #endif

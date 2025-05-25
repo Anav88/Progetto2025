@@ -56,62 +56,35 @@ int main() {
       window.clear(sf::Color::White);
       window.draw(rectangle);
 
-      for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
-        float min_ds{0};
-        Vec delta_pos{0.f, 0.f};
-        for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b) {
-          if (it_b == boids.begin()) {
-            min_ds = distance(*it_b, *it_p);
-            delta_pos = (*it_b).get_pos() - (*it_p).get_pos();
+      evaluate_pred_correction(predators, boids);
+      evaluate_correction(boids, parametres);
 
-          } else {
-            float dist = distance(*it_b, *it_p);
-            if (dist < min_ds) {
-              min_ds = dist;
-              delta_pos = (*it_b).get_pos() - (*it_p).get_pos();
-            }
-          }
-        }
-        if (!(delta_pos == Vec{0.f, 0.f})) {
-          (*it_p).corr_vel_pred_1(std::atan2f(delta_pos.y, delta_pos.x));
-        }
-      }
-
-      for (auto it_i = predators.begin(); it_i != predators.end(); ++it_i) {
-        for (auto it_j = predators.begin(); it_j != predators.end(); ++it_j) {
-          if (distance((*it_i), (*it_j)) < pd) {
-            Vec delta_pos = (*it_i).get_pos() - (*it_j).get_pos();
-            (*it_i).corr_vel_pred_2(std::atan2f(delta_pos.y, delta_pos.x));
-          }
-        }
-      }
       {
         auto it_c = circles.begin();
         for (auto it_p = predators.begin(); it_p != predators.end();
              ++it_p, ++it_c) {
           (*it_p).correction();
+          (*it_p).zerovel();
           (*it_p).limit();
           (*it_c).setPosition({(*it_p).get_pos().x, (*it_p).get_pos().y});
-          (*it_p).zerovel();
+
           window.draw(*it_c);
         }
       }
 
-      erase_boid(boids, predators, triangles);
-      evaluate_correction(boids, parametres);
       {
         auto it_b = boids.begin();
         for (auto it = triangles.begin(); it != triangles.end(); ++it, ++it_b) {
           init_tr((*it_b), (*it));
-
+          
           (*it_b).correction();
           (*it_b).limit();
-          (*it_b).vel_max();
 
           window.draw(*it);
         }
       }
 
+      erase_boid(boids, predators, triangles);
       window.display();
     }
   } catch (std::exception const& e) {
