@@ -17,10 +17,11 @@ int main() {
     Par parametres = init_parametres();
     std::vector<Boid> boids(parametres.N);
 
-    sf::RenderWindow window(sf::VideoMode(600, 600), "My window");
+    sf::RenderWindow window(sf::VideoMode(MAX_POS + 200, 200 + MAX_POS),
+                            "My window");
     window.setFramerateLimit(60);
 
-    sf::RectangleShape rectangle({400.0f, 400.0f});
+    sf::RectangleShape rectangle({MAX_POS, MAX_POS});
     rectangle.setPosition({100.0f, 100.0f});
     rectangle.setOutlineColor(sf::Color::Black);
     rectangle.setOutlineThickness(2.0f);
@@ -43,7 +44,7 @@ int main() {
           float y = event.mouseButton.y;
           if (x > 100.f && x < MAX_POS + 100.f && y > 100.f &&
               y < MAX_POS + 100.f && circles.size() < MAX_PRED) {
-            Predator p(Vec{x, y}, Vec{0.f, 0.f});
+            Predator p(Vec{x, y});
             predators.push_back(p);
 
             sf::CircleShape c = crt_pred(x, y);
@@ -57,6 +58,7 @@ int main() {
       window.draw(rectangle);
 
       evaluate_pred_correction(predators, boids);
+      evaluate_corr_fuga(boids, predators);
       evaluate_correction(boids, parametres);
 
       {
@@ -76,8 +78,9 @@ int main() {
         auto it_b = boids.begin();
         for (auto it = triangles.begin(); it != triangles.end(); ++it, ++it_b) {
           init_tr((*it_b), (*it));
-          
+
           (*it_b).correction();
+          (*it_b).reset_corr();
           (*it_b).limit();
 
           window.draw(*it);

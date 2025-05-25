@@ -11,13 +11,15 @@
 // int const ds = 15;
 // int const NUM_BOIDS{100};
 // int const pd = 2000;
+// float const k = 10000.f;
 int const pd = 40;
+int const df = 40;
 int const MIN_POS{0};
-int const MAX_POS{400};
-int const MIN_VEL{-5};
-int const MAX_VEL{5};
-int const VEL_PRED{20};
-int const VEL_PRED_SEP{9};
+int const MAX_POS{700};
+int const MIN_VEL{-10};
+int const MAX_VEL{10};
+int const VEL_PRED{30};
+int const VEL_PRED_SEP{7};
 std::size_t const MAX_PRED{5};
 float const PI{3.141593f};
 
@@ -54,6 +56,7 @@ class Boid {
   Vec corr_v1_{0., 0.};
   Vec corr_v2_{0., 0.};
   Vec corr_v3_{0., 0.};
+  Vec corr_v_fuga{0., 0.};
 
  public:
   Boid(Vec p, Vec v);
@@ -68,6 +71,7 @@ class Boid {
   void vel_sep(Vec ds, float);
   void vel_all(Vec vds, float);
   void vel_coes(Vec cdm, float);
+  void corr_vel_fuga(float, float);
 
   void correction();
   void limit();
@@ -78,12 +82,12 @@ class Boid {
 class Predator {
  private:
   Vec pos_;
-  Vec vel_;
+  Vec vel_{0.f,0.f};
   Vec corr_v1_{0.f, 0.f};
   Vec corr_v2_{0.f, 0.f};
 
  public:
-  Predator(Vec p, Vec v);
+  Predator(Vec p);
   Predator();
   Vec get_vel();
   Vec get_pos();
@@ -95,6 +99,7 @@ class Predator {
 };
 
 bool operator==(Boid b1, Boid b2);
+bool operator==(Predator p1, Predator p2);
 
 float abs(Vec f1, Vec f2);
 float distance(Boid b1, Boid b2);
@@ -117,13 +122,15 @@ Two_Vec rand_num();
 void add_boid(std::vector<Boid> &add_vec);
 
 void evaluate_correction(std::vector<Boid> &vec, Par);
+void evaluate_corr_fuga(std::vector<Boid> &boids, std::vector<Predator> &predators);
+
 void add_triangle(std::vector<sf::ConvexShape> &triangles);
 
 void init_tr(Boid &b, sf::ConvexShape &triangles);
 
 sf::CircleShape crt_pred(float, float);
 
-bool erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
+void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
                 std::vector<sf::ConvexShape> &triangles);
 
 void evaluate_pred_correction(std::vector<Predator> &predators, std::vector<Boid> &boids);
