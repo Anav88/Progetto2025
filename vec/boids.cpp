@@ -86,28 +86,39 @@ bool operator==(Boid b1, Boid b2) {
   }
 }
 
-Predator::Predator(Vec p, Vec v) : p_pos_{p}, vel_{v} {}
-Predator::Predator() : p_pos_{0, 0}, vel_{0, 0} {}
-Vec Predator::get_pos() { return p_pos_; }
+Predator::Predator(Vec p, Vec v) : pos_{p}, vel_{v} {}
+Predator::Predator() : pos_{0, 0}, vel_{0, 0} {}
+Vec Predator::get_pos() { return pos_; }
 Vec Predator::get_vel() { return vel_; }
-void Predator::corr_vel_pred(float f) {
-  vel_.x = VEL_PRED * std::cosf(f);
-  vel_.y = VEL_PRED * std::sinf(f);
-  p_pos_ = p_pos_ + vel_ * 0.017f;
-  this->limit();
+void Predator::corr_vel_pred_1(float f) {
+  corr_v1_.x = VEL_PRED * std::cosf(f);
+  corr_v1_.y = VEL_PRED * std::sinf(f);
+}
+void Predator::corr_vel_pred_2(float f) {
+  corr_v2_.x = corr_v2_.x  -VEL_PRED_SEP * std::cosf(f);
+  corr_v2_.y = corr_v2_.y -VEL_PRED_SEP * std::sinf(f);
+}
+void Predator::correction() {
+  vel_ = corr_v1_ + corr_v2_;
+  pos_ = pos_ + vel_ * 0.017f;
+}
+void Predator::zerovel(){
+vel_ = {0.f,0.f};
+corr_v1_ = {0.f,0.f};
+corr_v2_ = {0.f,0.f};
 }
 void Predator::limit() {
-  if (p_pos_.x < MIN_POS + 100.f) {
-    p_pos_.x += MAX_POS;
+  if (pos_.x < MIN_POS + 100.f) {
+    pos_.x += MAX_POS;
   }
-  if (p_pos_.y < MIN_POS + 100.f) {
-    p_pos_.y += MAX_POS;
+  if (pos_.y < MIN_POS + 100.f) {
+    pos_.y += MAX_POS;
   }
-  if (p_pos_.x > MAX_POS + 100.f) {
-    p_pos_.x -= MAX_POS;
+  if (pos_.x > MAX_POS + 100.f) {
+    pos_.x -= MAX_POS;
   }
-  if (p_pos_.y > MAX_POS + 100.f) {
-    p_pos_.y -= MAX_POS;
+  if (pos_.y > MAX_POS + 100.f) {
+    pos_.y -= MAX_POS;
   }
 }
 
@@ -187,6 +198,9 @@ float abs(Vec f1, Vec f2) {
 
 float distance(Boid b1, Boid b2) { return abs(b1.get_pos(), b2.get_pos()); }
 float distance(Boid b, Predator p) { return abs(b.get_pos(), p.get_pos()); }
+float distance(Predator p1, Predator p2) {
+  return abs(p1.get_pos(), p2.get_pos());
+}
 
 Vec mean_velocity(std::vector<Boid> const vec) {
   Vec sum_vel{0., 0.};
