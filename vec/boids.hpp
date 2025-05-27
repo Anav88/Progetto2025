@@ -4,15 +4,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
-// double const s = 0.4;
-// double const a = 0.9;
-// int const d = 50;
-// double const c = 0.03;
-// int const ds = 15;
-// int const NUM_BOIDS{100};
-// int const pd = 2000;
-// float const k = 10000.f;
-int const pd = 40;
+namespace bob {
+
+int const pd = 80;
 int const df = 40;
 int const MIN_POS{0};
 int const MAX_POS{700};
@@ -21,7 +15,7 @@ int const MAX_VEL{10};
 int const VEL_PRED{30};
 int const VEL_PRED_SEP{7};
 std::size_t const MAX_PRED{5};
-float const PI{3.141593f};
+// float const PI{3.141593f};
 
 struct Vec {
   float x;
@@ -82,7 +76,7 @@ class Boid {
 class Predator {
  private:
   Vec pos_;
-  Vec vel_{0.f,0.f};
+  Vec vel_{0.f, 0.f};
   Vec corr_v1_{0.f, 0.f};
   Vec corr_v2_{0.f, 0.f};
 
@@ -102,9 +96,8 @@ bool operator==(Boid b1, Boid b2);
 bool operator==(Predator p1, Predator p2);
 
 float abs(Vec f1, Vec f2);
-float distance(Boid b1, Boid b2);
-float distance(Boid b, Predator p);
-float distance(Predator p1, Predator p2);
+template <typename BP1, typename BP2>
+float distance(BP1 bp1, BP2 bp2);
 
 int init_size();
 int init_size(int);
@@ -121,18 +114,29 @@ Two_Vec rand_num();
 
 void add_boid(std::vector<Boid> &add_vec);
 
-void evaluate_correction(std::vector<Boid> &vec, Par);
-void evaluate_corr_fuga(std::vector<Boid> &boids, std::vector<Predator> &predators);
+void evaluate_correction(std::vector<Boid> &vec, Par const &parameters);
+void evaluate_corr_fuga(std::vector<Boid> &boids,
+                        std::vector<Predator> &predators);
 
-void add_triangle(std::vector<sf::ConvexShape> &triangles);
+// void add_triangle(std::vector<sf::ConvexShape> &triangles);
+void add_circle(std::vector<sf::CircleShape> &circles);
 
-void init_tr(Boid &b, sf::ConvexShape &triangles);
+// void init_tr(Boid &b, sf::ConvexShape &triangles);
+void init_cr(Boid const &b, sf::CircleShape &c);
 
 sf::CircleShape crt_pred(float, float);
 
+// void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
+//                 std::vector<sf::ConvexShape> &triangles);
 void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
-                std::vector<sf::ConvexShape> &triangles);
+                std::vector<sf::CircleShape> &circles);
 
-void evaluate_pred_correction(std::vector<Predator> &predators, std::vector<Boid> &boids);
+void evaluate_pred_correction(std::vector<Predator> &predators,
+                              std::vector<Boid> &boids);
 
+void update_correction(std::vector<sf::CircleShape> &circles_pred,
+                       std::vector<sf::CircleShape> &circles_boid,
+                       std::vector<Predator> &predators,
+                       std::vector<Boid> &boids, sf::RenderWindow &window);
+}  // namespace bob
 #endif

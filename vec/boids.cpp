@@ -1,13 +1,14 @@
+#include "boids.hpp"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <vector>
-// #include <execution>
+#include <execution>
 #include <iostream>
 #include <random>
+#include <vector>
 
-#include "boids.hpp"
-
+namespace bob {
 Vec operator-(Vec f1, Vec f2) { return {f1.x - f2.x, f1.y - f2.y}; }
 Vec operator+(Vec f1, Vec f2) { return {f1.x + f2.x, f1.y + f2.y}; }
 Vec operator*(Vec f1, Vec f2) { return {f1.x * f2.x, f1.y * f2.y}; }
@@ -116,14 +117,13 @@ void Predator::zerovel() {
 void Predator::limit() {
   if (pos_.x < MIN_POS + 100.f) {
     pos_.x += MAX_POS;
-  }
-  if (pos_.y < MIN_POS + 100.f) {
-    pos_.y += MAX_POS;
-  }
-  if (pos_.x > MAX_POS + 100.f) {
+  } else if (pos_.x > MAX_POS + 100.f) {
     pos_.x -= MAX_POS;
   }
-  if (pos_.y > MAX_POS + 100.f) {
+
+  if (pos_.y < MIN_POS + 100.f) {
+    pos_.y += MAX_POS;
+  } else if (pos_.y > MAX_POS + 100.f) {
     pos_.y -= MAX_POS;
   }
 }
@@ -209,10 +209,9 @@ float abs(Vec f1, Vec f2) {
       pow(f1.y - f2.y, 2.0f));  // calcola il modulo della diff di sue vettori
 }
 
-float distance(Boid b1, Boid b2) { return abs(b1.get_pos(), b2.get_pos()); }
-float distance(Boid b, Predator p) { return abs(b.get_pos(), p.get_pos()); }
-float distance(Predator p1, Predator p2) {
-  return abs(p1.get_pos(), p2.get_pos());
+template <typename BP1, typename BP2>
+float distance(BP1 bp1, BP2 bp2) {
+  return abs(bp1.get_pos(), bp2.get_pos());
 }
 
 Vec mean_velocity(std::vector<Boid> const vec) {
@@ -262,56 +261,65 @@ void mean_deviation_algo(std::vector<Boid> const vec) {
             << std::sqrt(var.y) << '\n';
 }
 
-Two_Vec rand_num() {
-  std::random_device r;
-  std::default_random_engine eng{r()};
-  std::uniform_real_distribution<float> pos_x{MIN_POS + 100.f, MAX_POS + 100.f};
-  std::uniform_real_distribution<float> pos_y{MIN_POS + 100.f, MAX_POS + 100.f};
-  std::uniform_real_distribution<float> vel_x{MIN_VEL, MAX_VEL};
-  std::uniform_real_distribution<float> vel_y{MIN_VEL, MAX_VEL};
-
-  return {{pos_x(eng), pos_y(eng)}, {vel_x(eng), vel_x(eng)}};
-}
-
 void add_boid(std::vector<Boid> &add_vec) {
   std::generate(add_vec.begin(), add_vec.end(),
                 []() { return (Boid(rand_num())); });
 }
 
-void evaluate_correction(std::vector<Boid> &vec, Par parametres) {
-  for (auto it_i = vec.begin(); it_i != vec.end(); ++it_i) {
+Two_Vec rand_num() {
+  std::random_device r;
+  std::default_random_engine eng{r()};
+  // static std::random_device r;
+  // static std::default_random_engine eng{r()};
+  // Gli static ce li ha suggeriti chatgpt per migliorare prestazioni
+  // e poichè potrebbe dare qualche problema
+
+  std::uniform_real_distribution<float> pos_x{MIN_POS + 100.f, MAX_POS + 100.f};
+  std::uniform_real_distribution<float> pos_y{MIN_POS + 100.f, MAX_POS + 100.f};
+  std::uniform_real_distribution<float> vel_x{MIN_VEL, MAX_VEL};
+  std::uniform_real_distribution<float> vel_y{MIN_VEL, MAX_VEL};
+
+  return {{pos_x(eng), pos_y(eng)}, {vel_x(eng), vel_y(eng)}};
+}
+
+void evaluate_correction(std::vector<Boid> &vec, Par const &parametres) {
+  for (Boid &boid_i : vec) {
     Vec sum_diff_pos = {0., 0.};  // per il calcolo vel sep
     Vec sum_diff_vel = {0., 0.};  // per il calcolo vel all
     Vec sum_coord = {0., 0.};     // per il calcolo del cdm/vel coes
     int neighbor_count = 0;
     int separation_count = 0;
+    for (Boid const &boid_j : vec) {
+      if (!(boid_i == boid_j)) {
+        float dist = distance(boid_i, boid_j);
 
-    for (auto it_j = vec.begin(); it_j != vec.end(); ++it_j) {
-      if (it_i != it_j) {
-        float dist = distance(*it_i, *it_j);
+        Vec j_vel = boid_j.get_vel();
+        Vec j_pos = boid_j.get_pos();
+        Vec i_vel = boid_i.get_vel();
+        Vec i_pos = boid_i.get_pos();
 
         if (dist < parametres.d) {
           ++neighbor_count;
-          sum_diff_vel = sum_diff_vel + ((*it_j).get_vel() - (*it_i).get_vel());
-          sum_coord = sum_coord + (*it_j).get_pos();
+          sum_diff_vel = sum_diff_vel + (j_vel - i_vel);
+          sum_coord = sum_coord + j_pos;
 
           if (dist < parametres.ds) {
-            sum_diff_pos =
-                sum_diff_pos + ((*it_j).get_pos() - (*it_i).get_pos());
+            sum_diff_pos = sum_diff_pos + (j_pos - i_pos);
             ++separation_count;
           }
         }
       }
     }
+
     if (separation_count > 0) {
-      (*it_i).vel_sep(sum_diff_pos, parametres.s);
+      boid_i.vel_sep(sum_diff_pos, parametres.s);
     }
 
     if (neighbor_count > 1) {
       Vec mean_vel = sum_diff_vel / (neighbor_count - 1);
       Vec cdm = sum_coord / (neighbor_count - 1);
-      (*it_i).vel_all(mean_vel, parametres.a);
-      (*it_i).vel_coes(cdm, parametres.c);
+      boid_i.vel_all(mean_vel, parametres.a);
+      boid_i.vel_coes(cdm, parametres.c);
     }
   }
 }
@@ -328,43 +336,42 @@ void evaluate_corr_fuga(std::vector<Boid> &boids,
     }
   }
 }
-void add_triangle(std::vector<sf::ConvexShape> &triangles) {
-  for (auto it = triangles.begin(); it != triangles.end(); ++it) {
-    (*it).setPointCount(3);
-  }
+
+void add_circle(std::vector<sf::CircleShape> &circles) {
+  std::generate(circles.begin(), circles.end(), []() {
+    float radius{1.f};
+    sf::CircleShape c{radius};
+    c.setOrigin(radius, radius);
+    c.setFillColor(sf::Color::Black);
+    return c;
+  });
 }
 
-void init_tr(Boid &b, sf::ConvexShape &triangles) {
-  triangles.setPoint(0, {3.0f, 0.f});
-  triangles.setPoint(1, {-1.0f, -1.5f});
-  triangles.setPoint(2, {-1.0f, 1.5f});
+void init_cr(Boid const &b, sf::CircleShape &c) {
   sf::Vector2f pos(b.get_pos().x, b.get_pos().y);
-  triangles.setPosition(pos);
-
-  triangles.setFillColor(sf::Color::Black);
-  triangles.setRotation(std::atan2f(b.get_vel().y, b.get_vel().x) * 180.f / PI);
+  c.setPosition(pos);
 }
 
 sf::CircleShape crt_pred(float x, float y) {
   sf::CircleShape circle{3.0f};
   circle.setOrigin(3.f, 3.f);
   circle.setPosition({x, y});
-  circle.setFillColor(sf::Color::Blue);
+  circle.setFillColor(sf::Color::Red);
 
   return circle;
 }
 
 void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
-                std::vector<sf::ConvexShape> &triangles) {
+                std::vector<sf::CircleShape> &circles) {
   for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
-    auto it_t = triangles.begin();
+    auto it_t = circles.begin();
     for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b, ++it_t) {
       if ((*it_p).get_pos().x - (*it_b).get_pos().x < 5e-1f &&
           (*it_p).get_pos().x - (*it_b).get_pos().x > -5e-1f &&
           (*it_p).get_pos().y - (*it_b).get_pos().y < 5e-1f &&
           (*it_p).get_pos().y - (*it_b).get_pos().y > -5e-1f) {
         boids.erase(it_b);
-        triangles.erase(it_t);
+        circles.erase(it_t);
         --it_p;
         break;
       }
@@ -402,3 +409,36 @@ void evaluate_pred_correction(std::vector<Predator> &predators,
     }
   }
 }
+
+void update_correction(std::vector<sf::CircleShape> &circles_pred,
+                       std::vector<sf::CircleShape> &circles_boid,
+                       std::vector<Predator> &predators,
+                       std::vector<Boid> &boids, sf::RenderWindow &window) {
+  {
+    auto it_c = circles_pred.begin();
+    for (auto it_p = predators.begin(); it_p != predators.end();
+         ++it_p, ++it_c) {
+      (*it_p).correction();
+      (*it_p).zerovel();
+      (*it_p).limit();
+      (*it_c).setPosition({(*it_p).get_pos().x, (*it_p).get_pos().y});
+
+      window.draw(*it_c);
+    }
+  }
+
+  {
+    auto it_b = boids.begin();
+    for (auto it = circles_boid.begin(); it != circles_boid.end();
+         ++it, ++it_b) {
+      // init_tr((*it_b), (*it));
+      bob::init_cr((*it_b), (*it));
+      (*it_b).correction();
+      (*it_b).reset_corr();
+      (*it_b).limit();
+
+      window.draw(*it);
+    }
+  }
+}
+}  // namespace bob

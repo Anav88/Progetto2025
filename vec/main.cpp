@@ -14,24 +14,24 @@
 
 int main() {
   try {
-    Par parametres = init_parametres();
-    std::vector<Boid> boids(parametres.N);
+    bob::Par parametres = bob::init_parametres();
+    std::vector<bob::Boid> boids(parametres.N);
 
-    sf::RenderWindow window(sf::VideoMode(MAX_POS + 200, 200 + MAX_POS),
-                            "My window");
+    sf::RenderWindow window(
+        sf::VideoMode(bob::MAX_POS + 200, 200 + bob::MAX_POS), "My window");
     window.setFramerateLimit(60);
 
-    sf::RectangleShape rectangle({MAX_POS, MAX_POS});
+    sf::RectangleShape rectangle({bob::MAX_POS, bob::MAX_POS});
     rectangle.setPosition({100.0f, 100.0f});
     rectangle.setOutlineColor(sf::Color::Black);
-    rectangle.setOutlineThickness(2.0f);
+    rectangle.setOutlineThickness(3.0f);
 
-    std::vector<sf::CircleShape> circles;
-    std::vector<Predator> predators;
+    std::vector<sf::CircleShape> circles_pred;
+    std::vector<bob::Predator> predators;
     add_boid(boids);
 
-    std::vector<sf::ConvexShape> triangles(parametres.N);
-    add_triangle(triangles);
+    std::vector<sf::CircleShape> circles_boid(parametres.N);
+    bob::add_circle(circles_boid);
 
     while (window.isOpen()) {
       sf::Event event;
@@ -42,17 +42,17 @@ int main() {
         if (event.type == sf::Event::MouseButtonPressed) {
           float x = event.mouseButton.x;
           float y = event.mouseButton.y;
-          if (x > 100.f && x < MAX_POS + 100.f && y > 100.f &&
-              y < MAX_POS + 100.f && circles.size() < MAX_PRED) {
-            Predator p(Vec{x, y});
+          if (x > 100.f && x < bob::MAX_POS + 100.f && y > 100.f &&
+              y < bob::MAX_POS + 100.f && circles_pred.size() < bob::MAX_PRED) {
+            bob::Predator p(bob::Vec{x, y});
             predators.push_back(p);
 
-            sf::CircleShape c = crt_pred(x, y);
-            circles.push_back(c);
+            sf::CircleShape c = bob::crt_pred(x, y);
+            circles_pred.push_back(c);
           }
         }
       }
-      assert(predators.size() <= 5);
+      assert(predators.size() <= bob::MAX_PRED);
 
       window.clear(sf::Color::White);
       window.draw(rectangle);
@@ -61,35 +61,13 @@ int main() {
       evaluate_corr_fuga(boids, predators);
       evaluate_correction(boids, parametres);
 
-      {
-        auto it_c = circles.begin();
-        for (auto it_p = predators.begin(); it_p != predators.end();
-             ++it_p, ++it_c) {
-          (*it_p).correction();
-          (*it_p).zerovel();
-          (*it_p).limit();
-          (*it_c).setPosition({(*it_p).get_pos().x, (*it_p).get_pos().y});
+      update_correction(circles_pred, circles_boid, predators, boids, window);
 
-          window.draw(*it_c);
-        }
-      }
-
-      {
-        auto it_b = boids.begin();
-        for (auto it = triangles.begin(); it != triangles.end(); ++it, ++it_b) {
-          init_tr((*it_b), (*it));
-
-          (*it_b).correction();
-          (*it_b).reset_corr();
-          (*it_b).limit();
-
-          window.draw(*it);
-        }
-      }
-
-      erase_boid(boids, predators, triangles);
+    
+      erase_boid(boids, predators, circles_boid);
       window.display();
     }
+
   } catch (std::exception const& e) {
     std::cerr << "Caught exception: '" << e.what() << "'\n";
     return EXIT_FAILURE;

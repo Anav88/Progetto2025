@@ -6,15 +6,15 @@
 
 TEST_CASE("Prova") { CHECK(1 == 1); }
 TEST_CASE("Prova") {
-  SUBCASE("n<0") { CHECK_THROWS(init_size(-3)); }
+  SUBCASE("n<0") { CHECK_THROWS(bob::init_size(-3)); }
 }
 
 TEST_CASE("Verifica dei comportamenti per velocità superiori alla massima") {
-  Boid b1 = {{0.f, 0.f}, {3.f, 4.f}};
-  Boid b2 = {{0.f, 0.f}, {1.f, 7.f}};
-  Boid b3 = {{0.f, 0.f}, {6.f, 8.f}};
-  Boid b4 = {{0.f, 0.f}, {-9.f, -3.f}};
-  Boid b5 = {{0.f, 0.f}, {-8.f, -10.f}};
+  bob::Boid b1 = {{0.f, 0.f}, {3.f, 4.f}};
+  bob::Boid b2 = {{0.f, 0.f}, {1.f, 7.f}};
+  bob::Boid b3 = {{0.f, 0.f}, {6.f, 8.f}};
+  bob::Boid b4 = {{0.f, 0.f}, {-9.f, -3.f}};
+  bob::Boid b5 = {{0.f, 0.f}, {-8.f, -10.f}};
   b1.vel_max();
   b2.vel_max();
   b3.vel_max();
@@ -32,10 +32,10 @@ TEST_CASE("Verifica dei comportamenti per velocità superiori alla massima") {
   CHECK(b5.get_vel().y == -5.f);
 }
 TEST_CASE("Verifica dei comportamenti ai bordi") {
-  Boid b1 = {{407.f, 410.f}, {0.f, 0.f}};
-  Boid b2 = {{450.f, 35.f}, {0.f, 0.f}};
-  Boid b3 = {{-3.f, 5.f}, {0.f, 0.f}};
-  Boid b4 = {{-1.f, -1.f}, {0.f, 0.f}};
+  bob::Boid b1 = {{407.f, 410.f}, {0.f, 0.f}};
+  bob::Boid b2 = {{450.f, 35.f}, {0.f, 0.f}};
+  bob::Boid b3 = {{-3.f, 5.f}, {0.f, 0.f}};
+  bob::Boid b4 = {{-1.f, -1.f}, {0.f, 0.f}};
   b1.limit();
   b2.limit();
   b3.limit();
@@ -51,10 +51,10 @@ TEST_CASE("Verifica dei comportamenti ai bordi") {
   CHECK(b4.get_pos().y == 399.f);
 }
 TEST_CASE("Verifica distanza tra due boid") {
-  Boid b1 = {{0.f, 0.f}, {0.f, 0.f}};
-  Boid b2 = {{4.f, 3.f}, {0.f, 0.f}};
-  Boid b3 = {{-4.f, -3.f}, {0.f, 0.f}};
-  Boid b4 = {{-2.f, 2.f}, {0.f, 0.f}};
+  bob::Boid b1 = {{0.f, 0.f}, {0.f, 0.f}};
+  bob::Boid b2 = {{4.f, 3.f}, {0.f, 0.f}};
+  bob::Boid b3 = {{-4.f, -3.f}, {0.f, 0.f}};
+  bob::Boid b4 = {{-2.f, 2.f}, {0.f, 0.f}};
 
   CHECK(distance(b1, b1) == 0);
   CHECK(distance(b2, b2) == 0);
@@ -63,14 +63,14 @@ TEST_CASE("Verifica distanza tra due boid") {
   CHECK(distance(b1, b4) == doctest::Approx(2 * sqrt(2)));
 }
 TEST_CASE("Correzione delle velocità") {
-  std::vector<Boid> vec;
+  std::vector<bob::Boid> vec;
 
   SUBCASE("Nessuna interazione") {
-    Par prova = {0.4f , 0.9f , 0.03f, 50 , 15, 0};
-    Boid b1 = {{0.f, 0.f}, {0.f, -1.f}};
-    Boid b2 = {{100.f, 100.f}, {-1.f, -3.f}};
-    Boid b3 = {{200.f, 200.f}, {2.f, 1.f}};
-    Boid b4 = {{300.f, 300.f}, {3.f, 4.f}};
+    bob::Par prova = {0.4f , 0.9f , 0.03f, 50 , 15, 0};
+    bob::Boid b1 = {{0.f, 0.f}, {0.f, -1.f}};
+    bob::Boid b2 = {{100.f, 100.f}, {-1.f, -3.f}};
+    bob::Boid b3 = {{200.f, 200.f}, {2.f, 1.f}};
+    bob::Boid b4 = {{300.f, 300.f}, {3.f, 4.f}};
 
     vec.push_back(b1);
     vec.push_back(b2);
@@ -80,7 +80,7 @@ TEST_CASE("Correzione delle velocità") {
     
 
     evaluate_correction(vec, prova);
-    Vec v = {0.f, 0.f};
+    bob::Vec v = {0.f, 0.f};
     CHECK(vec[0].get_corr_v1() == v);
     CHECK(vec[0].get_corr_v2() == v);
     CHECK(vec[0].get_corr_v3() == v);
@@ -91,10 +91,10 @@ TEST_CASE("Correzione delle velocità") {
 
   SUBCASE("") {
 
-    Par prova = {0.4f , 0.9f , 0.03f, 50 , 15, 0};
-    Boid b1 = {{100.f, 100.f}, {2.f, 2.f}};
-    Boid b2 = {{120.f, 120.f}, {-1.f, 3.f}};
-    Boid b3 = {{80.f, 85.f}, {4.f, -2.f}};
+    bob::Par prova = {0.4f , 0.9f , 0.03f, 50 , 15, 0};
+    bob::Boid b1 = {{100.f, 100.f}, {2.f, 2.f}};
+    bob::Boid b2 = {{120.f, 120.f}, {-1.f, 3.f}};
+    bob::Boid b3 = {{80.f, 85.f}, {4.f, -2.f}};
 
     vec.push_back(b1);
     vec.push_back(b2);
@@ -104,7 +104,7 @@ TEST_CASE("Correzione delle velocità") {
 
     evaluate_correction(vec, prova);
 
-    CHECK(vec[0].get_corr_v1() == Vec{0.f, 0.f});
+    CHECK(vec[0].get_corr_v1() == bob::Vec{0.f, 0.f});
     CHECK(vec[0].get_corr_v2().x == doctest::Approx(prova.a * 1 * (-1)));
     CHECK(vec[0].get_corr_v2().y == doctest::Approx(prova.a * 1 * (-3)));
     CHECK(vec[0].get_corr_v3().x == doctest::Approx(prova.c * (100)));
