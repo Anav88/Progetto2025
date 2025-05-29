@@ -3,19 +3,43 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <execution>
 #include <iostream>
 #include <random>
 #include <vector>
 
 namespace bob {
-Vec operator-(Vec f1, Vec f2) { return {f1.x - f2.x, f1.y - f2.y}; }
-Vec operator+(Vec f1, Vec f2) { return {f1.x + f2.x, f1.y + f2.y}; }
-Vec operator*(Vec f1, Vec f2) { return {f1.x * f2.x, f1.y * f2.y}; }
-Vec operator*(Vec f1, float d) { return {f1.x * d, f1.y * d}; }
-Vec operator/(Vec f1, float d) { return {f1.x / d, f1.y / d}; }
-bool operator==(Vec v1, Vec v2) {
+Vec operator-(Vec const &v1, Vec const &v2) {
+  return {v1.x - v2.x, v1.y - v2.y};
+}
+Vec operator+(Vec const &v1, Vec const &v2) {
+  return {v1.x + v2.x, v1.y + v2.y};
+}
+Vec &Vec::operator+=(Vec const &v1) {
+  *this = *this + v1;
+  return *this;
+}
+Vec operator*(Vec const &v1, Vec const &v2) {
+  return {v1.x * v2.x, v1.y * v2.y};
+}
+Vec operator*(Vec const &v1, float f) { return {v1.x * f, v1.y * f}; }
+Vec operator*(float f, Vec const &v1) { return v1 * f; }
+Vec operator/(Vec const &v1, float f) { return {v1.x / f, v1.y / f}; }
+bool operator==(Vec const &v1, Vec const &v2) {
   if (v1.x == v2.x && v1.y == v2.y) {
+    return true;
+  } else {
+    return false;
+  }
+}
+bool operator==(Boid b1, Boid b2) {
+  if (b1.get_pos() == b2.get_pos() && b1.get_vel() == b2.get_vel()) {
+    return true;
+  } else {
+    return false;
+  }
+}
+bool operator==(Predator p1, Predator p2) {
+  if (p1.get_pos() == p2.get_pos() && p1.get_vel() == p2.get_vel()) {
     return true;
   } else {
     return false;
@@ -32,26 +56,26 @@ Vec Boid::get_corr_v1() const { return corr_v1_; }
 Vec Boid::get_corr_v2() const { return corr_v2_; }
 Vec Boid::get_corr_v3() const { return corr_v3_; }
 
-void Boid::vel_sep(Vec ds, float s) { corr_v1_ = ds * (-s); }
-void Boid::vel_all(Vec vds, float a) { corr_v2_ = (vds) * (a); }
-void Boid::vel_coes(Vec cdm, float c) { corr_v3_ = (cdm - pos_) * c; }
+void Boid::vel_sep(Vec const &ds, float s) { corr_v1_ = ds * (-s); }
+void Boid::vel_all(Vec const &vds, float a) { corr_v2_ = (vds) * (a); }
+void Boid::vel_coes(Vec const &cdm, float c) { corr_v3_ = (cdm - pos_) * c; }
 
 void Boid::correction() {
-  vel_ = vel_ + corr_v1_ + corr_v2_ + corr_v3_ + corr_v_fuga;
+  vel_ += corr_v1_ + corr_v2_ + corr_v3_ + corr_v_fuga;
   this->vel_max();
-  pos_ = pos_ + (vel_ * (0.017f));
+  pos_ += (vel_ * (TIME_STEP));
 }
 void Boid::limit() {
-  if (pos_.x < MIN_POS + 100.f) {
+  if (pos_.x < MIN_POS) {
     pos_.x += MAX_POS;
   }
-  if (pos_.y < MIN_POS + 100.f) {
+  if (pos_.y < MIN_POS) {
     pos_.y += MAX_POS;
   }
-  if (pos_.x > MAX_POS + 100.f) {
+  if (pos_.x > MAX_POS) {
     pos_.x -= MAX_POS;
   }
-  if (pos_.y > MAX_POS + 100.f) {
+  if (pos_.y > MAX_POS) {
     pos_.y -= MAX_POS;
   }
 }
@@ -61,23 +85,14 @@ void Boid::reset_corr() {
   corr_v3_ = {0.f, 0.f};
   corr_v_fuga = {0.f, 0.f};
 }
+void Boid::vel_max() {//funzione scritta da chat
+  float norm = std::sqrtf(vel_.x * vel_.x + vel_.y * vel_.y);
+  float max_speed = std::sqrtf(MAX_VEL * MAX_VEL + MIN_VEL * MIN_VEL);
 
-void Boid::vel_max() {
-  if (vel_.x > MAX_VEL) {
-    vel_.y *= (MAX_VEL / vel_.x);
-    vel_.x = MAX_VEL;
-  }
-  if (vel_.y > MAX_VEL) {
-    vel_.x *= (MAX_VEL / vel_.y);
-    vel_.y = MAX_VEL;
-  }
-  if (vel_.x < MIN_VEL) {
-    vel_.y *= (MIN_VEL / vel_.x);
-    vel_.x = MIN_VEL;
-  }
-  if (vel_.y < MIN_VEL) {
-    vel_.x *= (MIN_VEL / vel_.y);
-    vel_.y = MIN_VEL;
+  if (norm > max_speed) {
+    vel_ = vel_ * (max_speed / norm);
+  } else if (norm < MIN_VEL && norm > 0.0f) {
+    vel_ = vel_ * (MIN_VEL / norm);
   }
 }
 void Boid::corr_vel_fuga(float f, float dis) {
@@ -85,18 +100,10 @@ void Boid::corr_vel_fuga(float f, float dis) {
   corr_v_fuga.y = corr_v_fuga.y + dis * sinf(f);
 }
 
-bool operator==(Boid b1, Boid b2) {
-  if (b1.get_pos() == b2.get_pos() && b1.get_vel() == b2.get_vel()) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 Predator::Predator(Vec p) : pos_{p} {}
 Predator::Predator() : pos_{0.f, 0.f} {}
-Vec Predator::get_pos() { return pos_; }
-Vec Predator::get_vel() { return vel_; }
+Vec Predator::get_pos() const { return pos_; }
+Vec Predator::get_vel() const { return vel_; }
 void Predator::corr_vel_pred_1(float f) {
   corr_v1_.x = VEL_PRED * std::cosf(f);
   corr_v1_.y = VEL_PRED * std::sinf(f);
@@ -107,7 +114,7 @@ void Predator::corr_vel_pred_2(float f) {
 }
 void Predator::correction() {
   vel_ = corr_v1_ + corr_v2_;
-  pos_ = pos_ + vel_ * 0.017f;
+  pos_ += vel_ * TIME_STEP;
 }
 void Predator::zerovel() {
   vel_ = {0.f, 0.f};
@@ -115,45 +122,30 @@ void Predator::zerovel() {
   corr_v2_ = {0.f, 0.f};
 }
 void Predator::limit() {
-  if (pos_.x < MIN_POS + 100.f) {
+  if (pos_.x < MIN_POS) {
     pos_.x += MAX_POS;
-  } else if (pos_.x > MAX_POS + 100.f) {
+  } else if (pos_.x > MAX_POS) {
     pos_.x -= MAX_POS;
   }
 
-  if (pos_.y < MIN_POS + 100.f) {
+  if (pos_.y < MIN_POS) {
     pos_.y += MAX_POS;
-  } else if (pos_.y > MAX_POS + 100.f) {
+  } else if (pos_.y > MAX_POS) {
     pos_.y -= MAX_POS;
   }
 }
-bool operator==(Predator p1, Predator p2) {
-  if (p1.get_pos() == p2.get_pos() && p1.get_vel() == p2.get_vel()) {
-    return true;
-  } else {
-    return false;
-  }
-}
 
-int init_size() {
-  int n;
-  std::cout << "Inserire il numero di uccelli \n";
-  std::cin >> n;
-  if (n < 0) {
-    throw std::runtime_error{"Impossibile avere un numero negativo di boid"};
-  }
-  if (std::cin.fail()) {
-    throw std::runtime_error{"Input non valido"};
-  }
-  return n;
-}
-int init_size(int n) {
-  if (n < 0) {
-    throw std::runtime_error{"Impossibile avere un numero negativo di boid"};
-  }
-  return n;
-}
+Par init_parametres(float s, float a, float c, int d, int ds, std::size_t N) {
+  Par parameters;
+  assert(s < 1 && s > 0);
+  assert(a < 1 && a > 0);
+  assert(c < 1 && c > 0);
+  assert(ds > 0 && d >= ds);
+  assert(N >= 0);
+  parameters = {s, a, c, d, ds, N};
 
+  return parameters;
+}
 Par init_parametres() {
   Par in;
   int n;
@@ -203,64 +195,72 @@ Par init_parametres() {
   return in;
 }
 
-float abs(Vec f1, Vec f2) {
+float abs(Vec const &v1, Vec const &v2) {
   return sqrt(
-      pow(f1.x - f2.x, 2.0f) +
-      pow(f1.y - f2.y, 2.0f));  // calcola il modulo della diff di sue vettori
+      pow(v1.x - v2.x, 2.0f) +
+      pow(v1.y - v2.y, 2.0f));  // calcola il modulo della diff di sue vettori
 }
 
 template <typename BP1, typename BP2>
-float distance(BP1 bp1, BP2 bp2) {
+float distance(BP1 const &bp1, BP2 const &bp2) {
   return abs(bp1.get_pos(), bp2.get_pos());
 }
 
-Vec mean_velocity(std::vector<Boid> const vec) {
+namespace statistics {
+Vec mean_velocity(std::vector<Boid> const &boids) {
+  assert(boids.size() > 0);
   Vec sum_vel{0., 0.};
-  for (auto it = vec.begin(); it != vec.end(); ++it) {
-    sum_vel = sum_vel + (*it).get_vel();
+  for (auto &boid : boids) {
+    sum_vel += boid.get_vel();
   }
-  std::cout << "Mean: " << sum_vel.x / vec.size() << ' '
-            << sum_vel.y / vec.size() << '\n';
-  return sum_vel / vec.size();
+  return sum_vel / boids.size();
 }
-Vec mean_velocity_algo(std::vector<Boid> const vec) {
-  Vec sums = std::accumulate(vec.begin(), vec.end(), Vec{0.f, 0.f},
+Vec mean_velocity_algo(std::vector<Boid> const &boids) {
+  assert(boids.size() > 0);
+  Vec sums = std::accumulate(boids.begin(), boids.end(), Vec{0.f, 0.f},
                              [](Vec sum, const Boid &b) {
-                               sum = sum + b.get_vel();
+                               sum += b.get_vel();
 
                                return sum;
                              });
-  std::cout << "Mean: " << sums.x / vec.size() << ' ' << sums.y / vec.size()
-            << '\n';
-  return sums / vec.size();
+  return sums / boids.size();
 }
 
-void mean_deviation(std::vector<Boid> const vec) {
+Vec mean_deviation(std::vector<Boid> const &boids) {
+  assert(boids.size() > 1);
   Vec sum_mean_vel_diff_square{0., 0.};
-  Vec mean = mean_velocity(vec);
-  for (auto it = vec.begin(); it != vec.end(); ++it) {
-    sum_mean_vel_diff_square =
-        sum_mean_vel_diff_square +
-        ((*it).get_vel() - mean) * ((*it).get_vel() - mean);
+  Vec mean = mean_velocity(boids);
+  for (auto &boid : boids) {
+    sum_mean_vel_diff_square +=
+        (boid.get_vel() - mean) * (boid.get_vel() - mean);
   }
-  Vec var = sum_mean_vel_diff_square / (vec.size());
-  std::cout << "Standard deviation: " << std::sqrt(var.x) << ' '
-            << std::sqrt(var.y) << '\n';
-}
-void mean_deviation_algo(std::vector<Boid> const vec) {
-  Vec mean = mean_velocity(vec);
-
-  Vec sum_mean_vel_diff_square = std::accumulate(
-      vec.begin(), vec.end(), Vec{0.f, 0.f}, [&mean](Vec sum, const Boid &b) {
-        sum = sum + (b.get_vel() - mean) * (b.get_vel() - mean);
-        return sum;
-      });
-
-  Vec var = sum_mean_vel_diff_square / (vec.size());
-  std::cout << "Standard deviation: " << std::sqrt(var.x) << ' '
-            << std::sqrt(var.y) << '\n';
+  Vec var = sum_mean_vel_diff_square / (boids.size());
+  return {std::sqrt(var.x), std::sqrt(var.y)};
 }
 
+Vec mean_deviation_algo(std::vector<Boid> const &boids) {
+  assert(boids.size() > 1);
+  Vec mean = mean_velocity(boids);
+
+  Vec sum_mean_vel_diff_square =
+      std::accumulate(boids.begin(), boids.end(), Vec{0.f, 0.f},
+                      [&mean](Vec sum, const Boid &b) {
+                        sum += (b.get_vel() - mean) * (b.get_vel() - mean);
+                        return sum;
+                      });
+
+  Vec var = sum_mean_vel_diff_square / (boids.size());
+  return {std::sqrt(var.x), std::sqrt(var.y)};
+}
+
+void print_statistics(std::vector<Boid> const &boids){
+  Vec mean = mean_velocity_algo(boids);
+  Vec deviation = mean_deviation_algo(boids);
+  
+  std::cout << "\nMean velocity & standard deviation in x: "<<mean.x<<' '<<deviation.x;
+  std::cout << "\nMean velocity & standard deviation in y: "<<mean.y<<' '<<deviation.y;
+}
+}  // namespace statistics
 void add_boid(std::vector<Boid> &add_vec) {
   std::generate(add_vec.begin(), add_vec.end(),
                 []() { return (Boid(rand_num())); });
@@ -269,13 +269,9 @@ void add_boid(std::vector<Boid> &add_vec) {
 Two_Vec rand_num() {
   std::random_device r;
   std::default_random_engine eng{r()};
-  // static std::random_device r;
-  // static std::default_random_engine eng{r()};
-  // Gli static ce li ha suggeriti chatgpt per migliorare prestazioni
-  // e poichè potrebbe dare qualche problema
 
-  std::uniform_real_distribution<float> pos_x{MIN_POS + 100.f, MAX_POS + 100.f};
-  std::uniform_real_distribution<float> pos_y{MIN_POS + 100.f, MAX_POS + 100.f};
+  std::uniform_real_distribution<float> pos_x{MIN_POS, MAX_POS};
+  std::uniform_real_distribution<float> pos_y{MIN_POS, MAX_POS};
   std::uniform_real_distribution<float> vel_x{MIN_VEL, MAX_VEL};
   std::uniform_real_distribution<float> vel_y{MIN_VEL, MAX_VEL};
 
@@ -289,6 +285,7 @@ void evaluate_correction(std::vector<Boid> &vec, Par const &parametres) {
     Vec sum_coord = {0., 0.};     // per il calcolo del cdm/vel coes
     int neighbor_count = 0;
     int separation_count = 0;
+
     for (Boid const &boid_j : vec) {
       if (!(boid_i == boid_j)) {
         float dist = distance(boid_i, boid_j);
@@ -300,11 +297,11 @@ void evaluate_correction(std::vector<Boid> &vec, Par const &parametres) {
 
         if (dist < parametres.d) {
           ++neighbor_count;
-          sum_diff_vel = sum_diff_vel + (j_vel - i_vel);
-          sum_coord = sum_coord + j_pos;
+          sum_diff_vel += (j_vel - i_vel);
+          sum_coord += j_pos;
 
           if (dist < parametres.ds) {
-            sum_diff_pos = sum_diff_pos + (j_pos - i_pos);
+            sum_diff_pos += (j_pos - i_pos);
             ++separation_count;
           }
         }
@@ -326,12 +323,12 @@ void evaluate_correction(std::vector<Boid> &vec, Par const &parametres) {
 
 void evaluate_corr_fuga(std::vector<Boid> &boids,
                         std::vector<Predator> &predators) {
-  for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b) {
-    for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
-      float dis = distance((*it_b), (*it_p));
+  for (auto &boid : boids) {
+    for (auto &pred : predators) {
+      float dis = distance(boid, pred);
       if (dis < df) {
-        Vec delta_pos = (*it_b).get_pos() - (*it_p).get_pos();
-        (*it_b).corr_vel_fuga(std::atan2f(delta_pos.y, delta_pos.x), 100.f);
+        Vec delta_pos = boid.get_pos() - pred.get_pos();
+        boid.corr_vel_fuga(std::atan2f(delta_pos.y, delta_pos.x), 100.f);
       }
     }
   }
@@ -381,30 +378,30 @@ void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
 
 void evaluate_pred_correction(std::vector<Predator> &predators,
                               std::vector<Boid> &boids) {
-  for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
+  for (auto &pred : predators) {
     float min_ds{0};
     Vec delta_pos{0.f, 0.f};
     for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b) {
       if (it_b == boids.begin()) {
-        min_ds = distance(*it_b, *it_p);
-        delta_pos = (*it_b).get_pos() - (*it_p).get_pos();
+        min_ds = distance(*it_b, pred);
+        delta_pos = (*it_b).get_pos() - pred.get_pos();
       } else {
-        float dist = distance(*it_b, *it_p);
+        float dist = distance(*it_b, pred);
         if (dist < min_ds) {
           min_ds = dist;
-          delta_pos = (*it_b).get_pos() - (*it_p).get_pos();
+          delta_pos = (*it_b).get_pos() - pred.get_pos();
         }
       }
     }
     if (!boids.empty()) {
-      (*it_p).corr_vel_pred_1(std::atan2f(delta_pos.y, delta_pos.x));
+      pred.corr_vel_pred_1(std::atan2f(delta_pos.y, delta_pos.x));
     }
   }
-  for (auto it_i = predators.begin(); it_i != predators.end(); ++it_i) {
-    for (auto it_j = predators.begin(); it_j != predators.end(); ++it_j) {
-      if (distance((*it_i), (*it_j)) < pd && !((*it_i) == (*it_j))) {
-        Vec delta_pos = (*it_i).get_pos() - (*it_j).get_pos();
-        (*it_i).corr_vel_pred_2(std::atan2f(delta_pos.y, delta_pos.x));
+  for (auto &pred_i : predators) {
+    for (auto &pred_j : predators) {
+      if (distance(pred_i, pred_j) < pd && !(pred_i == pred_j)) {
+        Vec delta_pos = pred_i.get_pos() - pred_j.get_pos();
+        pred_i.corr_vel_pred_2(std::atan2f(delta_pos.y, delta_pos.x));
       }
     }
   }
@@ -426,12 +423,10 @@ void update_correction(std::vector<sf::CircleShape> &circles_pred,
       window.draw(*it_c);
     }
   }
-
   {
     auto it_b = boids.begin();
     for (auto it = circles_boid.begin(); it != circles_boid.end();
          ++it, ++it_b) {
-      // init_tr((*it_b), (*it));
       bob::init_cr((*it_b), (*it));
       (*it_b).correction();
       (*it_b).reset_corr();

@@ -9,17 +9,19 @@ namespace bob {
 int const pd = 80;
 int const df = 40;
 int const MIN_POS{0};
-int const MAX_POS{700};
+int const MAX_POS{600};
 int const MIN_VEL{-10};
 int const MAX_VEL{10};
 int const VEL_PRED{30};
 int const VEL_PRED_SEP{7};
 std::size_t const MAX_PRED{5};
-// float const PI{3.141593f};
+constexpr float TIME_STEP{1.f / 60.f};
 
 struct Vec {
   float x;
   float y;
+
+  Vec &operator+=(Vec const &);
 };
 
 struct Two_Vec {
@@ -36,12 +38,13 @@ struct Par {
   std::size_t N;
 };
 
-Vec operator-(Vec f1, Vec f2);
-Vec operator+(Vec f1, Vec f2);
-Vec operator*(Vec f1, Vec f2);
-Vec operator*(Vec f1, float d);
-Vec operator/(Vec f1, float d);
-bool operator==(Vec v1, Vec v2);
+Vec operator-(Vec const &, Vec const &);
+Vec operator+(Vec const &, Vec const &);
+Vec operator*(Vec const &, Vec const &);
+Vec operator*(Vec const &, float);
+Vec operator*(float, Vec const &);
+Vec operator/(Vec const &, float);
+bool operator==(Vec const &, Vec const &);
 
 class Boid {
  private:
@@ -62,9 +65,9 @@ class Boid {
   Vec get_corr_v2() const;
   Vec get_corr_v3() const;
 
-  void vel_sep(Vec ds, float);
-  void vel_all(Vec vds, float);
-  void vel_coes(Vec cdm, float);
+  void vel_sep(Vec const &, float);
+  void vel_all(Vec const &, float);
+  void vel_coes(Vec const &, float);
   void corr_vel_fuga(float, float);
 
   void correction();
@@ -83,8 +86,8 @@ class Predator {
  public:
   Predator(Vec p);
   Predator();
-  Vec get_vel();
-  Vec get_pos();
+  Vec get_vel() const;
+  Vec get_pos() const;
   void corr_vel_pred_1(float);
   void corr_vel_pred_2(float);
   void correction();
@@ -92,51 +95,46 @@ class Predator {
   void limit();
 };
 
-bool operator==(Boid b1, Boid b2);
-bool operator==(Predator p1, Predator p2);
+bool operator==(Boid, Boid);
+bool operator==(Predator, Predator);
 
-float abs(Vec f1, Vec f2);
+float abs(Vec const &, Vec const &);
 template <typename BP1, typename BP2>
-float distance(BP1 bp1, BP2 bp2);
-
-int init_size();
-int init_size(int);
+float distance(BP1 const &, BP2 const &);
 
 Par init_parametres();
+Par init_parametres(float, float, float, int, int, std::size_t);
 
-Vec mean_velocity(std::vector<Boid> const arr);
-Vec mean_velocity_algo(std::vector<Boid> const vec);
+namespace statistics {
+Vec mean_velocity(std::vector<Boid> const &);
+Vec mean_velocity_algo(std::vector<Boid> const &);
 
-void mean_deviation(std::vector<Boid> const arr);
-void mean_deviation_algo(std::vector<Boid> const vec);
+Vec mean_deviation(std::vector<Boid> const &);
+Vec mean_deviation_algo(std::vector<Boid> const &);
+
+void print_statistics(std::vector<Boid> const &);
+}  // namespace statistics
 
 Two_Vec rand_num();
 
 void add_boid(std::vector<Boid> &add_vec);
 
-void evaluate_correction(std::vector<Boid> &vec, Par const &parameters);
-void evaluate_corr_fuga(std::vector<Boid> &boids,
-                        std::vector<Predator> &predators);
+void evaluate_correction(std::vector<Boid> &, Par const &);
+void evaluate_corr_fuga(std::vector<Boid> &, std::vector<Predator> &);
 
-// void add_triangle(std::vector<sf::ConvexShape> &triangles);
-void add_circle(std::vector<sf::CircleShape> &circles);
+void add_circle(std::vector<sf::CircleShape> &);
 
-// void init_tr(Boid &b, sf::ConvexShape &triangles);
-void init_cr(Boid const &b, sf::CircleShape &c);
+void init_cr(Boid const &, sf::CircleShape &);
 
 sf::CircleShape crt_pred(float, float);
 
-// void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
-//                 std::vector<sf::ConvexShape> &triangles);
-void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
-                std::vector<sf::CircleShape> &circles);
+void erase_boid(std::vector<Boid> &, std::vector<Predator> &,
+                std::vector<sf::CircleShape> &);
 
-void evaluate_pred_correction(std::vector<Predator> &predators,
-                              std::vector<Boid> &boids);
+void evaluate_pred_correction(std::vector<Predator> &, std::vector<Boid> &);
 
-void update_correction(std::vector<sf::CircleShape> &circles_pred,
-                       std::vector<sf::CircleShape> &circles_boid,
-                       std::vector<Predator> &predators,
-                       std::vector<Boid> &boids, sf::RenderWindow &window);
+void update_correction(std::vector<sf::CircleShape> &,
+                       std::vector<sf::CircleShape> &, std::vector<Predator> &,
+                       std::vector<Boid> &, sf::RenderWindow &);
 }  // namespace bob
 #endif
