@@ -39,7 +39,7 @@ int main() {
           float x = event.mouseButton.x;
           float y = event.mouseButton.y;
           if (predators.size() < bob::MAX_PRED) {
-            bob::Predator p(bob::Vec{x, y});
+            bob::Predator p(bob::Vec2f{x, y});
             predators.push_back(p);
 
             sf::CircleShape c = bob::crt_pred(x, y);

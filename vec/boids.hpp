@@ -8,6 +8,7 @@ namespace bob {
 
 int const pd = 80;
 int const df = 40;
+int const FAT_FUGA{100};
 int const MIN_POS{0};
 int const MAX_POS{600};
 int const MIN_VEL{-10};
@@ -17,16 +18,18 @@ int const VEL_PRED_SEP{7};
 std::size_t const MAX_PRED{5};
 constexpr float TIME_STEP{1.f / 60.f};
 
-struct Vec {
+struct Vec2f {
   float x;
   float y;
 
-  Vec &operator+=(Vec const &);
+  Vec2f &operator+=(Vec2f const &);
+  float angle();
+  float norm();
 };
 
 struct Two_Vec {
-  Vec a;
-  Vec b;
+  Vec2f a;
+  Vec2f b;
 };
 
 struct Par {
@@ -38,37 +41,38 @@ struct Par {
   std::size_t N;
 };
 
-Vec operator-(Vec const &, Vec const &);
-Vec operator+(Vec const &, Vec const &);
-Vec operator*(Vec const &, Vec const &);
-Vec operator*(Vec const &, float);
-Vec operator*(float, Vec const &);
-Vec operator/(Vec const &, float);
-bool operator==(Vec const &, Vec const &);
+Vec2f operator-(Vec2f const &, Vec2f const &);
+Vec2f operator+(Vec2f const &, Vec2f const &);
+Vec2f operator*(Vec2f const &, Vec2f const &);
+Vec2f operator*(Vec2f const &, float);
+Vec2f operator*(float, Vec2f const &);
+Vec2f operator/(Vec2f const &, float);
+bool operator==(Vec2f const &, Vec2f const &);
 
 class Boid {
  private:
-  Vec pos_;
-  Vec vel_;
-  Vec corr_v1_{0., 0.};
-  Vec corr_v2_{0., 0.};
-  Vec corr_v3_{0., 0.};
-  Vec corr_v_fuga{0., 0.};
+  Vec2f pos_;
+  Vec2f vel_;
+  Vec2f corr_vsep_{0., 0.};
+  Vec2f corr_vall_{0., 0.};
+  Vec2f corr_vcoes_{0., 0.};
+  Vec2f corr_vfuga_{0., 0.};
 
  public:
-  Boid(Vec p, Vec v);
+  Boid(Vec2f p, Vec2f v);
   Boid(Two_Vec vec);
   Boid();
-  Vec get_pos() const;
-  Vec get_vel() const;
-  Vec get_corr_v1() const;
-  Vec get_corr_v2() const;
-  Vec get_corr_v3() const;
+  Vec2f get_pos() const;
+  Vec2f get_vel() const;
+  Vec2f get_corr_vsep() const;
+  Vec2f get_corr_vall() const;
+  Vec2f get_corr_vcoes() const;
+  Vec2f get_corr_vfuga() const;
 
-  void vel_sep(Vec const &, float);
-  void vel_all(Vec const &, float);
-  void vel_coes(Vec const &, float);
-  void corr_vel_fuga(float, float);
+  void vel_sep(Vec2f const &, float);
+  void vel_all(Vec2f const &, float);
+  void vel_coes(Vec2f const &, float);
+  void corr_vel_fuga(float);
 
   void correction();
   void limit();
@@ -78,27 +82,29 @@ class Boid {
 
 class Predator {
  private:
-  Vec pos_;
-  Vec vel_{0.f, 0.f};
-  Vec corr_v1_{0.f, 0.f};
-  Vec corr_v2_{0.f, 0.f};
+  Vec2f pos_;
+  Vec2f vel_{0.f, 0.f};
+  Vec2f corr_vinseg_{0.f, 0.f};
+  Vec2f corr_vsep_{0.f, 0.f};
 
  public:
-  Predator(Vec p);
+  Predator(Vec2f p);
   Predator();
-  Vec get_vel() const;
-  Vec get_pos() const;
-  void corr_vel_pred_1(float);
-  void corr_vel_pred_2(float);
+  Vec2f get_vel() const;
+  Vec2f get_pos() const;
+  Vec2f get_vel_inseg() const;
+  Vec2f get_vel_sep() const;
+  void vel_inseg(float);
+  void vel_sep(float);
   void correction();
-  void zerovel();
+  void reset_corr();
   void limit();
 };
 
 bool operator==(Boid, Boid);
 bool operator==(Predator, Predator);
 
-float abs(Vec const &, Vec const &);
+float abs(Vec2f const &, Vec2f const &);
 template <typename BP1, typename BP2>
 float distance(BP1 const &, BP2 const &);
 
@@ -106,11 +112,11 @@ Par init_parametres();
 Par init_parametres(float, float, float, int, int, std::size_t);
 
 namespace statistics {
-Vec mean_velocity(std::vector<Boid> const &);
-Vec mean_velocity_algo(std::vector<Boid> const &);
+Vec2f mean_velocity(std::vector<Boid> const &);
+Vec2f mean_velocity_algo(std::vector<Boid> const &);
 
-Vec mean_deviation(std::vector<Boid> const &);
-Vec mean_deviation_algo(std::vector<Boid> const &);
+Vec2f mean_deviation(std::vector<Boid> const &);
+Vec2f mean_deviation_algo(std::vector<Boid> const &);
 
 void print_statistics(std::vector<Boid> const &);
 }  // namespace statistics
