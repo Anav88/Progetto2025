@@ -86,7 +86,7 @@ void Boid::reset_corr() {
   corr_vfuga_ = {0.f, 0.f};
 }
 void Boid::vel_max() {
-  float max_speed = std::sqrtf(MAX_VEL * MAX_VEL + MIN_VEL * MIN_VEL);
+  float max_speed = sqrtf(MAX_VEL * MAX_VEL + MIN_VEL * MIN_VEL);
   float norm = vel_.norm();
   if (norm > max_speed) {
     float angle = vel_.angle();
@@ -107,12 +107,12 @@ Vec2f Predator::get_vel() const { return vel_; }
 Vec2f Predator::get_vel_inseg() const { return corr_vinseg_; }
 Vec2f Predator::get_vel_sep() const { return corr_vsep_; }
 void Predator::vel_inseg(float f) {
-  corr_vinseg_.x = VEL_PRED * std::cosf(f);
-  corr_vinseg_.y = VEL_PRED * std::sinf(f);
+  corr_vinseg_.x = VEL_PRED * cosf(f);
+  corr_vinseg_.y = VEL_PRED * sinf(f);
 }
 void Predator::vel_sep(float f) {
-  corr_vsep_.x += VEL_PRED_SEP * std::cosf(f);
-  corr_vsep_.y += VEL_PRED_SEP * std::sinf(f);
+  corr_vsep_.x += VEL_PRED_SEP * cosf(f);
+  corr_vsep_.y += VEL_PRED_SEP * sinf(f);
 }
 void Predator::correction() {
   vel_ = corr_vinseg_ + corr_vsep_;

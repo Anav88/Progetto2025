@@ -43,10 +43,10 @@ TEST_CASE("Verifica distanza") {
   bob::Boid b3 = {{-4.f, -3.f}, {0.f, 0.f}};
   bob::Boid p4 = {{-2.f, 2.f}, {0.f, 0.f}};
 
-  CHECK(distance(b1, b1) == 0);
-  CHECK(distance(p2, p2) == 0);
-  CHECK(distance(b1, p2) == 5.);
-  CHECK(distance(b1, b3) == 5.);
+  CHECK(distance(b1, b1) == 0.f);
+  CHECK(distance(p2, p2) == 0.f);
+  CHECK(distance(b1, p2) == 5.f);
+  CHECK(distance(b1, b3) == 5.f);
   CHECK(distance(b1, p4) == doctest::Approx(2 * sqrt(2)));
 }
 
@@ -239,7 +239,7 @@ TEST_CASE("Predatore si muove verso un boid") {
   Boid b(Two_Vec{{1.f, 0.f}, {0.f, 0.f}});
 
   float angle =
-      std::atan2f(b.get_pos().y - p.get_pos().y, b.get_pos().x - p.get_pos().x);
+      atan2f(b.get_pos().y - p.get_pos().y, b.get_pos().x - p.get_pos().x);
 
   p.vel_inseg(angle);
   p.correction();
@@ -255,9 +255,9 @@ TEST_CASE("Predatori si allontanano perchè vicini") {
     Predator p1({0.f, 0.f});
     Predator p2({1.f, 0.f});
 
-    float angle = std::atan2f(p1.get_pos().y - p2.get_pos().y,
+    float angle = atan2f(p1.get_pos().y - p2.get_pos().y,
                               p1.get_pos().x - p2.get_pos().x);
-    float angle2 = std::atan2f(p2.get_pos().y - p1.get_pos().y,
+    float angle2 = atan2f(p2.get_pos().y - p1.get_pos().y,
                                p2.get_pos().x - p1.get_pos().x);
 
     p1.vel_sep(angle);
@@ -346,8 +346,8 @@ TEST_CASE("Inseguimento e separazione") {
   Predator other({0.f, 1.f});
 
   float angle_ins =
-      std::atan2f(b.get_pos().y - p.get_pos().y, b.get_pos().x - p.get_pos().x);
-  float angle_fug = std::atan2f(p.get_pos().y - other.get_pos().y,
+      atan2f(b.get_pos().y - p.get_pos().y, b.get_pos().x - p.get_pos().x);
+  float angle_fug = atan2f(p.get_pos().y - other.get_pos().y,
                                 p.get_pos().x - other.get_pos().x);
 
   p.vel_inseg(angle_ins);
@@ -355,8 +355,8 @@ TEST_CASE("Inseguimento e separazione") {
   p.correction();
 
   Vec2f v_expected = {
-      std::cosf(angle_ins) * VEL_PRED + std::cosf(angle_fug) * VEL_PRED_SEP,
-      std::sinf(angle_ins) * VEL_PRED + std::sinf(angle_fug) * VEL_PRED_SEP};
+      cosf(angle_ins) * VEL_PRED + cosf(angle_fug) * VEL_PRED_SEP,
+      sinf(angle_ins) * VEL_PRED + sinf(angle_fug) * VEL_PRED_SEP};
 
   CHECK(p.get_vel().x == doctest::Approx(v_expected.x));
   CHECK(p.get_vel().y == doctest::Approx(v_expected.y));
@@ -367,7 +367,7 @@ TEST_CASE("Boid scappa") {
   Predator p({90.f, 100.f});
 
   float angle =
-      std::atan2f(b.get_pos().y - p.get_pos().y, b.get_pos().x - p.get_pos().x);
+      atan2f(b.get_pos().y - p.get_pos().y, b.get_pos().x - p.get_pos().x);
   b.corr_vel_fuga(angle);
 
   CHECK(b.get_corr_vsep().x == doctest::Approx(0.f));
