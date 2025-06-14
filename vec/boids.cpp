@@ -45,6 +45,20 @@ bool operator==(Predator p1, Predator p2) {
 float Vec2f::angle() { return atan2f(y, x); }
 float Vec2f::norm() { return std::sqrt(y * y + x * x); }
 
+void limit_func(Vec2f &pos) {
+  if (pos.x < MIN_POS) {
+    pos.x += MAX_POS;
+  } else if (pos.x > MAX_POS) {
+    pos.x -= MAX_POS;
+  }
+
+  if (pos.y < MIN_POS) {
+    pos.y += MAX_POS;
+  } else if (pos.y > MAX_POS) {
+    pos.y -= MAX_POS;
+  }
+}
+
 Boid::Boid(Vec2f p, Vec2f v) : pos_{p}, vel_{v} {}
 Boid::Boid(Two_Vec vec) : pos_{vec.a}, vel_{vec.b} {}
 Boid::Boid() : pos_{0, 0}, vel_{0, 0} {}
@@ -65,20 +79,7 @@ void Boid::correction() {
   this->vel_max();
   pos_ += (vel_ * (TIME_STEP));
 }
-void Boid::limit() {
-  if (pos_.x < MIN_POS) {
-    pos_.x += MAX_POS;
-  }
-  if (pos_.y < MIN_POS) {
-    pos_.y += MAX_POS;
-  }
-  if (pos_.x > MAX_POS) {
-    pos_.x -= MAX_POS;
-  }
-  if (pos_.y > MAX_POS) {
-    pos_.y -= MAX_POS;
-  }
-}
+void Boid::limit() { limit_func(pos_); }
 void Boid::reset_corr() {
   corr_vsep_ = {0.f, 0.f};
   corr_vall_ = {0.f, 0.f};
@@ -86,7 +87,7 @@ void Boid::reset_corr() {
   corr_vfuga_ = {0.f, 0.f};
 }
 void Boid::vel_max() {
-  float max_speed = sqrtf(MAX_VEL * MAX_VEL + MIN_VEL * MIN_VEL);
+  float max_speed = sqrtf(LIM_VEL * LIM_VEL * 2);
   float norm = vel_.norm();
   if (norm > max_speed) {
     float angle = vel_.angle();
@@ -94,7 +95,7 @@ void Boid::vel_max() {
     vel_.y = max_speed * sinf(angle);
   }
 }
-void Boid::corr_vel_fuga(float f) {
+void Boid::vel_fuga(float f) {
   corr_vfuga_.x += FAT_FUGA * cosf(f);
   corr_vfuga_.y += FAT_FUGA * sinf(f);
 }
@@ -106,6 +107,7 @@ Vec2f Predator::get_pos() const { return pos_; }
 Vec2f Predator::get_vel() const { return vel_; }
 Vec2f Predator::get_vel_inseg() const { return corr_vinseg_; }
 Vec2f Predator::get_vel_sep() const { return corr_vsep_; }
+
 void Predator::vel_inseg(float f) {
   corr_vinseg_.x = VEL_PRED * cosf(f);
   corr_vinseg_.y = VEL_PRED * sinf(f);
@@ -123,19 +125,7 @@ void Predator::reset_corr() {
   corr_vinseg_ = {0.f, 0.f};
   corr_vsep_ = {0.f, 0.f};
 }
-void Predator::limit() {
-  if (pos_.x < MIN_POS) {
-    pos_.x += MAX_POS;
-  } else if (pos_.x > MAX_POS) {
-    pos_.x -= MAX_POS;
-  }
-
-  if (pos_.y < MIN_POS) {
-    pos_.y += MAX_POS;
-  } else if (pos_.y > MAX_POS) {
-    pos_.y -= MAX_POS;
-  }
-}
+void Predator::limit() { limit_func(pos_); }
 
 Par init_parametres(float s, float a, float c, int d, int ds, std::size_t N) {
   if (s < 0 || s > 1) {
@@ -209,28 +199,20 @@ Par init_parametres() {
   return input;
 }
 
-float abs(Vec2f const &v1, Vec2f const &v2) {
-  return sqrt(
-      pow(v1.x - v2.x, 2.0f) +
-      pow(v1.y - v2.y, 2.0f));  // calcola il modulo della diff di sue vettori
-}
-
 template <typename BP1, typename BP2>
 float distance(BP1 const &bp1, BP2 const &bp2) {
-  return abs(bp1.get_pos(), bp2.get_pos());
+  Vec2f delta_pos = bp1.get_pos() - bp2.get_pos();
+
+  return delta_pos.norm();
 }
 
 namespace statistics {
-Vec2f mean_velocity(std::vector<Boid> const &boids) {
-  assert(boids.size() > 0);
-  Vec2f sum_vel{0., 0.};
-  for (auto &boid : boids) {
-    sum_vel += boid.get_vel();
-  }
-  return sum_vel / boids.size();
-}
+
 Vec2f mean_velocity_algo(std::vector<Boid> const &boids) {
-  assert(boids.size() > 0);
+  if (boids.size() <= 0) {
+    throw std::domain_error(
+        "Non si può calcolare la velocità media con alcun boid");
+  }
   Vec2f sums = std::accumulate(boids.begin(), boids.end(), Vec2f{0.f, 0.f},
                                [](Vec2f sum, const Boid &b) {
                                  sum += b.get_vel();
@@ -240,21 +222,12 @@ Vec2f mean_velocity_algo(std::vector<Boid> const &boids) {
   return sums / boids.size();
 }
 
-Vec2f mean_deviation(std::vector<Boid> const &boids) {
-  assert(boids.size() > 1);
-  Vec2f sum_mean_vel_diff_square{0., 0.};
-  Vec2f mean = mean_velocity(boids);
-  for (auto &boid : boids) {
-    sum_mean_vel_diff_square +=
-        (boid.get_vel() - mean) * (boid.get_vel() - mean);
-  }
-  Vec2f var = sum_mean_vel_diff_square / (boids.size());
-  return {std::sqrt(var.x), std::sqrt(var.y)};
-}
-
 Vec2f mean_deviation_algo(std::vector<Boid> const &boids) {
-  assert(boids.size() > 1);
-  Vec2f mean = mean_velocity(boids);
+  if (boids.size() <= 1) {
+    throw std::domain_error(
+        "Non si può calcolare la deviazione standard con meno di due boids");
+  }
+  Vec2f mean = mean_velocity_algo(boids);
 
   Vec2f sum_mean_vel_diff_square =
       std::accumulate(boids.begin(), boids.end(), Vec2f{0.f, 0.f},
@@ -277,6 +250,7 @@ void print_statistics(std::vector<Boid> const &boids) {
             << deviation.y << '\n';
 }
 }  // namespace statistics
+
 void add_boid(std::vector<Boid> &add_vec) {
   std::generate(add_vec.begin(), add_vec.end(),
                 []() { return (Boid(rand_num())); });
@@ -288,64 +262,78 @@ Two_Vec rand_num() {
 
   std::uniform_real_distribution<float> pos_x{MIN_POS, MAX_POS};
   std::uniform_real_distribution<float> pos_y{MIN_POS, MAX_POS};
-  std::uniform_real_distribution<float> vel_x{MIN_VEL, MAX_VEL};
-  std::uniform_real_distribution<float> vel_y{MIN_VEL, MAX_VEL};
+  std::uniform_real_distribution<float> vel_x{-LIM_VEL, LIM_VEL};
+  std::uniform_real_distribution<float> vel_y{-LIM_VEL, LIM_VEL};
 
   return {{pos_x(eng), pos_y(eng)}, {vel_x(eng), vel_y(eng)}};
 }
 
-void evaluate_correction(std::vector<Boid> &vec, Par const &parametres) {
-  for (Boid &boid_i : vec) {
-    Vec2f sum_diff_pos = {0., 0.};  // per il calcolo vel sep
-    Vec2f sum_diff_vel = {0., 0.};  // per il calcolo vel all
-    Vec2f sum_coord = {0., 0.};     // per il calcolo del cdm/vel coes
-    int neighbor_count = 0;
-    int separation_count = 0;
+void evaluate_boid_correction(std::vector<Boid> &boids,
+                              std::vector<Predator> &predators,
+                              Par const &parametres) {
+  for (Boid &boid_i : boids) {
+    if (boid_i.get_pos().x < MIN_POS || boid_i.get_pos().y < MIN_POS ||
+        boid_i.get_pos().x > MAX_POS || boid_i.get_pos().y > MAX_POS) {
+      throw std::domain_error(
+          "Il boid si trova al di fuori dei limiti consentiti");
+    }
+    if (boid_i.get_vel().norm() > std::sqrtf(LIM_VEL * LIM_VEL * 2) + 0.1f) {
+      throw std::domain_error("Il boid non ha velocità nei limiti consentiti");
+    }
 
-    for (Boid const &boid_j : vec) {
-      if (!(boid_i == boid_j)) {
-        float dist = distance(boid_i, boid_j);
+    evaluate_boid_corr_fuga(boid_i, predators);
 
-        Vec2f j_vel = boid_j.get_vel();
-        Vec2f j_pos = boid_j.get_pos();
-        Vec2f i_vel = boid_i.get_vel();
-        Vec2f i_pos = boid_i.get_pos();
+    Vec2f i_pos = boid_i.get_pos();
+    Vec2f i_vel = boid_i.get_vel();
 
-        if (dist < parametres.d) {
-          ++neighbor_count;
-          sum_diff_vel += (j_vel - i_vel);
-          sum_coord += j_pos;
+    struct Stats {
+      int n;
+      Vec2f sumVelDiff;
+      Vec2f sumPos;
+      int nSep;
+      Vec2f sumSepPos;
+    };
 
-          if (dist < parametres.ds) {
-            sum_diff_pos += (j_pos - i_pos);
-            ++separation_count;
+    auto result = std::accumulate(
+        boids.begin(), boids.end(),
+        Stats{0, {0.f, 0.f}, {0.f, 0.f}, 0, {0.f, 0.f}},
+        [&boid_i, &parametres, &i_vel, &i_pos](Stats acc, Boid &boid_j) {
+          if (!(&boid_i == &boid_j)) {
+            float dist = distance(boid_i, boid_j);
+
+            if (dist < parametres.d) {
+              Vec2f j_pos = boid_j.get_pos();
+              Vec2f j_vel = boid_j.get_vel();
+              ++acc.n;
+              acc.sumVelDiff += (j_vel - i_vel);
+              acc.sumPos += j_pos;
+
+              if (dist < parametres.ds) {
+                acc.sumSepPos += (j_pos - i_pos);
+                ++acc.nSep;
+              }
+            }
           }
-        }
-      }
+          return acc;
+        });
+
+    if (result.nSep > 0) {
+      boid_i.vel_sep(result.sumSepPos, parametres.s);
     }
 
-    if (separation_count > 0) {
-      boid_i.vel_sep(sum_diff_pos, parametres.s);
-    }
-
-    if (neighbor_count > 1) {
-      Vec2f mean_vel = sum_diff_vel / (neighbor_count - 1);
-      Vec2f cdm = sum_coord / (neighbor_count - 1);
-      boid_i.vel_all(mean_vel, parametres.a);
-      boid_i.vel_coes(cdm, parametres.c);
+    if (result.n > 1) {
+      boid_i.vel_all(result.sumVelDiff / (result.n - 1), parametres.a);
+      boid_i.vel_coes(result.sumPos / (result.n - 1), parametres.c);
     }
   }
 }
 
-void evaluate_corr_fuga(std::vector<Boid> &boids,
-                        std::vector<Predator> &predators) {
-  for (auto &boid : boids) {
-    for (auto &pred : predators) {
-      float dis = distance(boid, pred);
-      if (dis < df) {
-        Vec2f delta_pos = boid.get_pos() - pred.get_pos();
-        boid.corr_vel_fuga(delta_pos.angle());
-      }
+void evaluate_boid_corr_fuga(Boid &boid, std::vector<Predator> &predators) {
+  for (auto &pred : predators) {
+    float dis = distance(boid, pred);
+    if (dis < df) {
+      Vec2f delta_pos = boid.get_pos() - pred.get_pos();
+      boid.vel_fuga(delta_pos.angle());
     }
   }
 }
@@ -360,8 +348,9 @@ void add_circle(std::vector<sf::CircleShape> &circles) {
   });
 }
 
-void init_cr(Boid const &b, sf::CircleShape &c) {
-  sf::Vector2f pos(b.get_pos().x, b.get_pos().y);
+template <typename BP>
+void init_circle(BP const &bp, sf::CircleShape &c) {
+  sf::Vector2f pos(bp.get_pos().x, bp.get_pos().y);
   c.setPosition(pos);
 }
 
@@ -423,33 +412,27 @@ void evaluate_pred_correction(std::vector<Predator> &predators,
   }
 }
 
-void update_correction(std::vector<sf::CircleShape> &circles_pred,
-                       std::vector<sf::CircleShape> &circles_boid,
-                       std::vector<Predator> &predators,
-                       std::vector<Boid> &boids, sf::RenderWindow &window) {
-  {
-    auto it_c = circles_pred.begin();
-    for (auto it_p = predators.begin(); it_p != predators.end();
-         ++it_p, ++it_c) {
-      (*it_p).correction();
-      (*it_p).reset_corr();
-      (*it_p).limit();
-      (*it_c).setPosition({(*it_p).get_pos().x, (*it_p).get_pos().y});
+void update_pred(std::vector<sf::CircleShape> &circles,
+                 std::vector<Predator> &predators, sf::RenderWindow &window) {
+  update_correction(circles, predators, window);
+}
 
-      window.draw(*it_c);
-    }
-  }
-  {
-    auto it_b = boids.begin();
-    for (auto it = circles_boid.begin(); it != circles_boid.end();
-         ++it, ++it_b) {
-      bob::init_cr((*it_b), (*it));
-      (*it_b).correction();
-      (*it_b).reset_corr();
-      (*it_b).limit();
+void update_boid(std::vector<sf::CircleShape> &circles,
+                 std::vector<Boid> &boids, sf::RenderWindow &window) {
+  update_correction(circles, boids, window);
+}
 
-      window.draw(*it);
-    }
+template <typename BP>
+void update_correction(std::vector<sf::CircleShape> &circles,
+                       std::vector<BP> &boid_pred, sf::RenderWindow &window) {
+  auto it_c = circles.begin();
+  for (auto it = boid_pred.begin(); it != boid_pred.end(); ++it, ++it_c) {
+    (*it).correction();
+    (*it).limit();
+    init_circle(*it, *it_c);
+
+    (*it).reset_corr();
+    window.draw(*it_c);
   }
 }
 }  // namespace bob

@@ -8,11 +8,10 @@ namespace bob {
 
 int const pd = 80;
 int const df = 40;
-int const FAT_FUGA{100};
+int const FAT_FUGA{50};
 int const MIN_POS{0};
 int const MAX_POS{600};
-int const MIN_VEL{-10};
-int const MAX_VEL{10};
+int const LIM_VEL{10};
 int const VEL_PRED{30};
 int const VEL_PRED_SEP{7};
 std::size_t const MAX_PRED{5};
@@ -49,19 +48,22 @@ Vec2f operator*(float, Vec2f const &);
 Vec2f operator/(Vec2f const &, float);
 bool operator==(Vec2f const &, Vec2f const &);
 
+void limit_func(Vec2f &);
+
 class Boid {
  private:
   Vec2f pos_;
   Vec2f vel_;
-  Vec2f corr_vsep_{0., 0.};
-  Vec2f corr_vall_{0., 0.};
-  Vec2f corr_vcoes_{0., 0.};
-  Vec2f corr_vfuga_{0., 0.};
+  Vec2f corr_vsep_{0.f, 0.f};
+  Vec2f corr_vall_{0.f, 0.f};
+  Vec2f corr_vcoes_{0.f, 0.f};
+  Vec2f corr_vfuga_{0.f, 0.f};
 
  public:
   Boid(Vec2f p, Vec2f v);
   Boid(Two_Vec vec);
   Boid();
+  
   Vec2f get_pos() const;
   Vec2f get_vel() const;
   Vec2f get_corr_vsep() const;
@@ -72,11 +74,11 @@ class Boid {
   void vel_sep(Vec2f const &, float);
   void vel_all(Vec2f const &, float);
   void vel_coes(Vec2f const &, float);
-  void corr_vel_fuga(float);
+  void vel_fuga(float);
 
   void correction();
-  void limit();
   void reset_corr();
+  void limit();
   void vel_max();
 };
 
@@ -90,12 +92,15 @@ class Predator {
  public:
   Predator(Vec2f p);
   Predator();
+
   Vec2f get_vel() const;
   Vec2f get_pos() const;
   Vec2f get_vel_inseg() const;
   Vec2f get_vel_sep() const;
+
   void vel_inseg(float);
   void vel_sep(float);
+
   void correction();
   void reset_corr();
   void limit();
@@ -104,7 +109,6 @@ class Predator {
 bool operator==(Boid, Boid);
 bool operator==(Predator, Predator);
 
-float abs(Vec2f const &, Vec2f const &);
 template <typename BP1, typename BP2>
 float distance(BP1 const &, BP2 const &);
 
@@ -112,10 +116,8 @@ Par init_parametres();
 Par init_parametres(float, float, float, int, int, std::size_t);
 
 namespace statistics {
-Vec2f mean_velocity(std::vector<Boid> const &);
 Vec2f mean_velocity_algo(std::vector<Boid> const &);
 
-Vec2f mean_deviation(std::vector<Boid> const &);
 Vec2f mean_deviation_algo(std::vector<Boid> const &);
 
 void print_statistics(std::vector<Boid> const &);
@@ -125,12 +127,14 @@ Two_Vec rand_num();
 
 void add_boid(std::vector<Boid> &add_vec);
 
-void evaluate_correction(std::vector<Boid> &, Par const &);
-void evaluate_corr_fuga(std::vector<Boid> &, std::vector<Predator> &);
+void evaluate_boid_correction(std::vector<Boid> &, std::vector<Predator> &,
+                              Par const &);
+void evaluate_boid_corr_fuga(Boid &, std::vector<Predator> &);
 
 void add_circle(std::vector<sf::CircleShape> &);
 
-void init_cr(Boid const &, sf::CircleShape &);
+template<typename BP>
+void init_circle(BP const &, sf::CircleShape &);
 
 sf::CircleShape crt_pred(float, float);
 
@@ -139,8 +143,14 @@ void erase_boid(std::vector<Boid> &, std::vector<Predator> &,
 
 void evaluate_pred_correction(std::vector<Predator> &, std::vector<Boid> &);
 
-void update_correction(std::vector<sf::CircleShape> &,
-                       std::vector<sf::CircleShape> &, std::vector<Predator> &,
-                       std::vector<Boid> &, sf::RenderWindow &);
+void update_pred(std::vector<sf::CircleShape> &, std::vector<Predator> &,
+                 sf::RenderWindow &);
+
+void update_boid(std::vector<sf::CircleShape> &, std::vector<Boid> &,
+                 sf::RenderWindow &);
+
+template <typename BP>
+void update_correction(std::vector<sf::CircleShape> &, std::vector<BP> &,
+                       sf::RenderWindow &);
 }  // namespace bob
 #endif

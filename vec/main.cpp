@@ -57,11 +57,11 @@ int main() {
       window.clear(sf::Color::White);
 
       evaluate_pred_correction(predators, boids);
-      evaluate_corr_fuga(boids, predators);
-      evaluate_correction(boids, parametres);
+      evaluate_boid_correction(boids, predators, parametres);
 
-      update_correction(circles_pred, circles_boid, predators, boids, window);
       erase_boid(boids, predators, circles_boid);
+      update_pred(circles_pred, predators, window);
+      update_boid(circles_boid, boids, window);
 
       window.display();
     }
