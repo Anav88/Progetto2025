@@ -117,7 +117,7 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
     evaluate_boid_correction(boids, predators, params);
 
     Vec2f vel =
-        ((b2.get_vel() - b1.get_vel()) + (b3.get_vel() - b1.get_vel())) *
+        ((b2.get_vel() - b1.get_vel()) + (b3.get_vel() - b1.get_vel())) / 2 *
         params.a;
 
     CHECK(boids[0].get_corr_vall().x == doctest::Approx(vel.x).epsilon(0.01));
@@ -138,7 +138,7 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
     evaluate_boid_correction(boids, predators, params);
 
     Vec2f vel =
-        (((b2.get_pos() + b3.get_pos()) / 1.f) - b1.get_pos()) * params.c;
+        (((b2.get_pos() + b3.get_pos()) / 1.f) - b1.get_pos()) / 2 * params.c;
 
     CHECK(boids[0].get_corr_vcoes().x == doctest::Approx(vel.x).epsilon(0.01));
     CHECK(boids[0].get_corr_vcoes().y == doctest::Approx(vel.y).epsilon(0.01));
@@ -161,10 +161,10 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
         (-params.s);
 
     Vec2f all =
-        ((b2.get_vel() - b1.get_vel()) + (b3.get_vel() - b1.get_vel())) *
+        ((b2.get_vel() - b1.get_vel()) + (b3.get_vel() - b1.get_vel())) / 2 *
         params.a;
 
-    Vec2f coes = (b2.get_pos() + b3.get_pos() - b1.get_pos()) * params.c;
+    Vec2f coes = (b2.get_pos() + b3.get_pos() - b1.get_pos()) / 2 * params.c;
 
     CHECK(boids[0].get_corr_vsep().x == doctest::Approx(sep.x));
     CHECK(boids[0].get_corr_vsep().y == doctest::Approx(sep.y));
@@ -191,10 +191,10 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
 
     Vec2f all = ((b2.get_vel() - b1.get_vel()) + (b3.get_vel() - b1.get_vel()) +
                  (b4.get_vel() - b1.get_vel())) /
-                2 * params.a;
+                3 * params.a;
 
     Vec2f coes =
-        (((b2.get_pos() + b3.get_pos() + b4.get_pos()) / 2) - b1.get_pos()) *
+        (((b2.get_pos() + b3.get_pos() + b4.get_pos()) / 3) - b1.get_pos()) *
         params.c;
 
     CHECK(boids[0].get_corr_vsep().x == doctest::Approx(sep.x));
@@ -223,10 +223,10 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
 
     Vec2f all = ((b2.get_vel() - b1.get_vel()) + (b3.get_vel() - b1.get_vel()) +
                  (b5.get_vel() - b1.get_vel())) /
-                2 * params.a;
+                3 * params.a;
 
     Vec2f coes =
-        (((b2.get_pos() + b3.get_pos() + b5.get_pos()) / 2) - b1.get_pos()) *
+        (((b2.get_pos() + b3.get_pos() + b5.get_pos()) / 3) - b1.get_pos()) *
         params.c;
 
     CHECK(boids[0].get_corr_vsep().x == doctest::Approx(sep.x));
@@ -246,7 +246,7 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
 
       CHECK_THROWS(evaluate_boid_correction(boids, predators, params));
     }
-    
+
     SUBCASE("Coordinata oltre il limite") {
       Boid b1 = Two_Vec{{305.f, 12.f}, {0.f, 0.f}};
       Boid b2 = Two_Vec{{201.f, 812.f}, {0.f, 0.f}};
@@ -257,7 +257,6 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
       CHECK_THROWS(evaluate_boid_correction(boids, predators, params));
     }
   }
-
 }
 
 TEST_CASE("Azioni dei predatori") {
@@ -393,9 +392,9 @@ TEST_CASE("Azioni dei predatori") {
     CHECK(b.get_corr_vcoes().x == doctest::Approx(0.f).epsilon(0.01));
     CHECK(b.get_corr_vsep().x == doctest::Approx(0.f).epsilon(0.01));
     CHECK(boids[0].get_corr_vfuga().x ==
-          doctest::Approx(FAT_FUGA * cosf(angle)).epsilon(0.01));
+          doctest::Approx(FACT_FUGA * cosf(angle)).epsilon(0.01));
     CHECK(boids[0].get_corr_vfuga().y ==
-          doctest::Approx(FAT_FUGA * sinf(angle)).epsilon(0.01));
+          doctest::Approx(FACT_FUGA * sinf(angle)).epsilon(0.01));
   }
 
   SUBCASE("Boid non scappa dal predatore distante") {
@@ -440,6 +439,7 @@ TEST_CASE("Test della funzione reset_corr") {
     CHECK(b.get_corr_vall() == Vec2f{0.f, 0.f});
     CHECK(b.get_corr_vcoes() == Vec2f{0.f, 0.f});
   }
+
   SUBCASE("Predator") {
     Predator p({100.f, 100.f});
     p.vel_inseg(0.0f);

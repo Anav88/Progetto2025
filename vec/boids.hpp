@@ -6,15 +6,17 @@
 
 namespace bob {
 
-int const pd = 80;
-int const df = 40;
-int const FAT_FUGA{50};
+int const PRED_DIST_SEP {80};
+int const BOID_DIST_FUGA = 40;
+int const FACT_FUGA{50};
 int const MIN_POS{0};
 int const MAX_POS{600};
 int const LIM_VEL{10};
 int const VEL_PRED{30};
 int const VEL_PRED_SEP{7};
 std::size_t const MAX_PRED{5};
+float const CATCH_RADIUS{5e-1f};
+
 constexpr float TIME_STEP{1.f / 60.f};
 
 struct Vec2f {
@@ -22,8 +24,8 @@ struct Vec2f {
   float y;
 
   Vec2f &operator+=(Vec2f const &);
-  float angle();
-  float norm();
+  float angle() const;
+  float norm() const;
 };
 
 struct Two_Vec {

@@ -42,8 +42,8 @@ bool operator==(Predator p1, Predator p2) {
   }
 }
 
-float Vec2f::angle() { return atan2f(y, x); }
-float Vec2f::norm() { return std::sqrt(y * y + x * x); }
+float Vec2f::angle() const { return atan2f(y, x); }
+float Vec2f::norm() const { return std::sqrt(y * y + x * x); }
 
 void limit_func(Vec2f &pos) {
   if (pos.x < MIN_POS) {
@@ -96,8 +96,8 @@ void Boid::vel_max() {
   }
 }
 void Boid::vel_fuga(float f) {
-  corr_vfuga_.x += FAT_FUGA * cosf(f);
-  corr_vfuga_.y += FAT_FUGA * sinf(f);
+  corr_vfuga_.x += FACT_FUGA * cosf(f);
+  corr_vfuga_.y += FACT_FUGA * sinf(f);
 }
 
 Predator::Predator(Vec2f p) : pos_{p} {}
@@ -297,7 +297,7 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
     auto result = std::accumulate(
         boids.begin(), boids.end(),
         Stats{0, {0.f, 0.f}, {0.f, 0.f}, 0, {0.f, 0.f}},
-        [&boid_i, &parametres, &i_vel, &i_pos](Stats acc, Boid &boid_j) {
+        [&boid_i, &parametres, &i_vel, &i_pos](Stats acc, Boid const &boid_j) {
           if (!(&boid_i == &boid_j)) {
             float dist = distance(boid_i, boid_j);
 
@@ -322,8 +322,8 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
     }
 
     if (result.n > 1) {
-      boid_i.vel_all(result.sumVelDiff / (result.n - 1), parametres.a);
-      boid_i.vel_coes(result.sumPos / (result.n - 1), parametres.c);
+      boid_i.vel_all(result.sumVelDiff / (result.n), parametres.a);
+      boid_i.vel_coes(result.sumPos / (result.n), parametres.c);
     }
   }
 }
@@ -331,7 +331,7 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
 void evaluate_boid_corr_fuga(Boid &boid, std::vector<Predator> &predators) {
   for (auto &pred : predators) {
     float dis = distance(boid, pred);
-    if (dis < df) {
+    if (dis < BOID_DIST_FUGA) {
       Vec2f delta_pos = boid.get_pos() - pred.get_pos();
       boid.vel_fuga(delta_pos.angle());
     }
@@ -368,10 +368,8 @@ void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
   for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
     auto it_t = circles.begin();
     for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b, ++it_t) {
-      if ((*it_p).get_pos().x - (*it_b).get_pos().x < 5e-1f &&
-          (*it_p).get_pos().x - (*it_b).get_pos().x > -5e-1f &&
-          (*it_p).get_pos().y - (*it_b).get_pos().y < 5e-1f &&
-          (*it_p).get_pos().y - (*it_b).get_pos().y > -5e-1f) {
+      if (abs((*it_p).get_pos().x - (*it_b).get_pos().x) < CATCH_RADIUS &&
+          abs((*it_p).get_pos().y - (*it_b).get_pos().y) < CATCH_RADIUS) {
         boids.erase(it_b);
         circles.erase(it_t);
         --it_p;
@@ -384,29 +382,21 @@ void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
 void evaluate_pred_correction(std::vector<Predator> &predators,
                               std::vector<Boid> &boids) {
   for (auto &pred : predators) {
-    float min_ds{0};
-    Vec2f delta_pos{0.f, 0.f};
-    for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b) {
-      if (it_b == boids.begin()) {
-        min_ds = distance(*it_b, pred);
-        delta_pos = (*it_b).get_pos() - pred.get_pos();
-      } else {
-        float dist = distance(*it_b, pred);
-        if (dist < min_ds) {
-          min_ds = dist;
-          delta_pos = (*it_b).get_pos() - pred.get_pos();
-        }
+    if (!boids.empty()) {
+      auto it = std::min_element(
+          boids.begin(), boids.end(), [&pred](Boid const &b1, Boid const &b2) {
+            return (distance(pred, b1) < distance(pred, b2));
+          });
+      if (it != boids.end()) {
+        Vec2f delta_pos = (*it).get_pos() - pred.get_pos();
+        pred.vel_inseg(delta_pos.angle());
       }
     }
-    if (!boids.empty()) {
-      pred.vel_inseg(delta_pos.angle());
-    }
-  }
-  for (auto &pred_i : predators) {
+
     for (auto &pred_j : predators) {
-      if (distance(pred_i, pred_j) < pd && !(pred_i == pred_j)) {
-        Vec2f delta_pos = pred_i.get_pos() - pred_j.get_pos();
-        pred_i.vel_sep(delta_pos.angle());
+      if (distance(pred, pred_j) < PRED_DIST_SEP && !(&pred == &pred_j)) {
+        Vec2f delta_pos = pred.get_pos() - pred_j.get_pos();
+        pred.vel_sep(delta_pos.angle());
       }
     }
   }
