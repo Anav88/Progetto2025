@@ -16,10 +16,10 @@ Vec2f operator+(Vec2f const &v1, Vec2f const &v2) {
 }
 Vec2f &Vec2f::operator+=(Vec2f const &v1) {
   *this = *this + v1;
-  return *this;
+  return *this; // fatto da chatgpt
 }
 Vec2f operator*(Vec2f const &v1, Vec2f const &v2) {
-  return {v1.x * v2.x, v1.y * v2.y};
+  return {v1.x * v2.x, v1.y * v2.y}; 
 }
 Vec2f operator*(Vec2f const &v1, float f) { return {v1.x * f, v1.y * f}; }
 Vec2f operator*(float f, Vec2f const &v1) { return v1 * f; }
@@ -27,19 +27,11 @@ Vec2f operator/(Vec2f const &v1, float f) { return {v1.x / f, v1.y / f}; }
 bool operator==(Vec2f const &v1, Vec2f const &v2) {
   return v1.x == v2.x && v1.y == v2.y;
 }
-bool operator==(Boid b1, Boid b2) {
-  if (b1.get_pos() == b2.get_pos() && b1.get_vel() == b2.get_vel()) {
-    return true;
-  } else {
-    return false;
-  }
+bool operator==(Boid b1, Boid b2) { 
+  return (b1.get_pos() == b2.get_pos() && b1.get_vel() == b2.get_vel());
 }
 bool operator==(Predator p1, Predator p2) {
-  if (p1.get_pos() == p2.get_pos() && p1.get_vel() == p2.get_vel()) {
-    return true;
-  } else {
-    return false;
-  }
+  return (p1.get_pos() == p2.get_pos() && p1.get_vel() == p2.get_vel()); 
 }
 
 float Vec2f::angle() const { return atan2f(y, x); }
@@ -244,11 +236,6 @@ void print_statistics(std::vector<Boid> const &boids) {
 }
 }  // namespace statistics
 
-void add_boid(std::vector<Boid> &add_vec) {
-  std::generate(add_vec.begin(), add_vec.end(),
-                []() { return (Boid(rand_num())); });
-}
-
 Two_Vec rand_num() {
   std::random_device r;
   std::default_random_engine eng{r()};
@@ -261,6 +248,11 @@ Two_Vec rand_num() {
   return {{pos_x(eng), pos_y(eng)}, {vel_x(eng), vel_y(eng)}};
 }
 
+void add_boid(std::vector<Boid> &add_vec) {
+  std::generate(add_vec.begin(), add_vec.end(),
+                []() { return (Boid(rand_num())); });
+} // Boid costruttore
+
 void evaluate_boid_correction(std::vector<Boid> &boids,
                               std::vector<Predator> &predators,
                               Par const &parametres) {
@@ -271,9 +263,9 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
           "The boid is out of bounds");
     }
     if (boid_i.get_vel().norm() >
-        std::sqrtf(BOID_VEL_LIM * BOID_VEL_LIM * 2) + 0.1f) {
+        sqrtf(BOID_VEL_LIM * BOID_VEL_LIM * 2) + 0.1f) {
       throw std::domain_error("The boid has no speed within the allowed limits");
-    }
+    } 
 
     evaluate_boid_corr_fuga(boid_i, predators);
 
