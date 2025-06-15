@@ -139,9 +139,9 @@ Par init_parametres(float s, float a, float c, int d, int ds,
   if (d < ds) {
     throw std::domain_error("Parameter d must be bigger than ds");
   }
-  if (size < 0) {
-    throw std::domain_error("Parameter N can't be negative");
-  }
+  //if (size < 0) {
+  //  throw std::domain_error("Parameter N can't be negative");
+  //}
 
   return Par{s, a, c, d, ds, size};
 }
@@ -180,9 +180,9 @@ Par init_parametres() {
   if (std::cin.fail()) {
     throw std::invalid_argument("Parameter not valid");
   }
-  if (input.size < 0) {
-    throw std::invalid_argument("The number of boids must be positive");
-  }
+  //if (input.size < 0) {
+  // throw std::invalid_argument("The number of boids must be positive");
+  //}
 
   return input;
 }
@@ -207,7 +207,7 @@ Vec2f mean_velocity_algo(std::vector<Boid> const &boids) {
 
                                  return sum;
                                });
-  return sums / boids.size();
+  return sums / static_cast<float>(boids.size());
 }
 
 Vec2f mean_deviation_algo(std::vector<Boid> const &boids) {
@@ -224,7 +224,7 @@ Vec2f mean_deviation_algo(std::vector<Boid> const &boids) {
                         return sum;
                       });
 
-  Vec2f var = sum_mean_vel_diff_square / (boids.size());
+  Vec2f var = sum_mean_vel_diff_square / static_cast<float>(boids.size());
   return {std::sqrt(var.x), std::sqrt(var.y)};
 }
 
@@ -284,35 +284,35 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
     };
 
     auto result =
-        std::accumulate(boids.begin(), boids.end(),
-                        Stats{0, {0.f, 0.f}, {0.f, 0.f}, 0, {0.f, 0.f}},
-                        [&](Stats acc, Boid const &boid_j) {
-                          if (!(&boid_i == &boid_j)) {
-                            float dist = distance(boid_i, boid_j);
+    std::accumulate(boids.begin(), boids.end(),
+                    Stats{0, {0.f, 0.f}, {0.f, 0.f}, 0, {0.f, 0.f}},
+                    [&](Stats acc, Boid const &boid_j) {
+                      if (!(&boid_i == &boid_j)) {
+                        float dist = static_cast<float>(distance(boid_i, boid_j));
 
-                            if (dist < parametres.d) {
-                              Vec2f j_pos = boid_j.get_pos();
-                              Vec2f j_vel = boid_j.get_vel();
-                              ++acc.n;
-                              acc.sumVelDiff += (j_vel - i_vel);
-                              acc.sumPos += j_pos;
+                        if (dist < parametres.d) {  
+                          Vec2f j_pos = boid_j.get_pos();
+                          Vec2f j_vel = boid_j.get_vel();
+                          ++acc.n;
+                          acc.sumVelDiff += (j_vel - i_vel);
+                          acc.sumPos += j_pos;
 
-                              if (dist < parametres.ds) {
-                                acc.sumSepPos += (j_pos - i_pos);
-                                ++acc.nSep;
-                              }
-                            }
+                          if (dist < parametres.ds) { 
+                            acc.sumSepPos += (j_pos - i_pos);
+                            ++acc.nSep;
                           }
-                          return acc;
-                        });
+                        }
+                      }
+                      return acc;
+                    });
 
     if (result.nSep > 0) {
       boid_i.vel_sep(result.sumSepPos, parametres.s);
     }
 
     if (result.n > 0) {
-      boid_i.vel_all(result.sumVelDiff / (result.n), parametres.a);
-      boid_i.vel_coes(result.sumPos / (result.n), parametres.c);
+      boid_i.vel_all(result.sumVelDiff / static_cast<float>(result.n), parametres.a);
+      boid_i.vel_coes(result.sumPos / static_cast<float>(result.n), parametres.c);
     }
   }
 }
@@ -357,8 +357,8 @@ void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
   for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
     auto it_c = circles.begin();
     for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b, ++it_c) {
-      if (abs((*it_p).get_pos().x - (*it_b).get_pos().x) < CATCH_RADIUS &&
-          abs((*it_p).get_pos().y - (*it_b).get_pos().y) < CATCH_RADIUS) {
+      if (std::fabs((*it_p).get_pos().x - (*it_b).get_pos().x) < CATCH_RADIUS &&
+          std::fabs((*it_p).get_pos().y - (*it_b).get_pos().y) < CATCH_RADIUS) {
         boids.erase(it_b);
         circles.erase(it_c);
         --it_p;
