@@ -16,7 +16,7 @@ TEST_CASE("Vec2f Operations") {
     CHECK(result.y == doctest::Approx(0.5f));
   }
 
-  SUBCASE("Compound Addition (+=)") {
+  SUBCASE("Sum and reassignment (+=)") {
     Vec2f a{5.0f, 10.0f};
     Vec2f b{2.5f, -3.0f};
     a += b;
@@ -55,7 +55,7 @@ TEST_CASE("Vec2f Operations") {
     CHECK_THROWS(v / 0.0f);
   }
 
-  SUBCASE("Element-wise Multiplication (*)") {
+  SUBCASE("Multplication between Vec2f") {
     Vec2f a{3.0f, 5.0f};
     Vec2f b{2.0f, -1.0f};
     Vec2f result = a * b;
@@ -73,7 +73,7 @@ TEST_CASE("Norm") {
   CHECK(v2.norm() == 0.f);
 }
 
-TEST_CASE("Angle") {
+TEST_CASE("Speed angle") {
   Vec2f v1{1.f, 0.f};
   Vec2f v2{0.f, 1.f};
   Vec2f v3{0.f, 0.f};
@@ -83,7 +83,7 @@ TEST_CASE("Angle") {
   CHECK_THROWS(v3.angle());
 }
 
-TEST_CASE("Test inizializzazionen parametri") {
+TEST_CASE("Test parameter initialization") {
   CHECK_THROWS(init_parametres(0.8f, 0.3f, 0.1f, 15, 20, 3));
   CHECK_THROWS(init_parametres(1.8f, 0.3f, 0.1f, 15, 10, 3));
   CHECK_THROWS(init_parametres(0.8f, 1.3f, 0.1f, 15, 10, 3));
@@ -91,7 +91,7 @@ TEST_CASE("Test inizializzazionen parametri") {
   CHECK_THROWS(init_parametres(0.8f, 0.3f, 0.1f, 15, -10, 3));
 }
 
-TEST_CASE("Verifica dei comportamenti per velocità superiori alla massima") {
+TEST_CASE("Checking the behaviours for speeds higher than the maximum") {
   bob::Boid b1 = {{0.f, 0.f}, {3.f, 4.f}};
   bob::Boid b2 = {{0.f, 0.f}, {-9.f, 13.f}};
   bob::Boid b3 = {{0.f, 0.f}, {0.f, 0.f}};
@@ -114,7 +114,7 @@ TEST_CASE("Verifica dei comportamenti per velocità superiori alla massima") {
   CHECK(b5.get_vel().y == doctest::Approx(-10.686f).epsilon(0.01));
 }
 
-TEST_CASE("Verifica distanza") {
+TEST_CASE("Check distance") {
   bob::Boid b1 = {{0.f, 0.f}, {0.f, 0.f}};
   bob::Boid p2 = {{4.f, 3.f}, {0.f, 0.f}};
   bob::Boid b3 = {{-4.f, -3.f}, {0.f, 0.f}};
@@ -127,8 +127,8 @@ TEST_CASE("Verifica distanza") {
   CHECK(distance(b1, p4) == doctest::Approx(2 * sqrt(2)));
 }
 
-TEST_CASE("Comportamento ai bordi") {
-  SUBCASE("Predatori") {
+TEST_CASE("Behaviours at the edges") {
+  SUBCASE("Predators") {
     bob::Predator p1 = bob::Vec2f{601.f, 613.f};
     bob::Predator p2 = bob::Vec2f{750.f, 35.f};
     bob::Predator p3 = bob::Vec2f{-3.f, 204.f};
@@ -168,8 +168,8 @@ TEST_CASE("Comportamento ai bordi") {
   }
 }
 
-TEST_CASE("Verifica funzionamento evaluate correction Boid") {
-  SUBCASE("Velocità di separazione") {
+TEST_CASE("Checking evaluate correction Boid functionality") {
+  SUBCASE("Speed of separation") {
     Boid b1(Two_Vec{{0.f, 0.f}, {1.f, 0.f}});
     Boid b2(Two_Vec{{2.f, 0.f}, {-1.f, 0.f}});
     std::vector<Boid> boids = {b1, b2};
@@ -184,7 +184,7 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
     CHECK(boids[0].get_corr_vcoes().x == doctest::Approx(0.f).epsilon(0.01));
   }  // namespace bob
 
-  SUBCASE("Velocità di allineamento - 3 Boids") {
+  SUBCASE("Alignment speed - 3 Boids") {
     Boid b1(Two_Vec{{0.f, 0.f}, {1.f, 1.f}});
     Boid b2(Two_Vec{{2.f, 2.f}, {3.f, 3.f}});
     Boid b3(Two_Vec{{3.f, 3.f}, {5.f, 1.f}});
@@ -205,7 +205,7 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
     CHECK(boids[0].get_corr_vcoes().x == doctest::Approx(0.f).epsilon(0.01));
   }
 
-  SUBCASE("Velocità di coesione - 3 Boids") {
+  SUBCASE("Cohesion speed - 3 Boids") {
     Boid b1(Two_Vec{{0.f, 0.f}, {1.f, 1.f}});
     Boid b2(Two_Vec{{10.f, 0.f}, {0.f, 0.f}});
     Boid b3(Two_Vec{{6.f, 4.f}, {0.f, 0.f}});
@@ -225,7 +225,7 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
     CHECK(boids[0].get_corr_vall().x == doctest::Approx(0.f).epsilon(0.01));
   }
 
-  SUBCASE("Tutte le velocità - 3 Boids") {
+  SUBCASE("All speeds - 3 Boids") {
     Boid b1(Two_Vec{{0.f, 0.f}, {0.f, 0.f}});
     Boid b2(Two_Vec{{1.f, 0.f}, {1.f, 0.f}});
     Boid b3(Two_Vec{{0.f, 1.f}, {0.f, 1.f}});
@@ -252,7 +252,7 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
     CHECK(boids[0].get_corr_vcoes().y == doctest::Approx(coes.y));
   }
 
-  SUBCASE("Tutte le velocità - 4 Boids") {
+  SUBCASE("All speeds - 4 Boids") {
     Boid b1(Two_Vec{{0.f, 0.f}, {0.f, 0.f}});
     Boid b2(Two_Vec{{1.f, 0.f}, {1.f, 0.f}});
     Boid b3(Two_Vec{{0.f, 1.f}, {0.f, 1.f}});
@@ -283,7 +283,7 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
     CHECK(boids[0].get_corr_vcoes().y == doctest::Approx(coes.y));
   }
 
-  SUBCASE("Tutte le velocità - 5 Boids") {
+  SUBCASE("All speeds - 5 Boids") {
     Boid b1(Two_Vec{{0.f, 0.f}, {0.f, 0.f}});
     Boid b2(Two_Vec{{1.f, 0.f}, {1.f, 0.f}});
     Boid b3(Two_Vec{{0.f, 1.f}, {0.f, 1.f}});
@@ -315,8 +315,8 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
     CHECK(boids[0].get_corr_vcoes().y == doctest::Approx(coes.y));
   }
 
-  SUBCASE("Posizione non valida") {
-    SUBCASE("Coordinata negativa") {
+  SUBCASE("Invalid position") {
+    SUBCASE("Negative coordinate") {
       Boid b = Two_Vec{{305.f, -12.f}, {0.f, 0.f}};
       std::vector<Boid> boids{b};
       std::vector<Predator> predators;
@@ -325,7 +325,7 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
       CHECK_THROWS(evaluate_boid_correction(boids, predators, params));
     }
 
-    SUBCASE("Coordinata oltre il limite") {
+    SUBCASE("Coordinate over the limit") {
       Boid b1 = Two_Vec{{305.f, 12.f}, {0.f, 0.f}};
       Boid b2 = Two_Vec{{201.f, 812.f}, {0.f, 0.f}};
       std::vector<Boid> boids{b1, b2};
@@ -346,8 +346,8 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
   }
 }
 
-TEST_CASE("Azioni dei predatori") {
-  SUBCASE("Predatore si muove verso un boid") {
+TEST_CASE("Predator actions") {
+  SUBCASE("Predator moves towards a boid") {
     Predator p({0.f, 0.f});
     Boid b(Two_Vec{{1.f, 0.f}, {0.f, 0.f}});
 
@@ -363,8 +363,8 @@ TEST_CASE("Azioni dei predatori") {
     CHECK(p.get_pos().y == doctest::Approx(0.f).epsilon(0.01));
   }
 
-  SUBCASE("Predatori si allontanano perchè vicini") {
-    SUBCASE("2 orizzontalmente") {
+  SUBCASE("Predators move away because they are close") {
+    SUBCASE("2 horizontally") {
       Predator p1({0.f, 0.f});
       Predator p2({1.f, 0.f});
 
@@ -389,7 +389,7 @@ TEST_CASE("Azioni dei predatori") {
       CHECK(p2.get_vel().y == doctest::Approx(vy2).epsilon(0.01));
       CHECK(p1.get_pos().x == doctest::Approx(vx1 * TIME_STEP).epsilon(0.01));
     }
-    SUBCASE("2 verticalmente") {
+    SUBCASE("2 vertically") {
       Predator p1({100.f, 100.f});
       Predator p2({100.f, 90.f});  // sopra
 
@@ -413,7 +413,7 @@ TEST_CASE("Azioni dei predatori") {
       CHECK(p2.get_vel().x == doctest::Approx(vx2).epsilon(0.01));
       CHECK(p2.get_vel().y == doctest::Approx(vy2).epsilon(0.01));
     }
-    SUBCASE("2 diagonalmente") {
+    SUBCASE("2 diagonally") {
       Predator p1({50.f, 50.f});
       Predator p2({55.f, 55.f});  // diagonale in alto a destra
 
@@ -440,7 +440,7 @@ TEST_CASE("Azioni dei predatori") {
     }
   }
 
-  SUBCASE("Inseguimento e separazione") {
+  SUBCASE("Pursuit and separation") {
     Predator p1({0.f, 0.f});
     Boid b(Two_Vec{{1.f, 1.f}, {0.f, 0.f}});
     Predator p2({0.f, 1.f});
@@ -462,7 +462,7 @@ TEST_CASE("Azioni dei predatori") {
     CHECK(p1.get_vel().y == doctest::Approx(v_expected.y).epsilon(0.01));
   }
 
-  SUBCASE("Boid fugge dal predatore") {
+  SUBCASE("Boid escapes from the close predator") {
     Boid b(Two_Vec{{100.f, 100.f}, {0.f, 0.f}});
     Predator p({90.f, 100.f});
 
@@ -484,7 +484,7 @@ TEST_CASE("Azioni dei predatori") {
           doctest::Approx(FACT_FUGA * sinf(angle)).epsilon(0.01));
   }
 
-  SUBCASE("Boid non scappa dal predatore distante") {
+  SUBCASE("Boid doesn't escape from the distant predator") {
     Boid b(Two_Vec{{100.f, 100.f}, {0.f, 0.f}});
     Predator p({300.f, 300.f});
 
@@ -497,7 +497,7 @@ TEST_CASE("Azioni dei predatori") {
     CHECK(boids[0].get_corr_vfuga().y == doctest::Approx(0.f).epsilon(0.01));
   }
 
-  SUBCASE("Predatore individua il boid più vicino") {
+  SUBCASE("Predator locates the nearest boid") {
     Boid b1(Two_Vec{{100.f, 100.f}, {0.f, 0.f}});
     Boid b2(Two_Vec{{200.f, 100.f}, {0.f, 0.f}});
     Predator p({110.f, 100.f});
@@ -511,7 +511,7 @@ TEST_CASE("Azioni dei predatori") {
     CHECK(vel.x < 0.f);
   }
 
-  SUBCASE("Position not valid") {
+  SUBCASE("Invalid position") {
     Predator p = Vec2f{809.f, 103};
     std::vector<Predator> predators = {p};
     std::vector<Boid> boids;
@@ -519,7 +519,7 @@ TEST_CASE("Azioni dei predatori") {
   }
 }
 
-TEST_CASE("Test della funzione reset_corr") {
+TEST_CASE("Testing the functionality of reset_corr") {
   SUBCASE("Boid") {
     Boid b(Two_Vec{{0.f, 0.f}, {1.f, 1.f}});
     b.vel_sep({1.f, 1.f}, 1.f);
@@ -545,10 +545,9 @@ TEST_CASE("Test della funzione reset_corr") {
     CHECK(p.get_vel_sep() == Vec2f{0.f, 0.f});
   }
 }
-
 namespace statistics {
 TEST_CASE("Statistics") {
-  SUBCASE("Velocità media dei boids") {
+  SUBCASE("Mean speed of boids") {
     Boid b1(Two_Vec{{0.f, 0.f}, {2.f, 0.f}});
     Boid b2(Two_Vec{{0.f, 0.f}, {0.f, 2.f}});
     Boid b3(Two_Vec{{0.f, 0.f}, {2.f, 2.f}});
@@ -560,7 +559,7 @@ TEST_CASE("Statistics") {
     CHECK(mean_velocity_algo(boids).y == doctest::Approx(expected_mean.y));
   }
 
-  SUBCASE("Deaviazione standard") {
+  SUBCASE("Standard deviation") {
     Boid b1(Two_Vec{{0.f, 0.f}, {1.f, 1.f}});
     Boid b2(Two_Vec{{0.f, 0.f}, {3.f, 1.f}});
     Boid b3(Two_Vec{{0.f, 0.f}, {5.f, 1.f}});
@@ -575,7 +574,7 @@ TEST_CASE("Statistics") {
     CHECK(deviation_algo.y == doctest::Approx(dev_y));
   }
 
-  SUBCASE("Deviazione nulla per velocità identiche") {
+  SUBCASE("Null deviation for equal speeds") {
     Boid b1(Two_Vec{{0.f, 0.f}, {2.f, 3.f}});
     Boid b2(Two_Vec{{0.f, 0.f}, {2.f, 3.f}});
     Boid b3(Two_Vec{{0.f, 0.f}, {2.f, 3.f}});
@@ -587,20 +586,19 @@ TEST_CASE("Statistics") {
     CHECK(dev_algo.y == doctest::Approx(0.f));
   }
 
-  SUBCASE("Media con nessun boid") {
+  SUBCASE("mean with no boids") {
     std::vector<Boid> boids;
     CHECK_THROWS(mean_velocity_algo(boids));
   }
 
-  SUBCASE("Deviazione standard con 1 boid") {
+  SUBCASE("Standard deviation with 1 boid") {
     Boid b = Two_Vec{{4.f, 5.f}, {0.f, 0.f}};
     std::vector<Boid> boids{b};
     CHECK_THROWS(mean_deviation_algo(boids));
   }
 }
 }  // namespace statistics
-
-TEST_CASE("Test metodo erase_boid") {
+TEST_CASE("Testing the functionality of erase_boid") {
   Boid b(Two_Vec{{100.f, 100.f}, {0.f, 0.f}});
   Predator p({100.f, 100.f});
   sf::CircleShape shape(1.f);
