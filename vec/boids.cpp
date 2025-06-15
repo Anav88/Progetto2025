@@ -33,11 +33,12 @@ bool operator==(Vec2f const &v1, Vec2f const &v2) {
   return v1.x == v2.x && v1.y == v2.y;
 }
 
-float Vec2f::angle() const { 
-  if(x == 0.f && y == 0.f){
+float Vec2f::angle() const {
+  if (x == 0.f && y == 0.f) {
     throw std::invalid_argument("The angle is not defined");
   }
-  return atan2f(y, x); }
+  return atan2f(y, x);
+}
 float Vec2f::norm() const { return std::sqrt(y * y + x * x); }
 
 void limit_func(Vec2f &pos) {
@@ -122,7 +123,7 @@ void Predator::reset_corr() {
 }
 void Predator::limit() { limit_func(pos_); }
 
-Par init_parametres(float s, float a, float c, int d, int ds,
+Par init_parametres(float s, float a, float c, float d, float ds,
                     std::size_t size) {
   if (s < 0 || s > 1) {
     throw std::domain_error("Parameter s must be in the interval [0,1]");
@@ -139,9 +140,9 @@ Par init_parametres(float s, float a, float c, int d, int ds,
   if (d < ds) {
     throw std::domain_error("Parameter d must be bigger than ds");
   }
-  //if (size < 0) {
-  //  throw std::domain_error("Parameter N can't be negative");
-  //}
+  // if (size < 0) {
+  //   throw std::domain_error("Parameter N can't be negative");
+  // }
 
   return Par{s, a, c, d, ds, size};
 }
@@ -178,11 +179,8 @@ Par init_parametres() {
   std::cout << "Enter the number of boids\n";
   std::cin >> input.size;
   if (std::cin.fail()) {
-    throw std::invalid_argument("Parameter not valid");
+    throw std::domain_error("Parameter not valid");
   }
-  //if (input.size < 0) {
-  // throw std::invalid_argument("The number of boids must be positive");
-  //}
 
   return input;
 }
@@ -283,36 +281,38 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
       Vec2f sumSepPos;
     };
 
-    auto result =
-    std::accumulate(boids.begin(), boids.end(),
-                    Stats{0, {0.f, 0.f}, {0.f, 0.f}, 0, {0.f, 0.f}},
-                    [&](Stats acc, Boid const &boid_j) {
-                      if (!(&boid_i == &boid_j)) {
-                        float dist = static_cast<float>(distance(boid_i, boid_j));
+    auto result = std::accumulate(
+        boids.begin(), boids.end(),
+        Stats{0, {0.f, 0.f}, {0.f, 0.f}, 0, {0.f, 0.f}},
+        [&](Stats acc, Boid const &boid_j) {
+          if (!(&boid_i == &boid_j)) {
+            float dist = static_cast<float>(distance(boid_i, boid_j));
 
-                        if (dist < parametres.d) {  
-                          Vec2f j_pos = boid_j.get_pos();
-                          Vec2f j_vel = boid_j.get_vel();
-                          ++acc.n;
-                          acc.sumVelDiff += (j_vel - i_vel);
-                          acc.sumPos += j_pos;
+            if (dist < parametres.d) {
+              Vec2f j_pos = boid_j.get_pos();
+              Vec2f j_vel = boid_j.get_vel();
+              ++acc.n;
+              acc.sumVelDiff += (j_vel - i_vel);
+              acc.sumPos += j_pos;
 
-                          if (dist < parametres.ds) { 
-                            acc.sumSepPos += (j_pos - i_pos);
-                            ++acc.nSep;
-                          }
-                        }
-                      }
-                      return acc;
-                    });
+              if (dist < parametres.ds) {
+                acc.sumSepPos += (j_pos - i_pos);
+                ++acc.nSep;
+              }
+            }
+          }
+          return acc;
+        });
 
     if (result.nSep > 0) {
       boid_i.vel_sep(result.sumSepPos, parametres.s);
     }
 
     if (result.n > 0) {
-      boid_i.vel_all(result.sumVelDiff / static_cast<float>(result.n), parametres.a);
-      boid_i.vel_coes(result.sumPos / static_cast<float>(result.n), parametres.c);
+      boid_i.vel_all(result.sumVelDiff / static_cast<float>(result.n),
+                     parametres.a);
+      boid_i.vel_coes(result.sumPos / static_cast<float>(result.n),
+                      parametres.c);
     }
   }
 }

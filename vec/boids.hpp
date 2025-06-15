@@ -39,8 +39,8 @@ struct Par {
   float s;
   float a;
   float c;
-  int d;
-  int ds;
+  float d;
+  float ds;
   std::size_t size;
 };
 
@@ -114,7 +114,7 @@ template <typename BP1, typename BP2>
 float distance(BP1 const &, BP2 const &);
 
 Par init_parametres();
-Par init_parametres(float, float, float, int, int, std::size_t);
+Par init_parametres(float, float, float, float, float, std::size_t);
 
 namespace statistics {
 Vec2f mean_velocity_algo(std::vector<Boid> const &);
