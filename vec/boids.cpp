@@ -87,7 +87,7 @@ void Boid::reset_corr() {
   corr_vfuga_ = {0.f, 0.f};
 }
 void Boid::vel_max() {
-  float max_speed = sqrtf(LIM_VEL * LIM_VEL * 2);
+  float max_speed = sqrtf(BOID_VEL_LIM * BOID_VEL_LIM * 2);
   float norm = vel_.norm();
   if (norm > max_speed) {
     float angle = vel_.angle();
@@ -127,73 +127,66 @@ void Predator::reset_corr() {
 }
 void Predator::limit() { limit_func(pos_); }
 
-Par init_parametres(float s, float a, float c, int d, int ds, std::size_t N) {
+Par init_parametres(float s, float a, float c, int d, int ds,
+                    std::size_t size) {
   if (s < 0 || s > 1) {
-    throw std::invalid_argument("Parameter s must be in the interval [0,1]");
+    throw std::domain_error("Parameter s must be in the interval [0,1]");
   }
-  assert(s >= 0 && s <= 1);
   if (a < 0 || a > 1) {
-    throw std::invalid_argument("Parameter a must be in the interval [0,1]");
+    throw std::domain_error("Parameter a must be in the interval [0,1]");
   }
-  assert(a >= 0 && a <= 1);
   if (c < 0 || c > 1) {
-    throw std::invalid_argument("Parameter c must be in the interval [0,1]");
+    throw std::domain_error("Parameter c must be in the interval [0,1]");
   }
-  assert(c >= 0 && c <= 1);
   if (d < 0 || ds < 0) {
-    throw std::invalid_argument("Parameter d and ds must be positive");
+    throw std::domain_error("Parameter d and ds must be positive");
   }
   if (d < ds) {
-    throw std::invalid_argument("Parameter d must be bigger than ds");
+    throw std::domain_error("Parameter d must be bigger than ds");
   }
-  assert(ds <= d && ds >= 0);
-  if (N < 0) {
-    throw std::invalid_argument("Parameter N can't be negative");
+  if (size < 0) {
+    throw std::domain_error("Parameter N can't be negative");
   }
 
-  return Par{s, a, c, d, ds, N};
+  return Par{s, a, c, d, ds, size};
 }
 Par init_parametres() {
   Par input;
 
-  std::cout << "Inserisci i valori dei parametri s, a, c\n";
+  std::cout << "Enter the values of the parameters s, a, c\n";
   std::cin >> input.s >> input.a >> input.c;
   if (std::cin.fail()) {
-    throw std::invalid_argument("Parameter not valid");
+    throw std::domain_error("Parameter not valid");
   }
   if (input.s < 0 || input.s > 1) {
-    throw std::invalid_argument("Parameter s must be in the interval [0,1]");
+    throw std::domain_error("Parameter s must be in the interval [0,1]");
   }
-  assert(input.s >= 0 && input.s <= 1);
   if (input.a < 0 || input.a > 1) {
-    throw std::invalid_argument("Parameter a must be in the interval [0,1]");
+    throw std::domain_error("Parameter a must be in the interval [0,1]");
   }
-  assert(input.a >= 0 && input.a <= 1);
   if (input.c < 0 || input.c > 1) {
-    throw std::invalid_argument("Parameter c must be in the interval [0,1]");
+    throw std::domain_error("Parameter c must be in the interval [0,1]");
   }
-  assert(input.c >= 0 && input.c <= 1);
 
-  std::cout << "Inserisci i valori dei parametri d, ds\n";
+  std::cout << "Enter the values of the parameters d, ds\n";
   std::cin >> input.d >> input.ds;
   if (std::cin.fail()) {
-    throw std::invalid_argument("Parameter not valid");
+    throw std::domain_error("Parameter not valid");
   }
   if (input.d < 0 || input.ds < 0) {
-    throw std::invalid_argument("Parameter d and ds must be positive");
+    throw std::domain_error("Parameter d and ds must be positive");
   }
   if (input.d < input.ds) {
-    throw std::invalid_argument("Parameter d must be bigger than ds");
+    throw std::domain_error("Parameter d must be bigger than ds");
   }
-  assert(input.ds <= input.d && input.ds >= 0);
 
-  std::cout << "Inserisci il numero dei boid\n";
-  std::cin >> input.N;
+  std::cout << "Enter the number of boids\n";
+  std::cin >> input.size;
   if (std::cin.fail()) {
     throw std::invalid_argument("Parameter not valid");
   }
-  if (input.N < 0) {
-    throw std::invalid_argument("Parameter N can't be negative");
+  if (input.size < 0) {
+    throw std::invalid_argument("The number of boids must be positive");
   }
 
   return input;
@@ -262,8 +255,8 @@ Two_Vec rand_num() {
 
   std::uniform_real_distribution<float> pos_x{MIN_POS, MAX_POS};
   std::uniform_real_distribution<float> pos_y{MIN_POS, MAX_POS};
-  std::uniform_real_distribution<float> vel_x{-LIM_VEL, LIM_VEL};
-  std::uniform_real_distribution<float> vel_y{-LIM_VEL, LIM_VEL};
+  std::uniform_real_distribution<float> vel_x{-BOID_VEL_LIM, BOID_VEL_LIM};
+  std::uniform_real_distribution<float> vel_y{-BOID_VEL_LIM, BOID_VEL_LIM};
 
   return {{pos_x(eng), pos_y(eng)}, {vel_x(eng), vel_y(eng)}};
 }
@@ -275,10 +268,11 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
     if (boid_i.get_pos().x < MIN_POS || boid_i.get_pos().y < MIN_POS ||
         boid_i.get_pos().x > MAX_POS || boid_i.get_pos().y > MAX_POS) {
       throw std::domain_error(
-          "Il boid si trova al di fuori dei limiti consentiti");
+          "The boid is out of bounds");
     }
-    if (boid_i.get_vel().norm() > std::sqrtf(LIM_VEL * LIM_VEL * 2) + 0.1f) {
-      throw std::domain_error("Il boid non ha velocità nei limiti consentiti");
+    if (boid_i.get_vel().norm() >
+        std::sqrtf(BOID_VEL_LIM * BOID_VEL_LIM * 2) + 0.1f) {
+      throw std::domain_error("The boid has no speed within the allowed limits");
     }
 
     evaluate_boid_corr_fuga(boid_i, predators);
@@ -294,34 +288,34 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
       Vec2f sumSepPos;
     };
 
-    auto result = std::accumulate(
-        boids.begin(), boids.end(),
-        Stats{0, {0.f, 0.f}, {0.f, 0.f}, 0, {0.f, 0.f}},
-        [&boid_i, &parametres, &i_vel, &i_pos](Stats acc, Boid const &boid_j) {
-          if (!(&boid_i == &boid_j)) {
-            float dist = distance(boid_i, boid_j);
+    auto result =
+        std::accumulate(boids.begin(), boids.end(),
+                        Stats{0, {0.f, 0.f}, {0.f, 0.f}, 0, {0.f, 0.f}},
+                        [&](Stats acc, Boid const &boid_j) {
+                          if (!(&boid_i == &boid_j)) {
+                            float dist = distance(boid_i, boid_j);
 
-            if (dist < parametres.d) {
-              Vec2f j_pos = boid_j.get_pos();
-              Vec2f j_vel = boid_j.get_vel();
-              ++acc.n;
-              acc.sumVelDiff += (j_vel - i_vel);
-              acc.sumPos += j_pos;
+                            if (dist < parametres.d) {
+                              Vec2f j_pos = boid_j.get_pos();
+                              Vec2f j_vel = boid_j.get_vel();
+                              ++acc.n;
+                              acc.sumVelDiff += (j_vel - i_vel);
+                              acc.sumPos += j_pos;
 
-              if (dist < parametres.ds) {
-                acc.sumSepPos += (j_pos - i_pos);
-                ++acc.nSep;
-              }
-            }
-          }
-          return acc;
-        });
+                              if (dist < parametres.ds) {
+                                acc.sumSepPos += (j_pos - i_pos);
+                                ++acc.nSep;
+                              }
+                            }
+                          }
+                          return acc;
+                        });
 
     if (result.nSep > 0) {
       boid_i.vel_sep(result.sumSepPos, parametres.s);
     }
 
-    if (result.n > 1) {
+    if (result.n > 0) {
       boid_i.vel_all(result.sumVelDiff / (result.n), parametres.a);
       boid_i.vel_coes(result.sumPos / (result.n), parametres.c);
     }
@@ -350,11 +344,11 @@ void add_circle(std::vector<sf::CircleShape> &circles) {
 
 template <typename BP>
 void init_circle(BP const &bp, sf::CircleShape &c) {
-  sf::Vector2f pos(bp.get_pos().x, bp.get_pos().y);
+  sf::Vector2f pos{bp.get_pos().x, bp.get_pos().y};
   c.setPosition(pos);
 }
 
-sf::CircleShape crt_pred(float x, float y) {
+sf::CircleShape create_pred(float x, float y) {
   sf::CircleShape circle{3.0f};
   circle.setOrigin(3.f, 3.f);
   circle.setPosition({x, y});
@@ -366,12 +360,12 @@ sf::CircleShape crt_pred(float x, float y) {
 void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
                 std::vector<sf::CircleShape> &circles) {
   for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
-    auto it_t = circles.begin();
-    for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b, ++it_t) {
+    auto it_c = circles.begin();
+    for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b, ++it_c) {
       if (abs((*it_p).get_pos().x - (*it_b).get_pos().x) < CATCH_RADIUS &&
           abs((*it_p).get_pos().y - (*it_b).get_pos().y) < CATCH_RADIUS) {
         boids.erase(it_b);
-        circles.erase(it_t);
+        circles.erase(it_c);
         --it_p;
         break;
       }
@@ -382,9 +376,15 @@ void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
 void evaluate_pred_correction(std::vector<Predator> &predators,
                               std::vector<Boid> &boids) {
   for (auto &pred : predators) {
+    if (pred.get_pos().x < MIN_POS || pred.get_pos().y < MIN_POS ||
+        pred.get_pos().x > MAX_POS || pred.get_pos().y > MAX_POS) {
+      throw std::domain_error(
+          "The predator is out of bounds");
+    }
+
     if (!boids.empty()) {
       auto it = std::min_element(
-          boids.begin(), boids.end(), [&pred](Boid const &b1, Boid const &b2) {
+          boids.begin(), boids.end(), [&](Boid const &b1, Boid const &b2) {
             return (distance(pred, b1) < distance(pred, b2));
           });
       if (it != boids.end()) {

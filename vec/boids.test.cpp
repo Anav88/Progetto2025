@@ -104,7 +104,7 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
     CHECK(boids[0].get_corr_vsep().y == doctest::Approx(vel.y).epsilon(0.01));
     CHECK(boids[0].get_corr_vall().x == doctest::Approx(0.f).epsilon(0.01));
     CHECK(boids[0].get_corr_vcoes().x == doctest::Approx(0.f).epsilon(0.01));
-  }
+  }  // namespace bob
 
   SUBCASE("Velocità di allineamento - 3 Boids") {
     Boid b1(Two_Vec{{0.f, 0.f}, {1.f, 1.f}});
@@ -256,6 +256,15 @@ TEST_CASE("Verifica funzionamento evaluate correction Boid") {
 
       CHECK_THROWS(evaluate_boid_correction(boids, predators, params));
     }
+  }
+
+  SUBCASE("Invalid speed") {
+    Boid b = Two_Vec{{0.f, 0.f}, {8.f, -14.f}};
+    std::vector<Boid> boids{b};
+    std::vector<Predator> predators;
+    Par params{0.2f, 0.3f, 0.9f, 6, 3, 1};
+
+    CHECK_THROWS(evaluate_boid_correction(boids, predators, params));
   }
 }
 
@@ -422,6 +431,13 @@ TEST_CASE("Azioni dei predatori") {
 
     Vec2f vel = predators[0].get_vel_inseg();
     CHECK(vel.x < 0.f);
+  }
+
+  SUBCASE("Position not valid") {
+    Predator p = Vec2f{809.f, 103};
+    std::vector<Predator> predators = {p};
+    std::vector<Boid> boids;
+    CHECK_THROWS(evaluate_pred_correction(predators, boids));
   }
 }
 

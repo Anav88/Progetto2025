@@ -1,21 +1,13 @@
-
-
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <algorithm>
 #include <cassert>
-#include <cmath>
-#include <vector>
-// #include <execution>
 #include <iostream>
-#include <random>
+#include <vector>
 
 #include "boids.hpp"
 
 int main() {
   try {
     bob::Par parametres = bob::init_parametres();
-    std::vector<bob::Boid> boids(parametres.N);
+    std::vector<bob::Boid> boids(parametres.size);
 
     sf::RenderWindow window(sf::VideoMode(bob::MAX_POS, bob::MAX_POS),
                             "My window");
@@ -25,7 +17,7 @@ int main() {
     std::vector<bob::Predator> predators;
     add_boid(boids);
 
-    std::vector<sf::CircleShape> circles_boid(parametres.N);
+    std::vector<sf::CircleShape> circles_boid(parametres.size);
     bob::add_circle(circles_boid);
 
     while (window.isOpen()) {
@@ -42,7 +34,7 @@ int main() {
             bob::Predator p(bob::Vec2f{x, y});
             predators.push_back(p);
 
-            sf::CircleShape c = bob::crt_pred(x, y);
+            sf::CircleShape c = bob::create_pred(x, y);
             circles_pred.push_back(c);
           }
         }

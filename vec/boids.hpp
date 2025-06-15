@@ -7,11 +7,13 @@
 namespace bob {
 
 int const PRED_DIST_SEP {80};
-int const BOID_DIST_FUGA = 40;
+int const BOID_DIST_FUGA = 30;
 int const FACT_FUGA{50};
+
 int const MIN_POS{0};
 int const MAX_POS{600};
-int const LIM_VEL{10};
+
+int const BOID_VEL_LIM{10};
 int const VEL_PRED{30};
 int const VEL_PRED_SEP{7};
 std::size_t const MAX_PRED{5};
@@ -39,7 +41,7 @@ struct Par {
   float c;
   int d;
   int ds;
-  std::size_t N;
+  std::size_t size;
 };
 
 Vec2f operator-(Vec2f const &, Vec2f const &);
@@ -138,7 +140,7 @@ void add_circle(std::vector<sf::CircleShape> &);
 template<typename BP>
 void init_circle(BP const &, sf::CircleShape &);
 
-sf::CircleShape crt_pred(float, float);
+sf::CircleShape create_pred(float, float);
 
 void erase_boid(std::vector<Boid> &, std::vector<Predator> &,
                 std::vector<sf::CircleShape> &);
