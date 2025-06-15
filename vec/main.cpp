@@ -28,8 +28,8 @@ int main() {
           window.close();
         }
         if (event.type == sf::Event::MouseButtonPressed) {
-          float x = event.mouseButton.x;
-          float y = event.mouseButton.y;
+          float x = static_cast<float>(event.mouseButton.x);
+          float y = static_cast<float>(event.mouseButton.y);
           if (predators.size() < bob::MAX_PRED) {
             bob::Predator p(bob::Vec2f{x, y});
             predators.push_back(p);

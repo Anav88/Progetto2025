@@ -355,17 +355,34 @@ sf::CircleShape create_pred(float x, float y) {
 void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
                 std::vector<sf::CircleShape> &circles) {
   for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
-    auto it_c = circles.begin();
-    for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b, ++it_c) {
-      if (std::fabs((*it_p).get_pos().x - (*it_b).get_pos().x) < CATCH_RADIUS &&
-          std::fabs((*it_p).get_pos().y - (*it_b).get_pos().y) < CATCH_RADIUS) {
-        boids.erase(it_b);
-        circles.erase(it_c);
+    for (size_t i = 0; i < boids.size(); ++i) {
+      if (distance((*it_p), boids[i]) < CATCH_RADIUS) {
+        boids.erase(
+            boids.begin() +
+            static_cast<std::vector<Boid>::iterator::difference_type>(i));
+        circles.erase(
+            circles.begin() +
+            static_cast<
+                std::vector<sf::CircleShape>::iterator::difference_type>(i));
         --it_p;
         break;
       }
     }
   }
+  // for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
+  //   auto it_c = circles.begin();
+  //   for (auto it_b = boids.begin(); it_b != boids.end(); ++it_b, ++it_c) {
+  //     if (std::fabs((*it_p).get_pos().x - (*it_b).get_pos().x) < CATCH_RADIUS
+  //     &&
+  //         std::fabs((*it_p).get_pos().y - (*it_b).get_pos().y) <
+  //         CATCH_RADIUS) {
+  //       boids.erase(it_b);
+  //       circles.erase(it_c);
+  //       --it_p;
+  //       break;
+  //     }
+  //   }
+  // }
 }
 
 void evaluate_pred_correction(std::vector<Predator> &predators,
