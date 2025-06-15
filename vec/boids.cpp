@@ -16,7 +16,7 @@ Vec2f operator+(Vec2f const &v1, Vec2f const &v2) {
 }
 Vec2f &Vec2f::operator+=(Vec2f const &v1) {
   *this = *this + v1;
-  return *this;  // fatto da chatgpt
+  return *this;  // Metodo scritto da chatgpt
 }
 Vec2f operator*(Vec2f const &v1, Vec2f const &v2) {
   return {v1.x * v2.x, v1.y * v2.y};
@@ -25,7 +25,7 @@ Vec2f operator*(Vec2f const &v1, float f) { return {v1.x * f, v1.y * f}; }
 Vec2f operator*(float f, Vec2f const &v1) { return v1 * f; }
 Vec2f operator/(Vec2f const &v1, float f) {
   if (f == 0.f) {
-    throw std::invalid_argument("Nonn si può dividere per 0");
+    throw std::invalid_argument("It is impossible to divide by 0");
   }
   return {v1.x / f, v1.y / f};
 }
@@ -35,7 +35,7 @@ bool operator==(Vec2f const &v1, Vec2f const &v2) {
 
 float Vec2f::angle() const { 
   if(x == 0.f && y == 0.f){
-    throw std::invalid_argument("Non ha senso calcolare l'angolo");
+    throw std::invalid_argument("The angle is not defined");
   }
   return atan2f(y, x); }
 float Vec2f::norm() const { return std::sqrt(y * y + x * x); }
@@ -199,7 +199,7 @@ namespace statistics {
 Vec2f mean_velocity_algo(std::vector<Boid> const &boids) {
   if (boids.size() <= 0) {
     throw std::domain_error(
-        "Non si può calcolare la velocità media con alcun boid");
+        "You cannot calculate the average speed with any boid");
   }
   Vec2f sums = std::accumulate(boids.begin(), boids.end(), Vec2f{0.f, 0.f},
                                [](Vec2f sum, const Boid &b) {
@@ -213,7 +213,7 @@ Vec2f mean_velocity_algo(std::vector<Boid> const &boids) {
 Vec2f mean_deviation_algo(std::vector<Boid> const &boids) {
   if (boids.size() <= 1) {
     throw std::domain_error(
-        "Non si può calcolare la deviazione standard con meno di due boids");
+        "Standard deviation cannot be calculated with less than two boids");
   }
   Vec2f mean = mean_velocity_algo(boids);
 

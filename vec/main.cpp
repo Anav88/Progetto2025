@@ -15,7 +15,7 @@ int main() {
 
     std::vector<sf::CircleShape> circles_pred;
     std::vector<bob::Predator> predators;
-    add_boid(boids);
+    bob::add_boid(boids);
 
     std::vector<sf::CircleShape> circles_boid(parametres.size);
     bob::add_circle(circles_boid);
@@ -48,12 +48,12 @@ int main() {
 
       window.clear(sf::Color::White);
 
-      evaluate_pred_correction(predators, boids);
-      evaluate_boid_correction(boids, predators, parametres);
+      bob::evaluate_pred_correction(predators, boids);
+      bob::evaluate_boid_correction(boids, predators, parametres);
 
-      erase_boid(boids, predators, circles_boid);
-      update_pred(circles_pred, predators, window);
-      update_boid(circles_boid, boids, window);
+      bob::erase_boid(boids, predators, circles_boid);
+      bob::update_pred(circles_pred, predators, window);
+      bob::update_boid(circles_boid, boids, window);
 
       window.display();
     }
