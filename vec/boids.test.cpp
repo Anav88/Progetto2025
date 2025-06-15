@@ -5,6 +5,84 @@
 #include "doctest.h"
 
 namespace bob {
+
+TEST_CASE("Vec2f Operations") {
+  SUBCASE("Addition (+)") {
+    Vec2f a{1.5f, 2.0f};
+    Vec2f b{3.0f, -1.5f};
+    Vec2f result = a + b;
+
+    CHECK(result.x == doctest::Approx(4.5f));
+    CHECK(result.y == doctest::Approx(0.5f));
+  }
+
+  SUBCASE("Compound Addition (+=)") {
+    Vec2f a{5.0f, 10.0f};
+    Vec2f b{2.5f, -3.0f};
+    a += b;
+
+    CHECK(a.x == doctest::Approx(7.5f));
+    CHECK(a.y == doctest::Approx(7.0f));
+  }
+
+  SUBCASE("Subtraction (-)") {
+    Vec2f a{10.0f, 8.0f};
+    Vec2f b{4.0f, 9.0f};
+    Vec2f result = a - b;
+
+    CHECK(result.x == doctest::Approx(6.0f));
+    CHECK(result.y == doctest::Approx(-1.0f));
+  }
+
+  SUBCASE("Multiplication (Scalar * Vec2f)") {
+    Vec2f v{2.0f, -3.0f};
+    Vec2f result1 = 2.5f * v;
+    Vec2f result2 = v * 2.0f;
+
+    CHECK(result1.x == doctest::Approx(5.0f));
+    CHECK(result1.y == doctest::Approx(-7.5f));
+    CHECK(result2.x == doctest::Approx(4.0f));
+    CHECK(result2.y == doctest::Approx(-6.0f));
+  }
+
+  SUBCASE("Division (/)") {
+    Vec2f v{6.0f, 4.0f};
+    Vec2f result = v / 2.0f;
+
+    CHECK(result.x == doctest::Approx(3.0f));
+    CHECK(result.y == doctest::Approx(2.0f));
+
+    CHECK_THROWS(v / 0.0f);
+  }
+
+  SUBCASE("Element-wise Multiplication (*)") {
+    Vec2f a{3.0f, 5.0f};
+    Vec2f b{2.0f, -1.0f};
+    Vec2f result = a * b;
+
+    CHECK(result.x == doctest::Approx(6.0f));
+    CHECK(result.y == doctest::Approx(-5.0f));
+  }
+}
+
+TEST_CASE("Norm") {
+  Vec2f v1{3.f, 4.f};
+  Vec2f v2{0.f, 0.f};
+
+  CHECK(v1.norm() == 5.f);
+  CHECK(v2.norm() == 0.f);
+}
+
+TEST_CASE("Angle") {
+  Vec2f v1{1.f, 0.f};
+  Vec2f v2{0.f, 1.f};
+  Vec2f v3{0.f, 0.f};
+
+  CHECK(v1.angle() == 0.f);
+  CHECK(v2.angle() == doctest::Approx(1.571).epsilon(0.01));
+  CHECK_THROWS(v3.angle());
+}
+
 TEST_CASE("Test inizializzazionen parametri") {
   CHECK_THROWS(init_parametres(0.8f, 0.3f, 0.1f, 15, 20, 3));
   CHECK_THROWS(init_parametres(1.8f, 0.3f, 0.1f, 15, 10, 3));
@@ -467,6 +545,7 @@ TEST_CASE("Test della funzione reset_corr") {
     CHECK(p.get_vel_sep() == Vec2f{0.f, 0.f});
   }
 }
+
 namespace statistics {
 TEST_CASE("Statistics") {
   SUBCASE("Velocità media dei boids") {
@@ -520,6 +599,7 @@ TEST_CASE("Statistics") {
   }
 }
 }  // namespace statistics
+
 TEST_CASE("Test metodo erase_boid") {
   Boid b(Two_Vec{{100.f, 100.f}, {0.f, 0.f}});
   Predator p({100.f, 100.f});

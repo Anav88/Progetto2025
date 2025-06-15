@@ -16,25 +16,28 @@ Vec2f operator+(Vec2f const &v1, Vec2f const &v2) {
 }
 Vec2f &Vec2f::operator+=(Vec2f const &v1) {
   *this = *this + v1;
-  return *this; // fatto da chatgpt
+  return *this;  // fatto da chatgpt
 }
 Vec2f operator*(Vec2f const &v1, Vec2f const &v2) {
-  return {v1.x * v2.x, v1.y * v2.y}; 
+  return {v1.x * v2.x, v1.y * v2.y};
 }
 Vec2f operator*(Vec2f const &v1, float f) { return {v1.x * f, v1.y * f}; }
 Vec2f operator*(float f, Vec2f const &v1) { return v1 * f; }
-Vec2f operator/(Vec2f const &v1, float f) { return {v1.x / f, v1.y / f}; }
+Vec2f operator/(Vec2f const &v1, float f) {
+  if (f == 0.f) {
+    throw std::invalid_argument("Nonn si può dividere per 0");
+  }
+  return {v1.x / f, v1.y / f};
+}
 bool operator==(Vec2f const &v1, Vec2f const &v2) {
   return v1.x == v2.x && v1.y == v2.y;
 }
-bool operator==(Boid b1, Boid b2) { 
-  return (b1.get_pos() == b2.get_pos() && b1.get_vel() == b2.get_vel());
-}
-bool operator==(Predator p1, Predator p2) {
-  return (p1.get_pos() == p2.get_pos() && p1.get_vel() == p2.get_vel()); 
-}
 
-float Vec2f::angle() const { return atan2f(y, x); }
+float Vec2f::angle() const { 
+  if(x == 0.f && y == 0.f){
+    throw std::invalid_argument("Non ha senso calcolare l'angolo");
+  }
+  return atan2f(y, x); }
 float Vec2f::norm() const { return std::sqrt(y * y + x * x); }
 
 void limit_func(Vec2f &pos) {
@@ -251,7 +254,7 @@ Two_Vec rand_num() {
 void add_boid(std::vector<Boid> &add_vec) {
   std::generate(add_vec.begin(), add_vec.end(),
                 []() { return (Boid(rand_num())); });
-} // Boid costruttore
+}  // Boid costruttore
 
 void evaluate_boid_correction(std::vector<Boid> &boids,
                               std::vector<Predator> &predators,
@@ -259,13 +262,13 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
   for (Boid &boid_i : boids) {
     if (boid_i.get_pos().x < MIN_POS || boid_i.get_pos().y < MIN_POS ||
         boid_i.get_pos().x > MAX_POS || boid_i.get_pos().y > MAX_POS) {
-      throw std::domain_error(
-          "The boid is out of bounds");
+      throw std::domain_error("The boid is out of bounds");
     }
     if (boid_i.get_vel().norm() >
         sqrtf(BOID_VEL_LIM * BOID_VEL_LIM * 2) + 0.1f) {
-      throw std::domain_error("The boid has no speed within the allowed limits");
-    } 
+      throw std::domain_error(
+          "The boid has no speed within the allowed limits");
+    }
 
     evaluate_boid_corr_fuga(boid_i, predators);
 
@@ -370,8 +373,7 @@ void evaluate_pred_correction(std::vector<Predator> &predators,
   for (auto &pred : predators) {
     if (pred.get_pos().x < MIN_POS || pred.get_pos().y < MIN_POS ||
         pred.get_pos().x > MAX_POS || pred.get_pos().y > MAX_POS) {
-      throw std::domain_error(
-          "The predator is out of bounds");
+      throw std::domain_error("The predator is out of bounds");
     }
 
     if (!boids.empty()) {

@@ -17,7 +17,7 @@ int const BOID_VEL_LIM{10};
 int const VEL_PRED{30};
 int const VEL_PRED_SEP{7};
 std::size_t const MAX_PRED{5};
-float const CATCH_RADIUS{5e-1f};
+float const CATCH_RADIUS{0.5f};
 
 constexpr float TIME_STEP{1.f / 60.f};
 
@@ -109,9 +109,6 @@ class Predator {
   void reset_corr();
   void limit();
 };
-
-bool operator==(Boid, Boid);
-bool operator==(Predator, Predator);
 
 template <typename BP1, typename BP2>
 float distance(BP1 const &, BP2 const &);
