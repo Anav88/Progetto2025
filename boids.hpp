@@ -6,7 +6,7 @@
 
 namespace bob {
 
-int const PRED_DIST_SEP {80};
+int const PRED_DIST_SEP{80};
 int const BOID_DIST_FUGA = 30;
 int const FACT_FUGA{50};
 
@@ -67,7 +67,7 @@ class Boid {
   Boid(Vec2f p, Vec2f v);
   Boid(Two_Vec vec);
   Boid();
-  
+
   Vec2f get_pos() const;
   Vec2f get_vel() const;
   Vec2f get_corr_vsep() const;
@@ -128,21 +128,18 @@ Two_Vec rand_num();
 
 void add_boid(std::vector<Boid> &add_vec);
 
+void add_circle(std::vector<sf::CircleShape> &);
+
+sf::CircleShape create_pred(float, float);
+
 void evaluate_boid_correction(std::vector<Boid> &, std::vector<Predator> &,
                               Par const &);
 void evaluate_boid_corr_fuga(Boid &, std::vector<Predator> &);
 
-void add_circle(std::vector<sf::CircleShape> &);
-
-template<typename BP>
-void init_circle(BP const &, sf::CircleShape &);
-
-sf::CircleShape create_pred(float, float);
+void evaluate_pred_correction(std::vector<Predator> &, std::vector<Boid> &);
 
 void erase_boid(std::vector<Boid> &, std::vector<Predator> &,
                 std::vector<sf::CircleShape> &);
-
-void evaluate_pred_correction(std::vector<Predator> &, std::vector<Boid> &);
 
 void update_pred(std::vector<sf::CircleShape> &, std::vector<Predator> &,
                  sf::RenderWindow &);
@@ -153,5 +150,8 @@ void update_boid(std::vector<sf::CircleShape> &, std::vector<Boid> &,
 template <typename BP>
 void update_correction(std::vector<sf::CircleShape> &, std::vector<BP> &,
                        sf::RenderWindow &);
+
+template <typename BP>
+void init_circle(BP const &, sf::CircleShape &);
 }  // namespace bob
 #endif

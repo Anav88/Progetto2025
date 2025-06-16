@@ -222,7 +222,8 @@ Vec2f mean_deviation_algo(std::vector<Boid> const &boids) {
                         return sum;
                       });
 
-  Vec2f var = sum_mean_vel_diff_square / static_cast<float>(boids.size());
+  Vec2f var =
+      sum_mean_vel_diff_square / (static_cast<float>(boids.size()) - 1.f);
   return {sqrtf(var.x), sqrtf(var.y)};
 }
 
@@ -252,7 +253,26 @@ Two_Vec rand_num() {
 void add_boid(std::vector<Boid> &add_vec) {
   std::generate(add_vec.begin(), add_vec.end(),
                 []() { return (Boid(rand_num())); });
-}  // Boid costruttore
+}
+
+void add_circle(std::vector<sf::CircleShape> &circles) {
+  std::generate(circles.begin(), circles.end(), []() {
+    float radius{1.f};
+    sf::CircleShape c{radius};
+    c.setOrigin(radius, radius);
+    c.setFillColor(sf::Color::Black);
+    return c;
+  });
+}
+
+sf::CircleShape create_pred(float x, float y) {
+  sf::CircleShape circle{3.0f};
+  circle.setOrigin(3.f, 3.f);
+  circle.setPosition({x, y});
+  circle.setFillColor(sf::Color::Red);
+
+  return circle;
+}
 
 void evaluate_boid_correction(std::vector<Boid> &boids,
                               std::vector<Predator> &predators,
@@ -275,28 +295,31 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
 
     struct Stats {
       int n;
-      Vec2f sumVelDiff;
-      Vec2f sumPos;
+      Vec2f all;
+      Vec2f coes;
       int nSep;
-      Vec2f sumSepPos;
+      Vec2f sep;
     };
 
     auto result = std::accumulate(
         boids.begin(), boids.end(),
         Stats{0, {0.f, 0.f}, {0.f, 0.f}, 0, {0.f, 0.f}},
         [&](Stats acc, Boid const &boid_j) {
-          if (!(&boid_i == &boid_j)) {
-            float dist = static_cast<float>(distance(boid_i, boid_j));
+          if (&boid_i != &boid_j) {
+            float dist = distance(boid_i, boid_j);
 
             if (dist < parametres.d) {
               Vec2f j_pos = boid_j.get_pos();
               Vec2f j_vel = boid_j.get_vel();
               ++acc.n;
-              acc.sumVelDiff += (j_vel - i_vel);
-              acc.sumPos += j_pos;
+              acc.all += (j_vel - i_vel);  // calcola la sommatoria(vj-vi) per
+                                           // il calcolo di corr_vall_
+              acc.coes += j_pos;  // calcola la sommatoria(xj) per il calcolo di
+                                  // corr_vcoes_
 
               if (dist < parametres.d_s) {
-                acc.sumSepPos += (j_pos - i_pos);
+                acc.sep += (j_pos - i_pos);  // calcola la sommatoria(xj-xi) per
+                                             // il calcolo di corr_vsep_
                 ++acc.nSep;
               }
             }
@@ -305,51 +328,52 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
         });
 
     if (result.nSep > 0) {
-      boid_i.vel_sep(result.sumSepPos, parametres.s);
+      boid_i.vel_sep(result.sep, parametres.s);
     }
 
     if (result.n > 0) {
-      boid_i.vel_all(result.sumVelDiff / static_cast<float>(result.n),
-                     parametres.a);
-      boid_i.vel_coes(result.sumPos / static_cast<float>(result.n),
-                      parametres.c);
+      boid_i.vel_all(result.all / static_cast<float>(result.n), parametres.a);
+      boid_i.vel_coes(result.coes / static_cast<float>(result.n), parametres.c);
     }
   }
 }
 
 void evaluate_boid_corr_fuga(Boid &boid, std::vector<Predator> &predators) {
   for (auto &pred : predators) {
-    float dis = distance(boid, pred);
-    if (dis < BOID_DIST_FUGA) {
+    if (distance(boid, pred) < BOID_DIST_FUGA) {
       Vec2f delta_pos = boid.get_pos() - pred.get_pos();
       boid.vel_fuga(delta_pos.angle());
     }
   }
 }
 
-void add_circle(std::vector<sf::CircleShape> &circles) {
-  std::generate(circles.begin(), circles.end(), []() {
-    float radius{1.f};
-    sf::CircleShape c{radius};
-    c.setOrigin(radius, radius);
-    c.setFillColor(sf::Color::Black);
-    return c;
-  });
-}
+void evaluate_pred_correction(std::vector<Predator> &predators,
+                              std::vector<Boid> &boids) {
+  for (auto &pred_i : predators) {
+    if (pred_i.get_pos().x < MIN_POS || pred_i.get_pos().y < MIN_POS ||
+        pred_i.get_pos().x > MAX_POS || pred_i.get_pos().y > MAX_POS) {
+      throw std::domain_error("The predator is out of bounds");
+    }
 
-template <typename BP>
-void init_circle(BP const &bp, sf::CircleShape &c) {
-  sf::Vector2f pos{bp.get_pos().x, bp.get_pos().y};
-  c.setPosition(pos);
-}
+    if (!boids.empty()) {
+      auto it = std::min_element(
+          boids.begin(), boids.end(), [&](Boid const &b1, Boid const &b2) {
+            return (distance(pred_i, b1) < distance(pred_i, b2));
+          });                   // individua il boid più vicino
+      if (it != boids.end()) {  // condizione superflua ma utile per una
+                                // maggiore chiarezza e controllo
+        Vec2f delta_pos = (*it).get_pos() - pred_i.get_pos();
+        pred_i.vel_inseg(delta_pos.angle());
+      }
+    }
 
-sf::CircleShape create_pred(float x, float y) {
-  sf::CircleShape circle{3.0f};
-  circle.setOrigin(3.f, 3.f);
-  circle.setPosition({x, y});
-  circle.setFillColor(sf::Color::Red);
-
-  return circle;
+    for (auto &pred_j : predators) {
+      if (distance(pred_i, pred_j) < PRED_DIST_SEP && (&pred_i != &pred_j)) {
+        Vec2f delta_pos = pred_i.get_pos() - pred_j.get_pos();
+        pred_i.vel_sep(delta_pos.angle());
+      }
+    }
+  }
 }
 
 void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
@@ -366,34 +390,6 @@ void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
                 std::vector<sf::CircleShape>::iterator::difference_type>(i));
         --it_p;
         break;
-      }
-    }
-  }
-}
-
-void evaluate_pred_correction(std::vector<Predator> &predators,
-                              std::vector<Boid> &boids) {
-  for (auto &pred : predators) {
-    if (pred.get_pos().x < MIN_POS || pred.get_pos().y < MIN_POS ||
-        pred.get_pos().x > MAX_POS || pred.get_pos().y > MAX_POS) {
-      throw std::domain_error("The predator is out of bounds");
-    }
-
-    if (!boids.empty()) {
-      auto it = std::min_element(
-          boids.begin(), boids.end(), [&](Boid const &b1, Boid const &b2) {
-            return (distance(pred, b1) < distance(pred, b2));
-          });
-      if (it != boids.end()) {
-        Vec2f delta_pos = (*it).get_pos() - pred.get_pos();
-        pred.vel_inseg(delta_pos.angle());
-      }
-    }
-
-    for (auto &pred_j : predators) {
-      if (distance(pred, pred_j) < PRED_DIST_SEP && !(&pred == &pred_j)) {
-        Vec2f delta_pos = pred.get_pos() - pred_j.get_pos();
-        pred.vel_sep(delta_pos.angle());
       }
     }
   }
@@ -421,5 +417,11 @@ void update_correction(std::vector<sf::CircleShape> &circles,
     (*it).reset_corr();
     window.draw(*it_c);
   }
+}
+
+template <typename BP>
+void init_circle(BP const &bp, sf::CircleShape &c) {
+  sf::Vector2f pos{bp.get_pos().x, bp.get_pos().y};
+  c.setPosition(pos);
 }
 }  // namespace bob

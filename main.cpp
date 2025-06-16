@@ -48,8 +48,8 @@ int main() {
 
       window.clear(sf::Color::White);
 
-      bob::evaluate_pred_correction(predators, boids);
       bob::evaluate_boid_correction(boids, predators, parametres);
+      bob::evaluate_pred_correction(predators, boids);
 
       bob::erase_boid(boids, predators, circles_boid);
       bob::update_pred(circles_pred, predators, window);

@@ -182,7 +182,7 @@ TEST_CASE("Checking evaluate correction Boid functionality") {
     CHECK(boids[0].get_corr_vsep().y == doctest::Approx(vel.y).epsilon(0.01));
     CHECK(boids[0].get_corr_vall().x == doctest::Approx(0.f).epsilon(0.01));
     CHECK(boids[0].get_corr_vcoes().x == doctest::Approx(0.f).epsilon(0.01));
-  }  // namespace bob
+  }
 
   SUBCASE("Alignment speed - 3 Boids") {
     Boid b1(Two_Vec{{0.f, 0.f}, {1.f, 1.f}});
@@ -565,7 +565,7 @@ TEST_CASE("Statistics") {
     Boid b3(Two_Vec{{0.f, 0.f}, {5.f, 1.f}});
     std::vector<Boid> boids = {b1, b2, b3};
 
-    float dev_x = std::sqrt((4.f + 0.f + 4.f) / 3.f);
+    float dev_x = std::sqrt((4.f + 0.f + 4.f) / 2.f);
     float dev_y = 0.f;
 
     Vec2f deviation_algo = mean_deviation_algo(boids);
