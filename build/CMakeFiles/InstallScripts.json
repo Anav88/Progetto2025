@@ -1,0 +1,11 @@
+{
+	"Configs" : 
+	[
+		"Debug"
+	],
+	"InstallScripts" : 
+	[
+		"/Users/bixiosun1/Desktop/Progetto2025/vec/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
