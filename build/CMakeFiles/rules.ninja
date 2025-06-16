@@ -137,7 +137,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /usr/local/bin/cmake --regenerate-during-build -S/Users/bixiosun1/Desktop/Progetto2025/vec -B/Users/bixiosun1/Desktop/Progetto2025/vec/build
+  command = /usr/local/bin/cmake --regenerate-during-build -S/Users/bixiosun1/Desktop/progetto2025 -B/Users/bixiosun1/Desktop/progetto2025/build
   description = Re-running CMake...
   generator = 1
 

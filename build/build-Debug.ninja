@@ -70,7 +70,7 @@ build main: phony Debug/main
 
 
 #############################################
-# Folder: /Users/bixiosun1/Desktop/Progetto2025/vec/build
+# Folder: /Users/bixiosun1/Desktop/progetto2025/build
 
 build all: phony all$:Debug
 

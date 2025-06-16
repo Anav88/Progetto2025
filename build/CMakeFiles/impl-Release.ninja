@@ -211,7 +211,7 @@ build ContinuousSubmit$:Release: phony CMakeFiles/ContinuousSubmit-Release
 
 build cmake_object_order_depends_target_main_RELEASE: phony || .
 
-build CMakeFiles/main.dir/Release/main.cpp.o: CXX_COMPILER__main_unscanned_Release /Users/bixiosun1/Desktop/Progetto2025/vec/main.cpp || cmake_object_order_depends_target_main_RELEASE
+build CMakeFiles/main.dir/Release/main.cpp.o: CXX_COMPILER__main_unscanned_Release /Users/bixiosun1/Desktop/progetto2025/main.cpp || cmake_object_order_depends_target_main_RELEASE
   CONFIG = Release
   DEFINES = -DCMAKE_INTDIR=\"Release\"
   DEP_FILE = CMakeFiles/main.dir/Release/main.cpp.o.d
@@ -219,8 +219,10 @@ build CMakeFiles/main.dir/Release/main.cpp.o: CXX_COMPILER__main_unscanned_Relea
   INCLUDES = -isystem /usr/local/opt/sfml@2/include
   OBJECT_DIR = CMakeFiles/main.dir/Release
   OBJECT_FILE_DIR = CMakeFiles/main.dir/Release
+  TARGET_COMPILE_PDB = CMakeFiles/main.dir/Release/
+  TARGET_PDB = Release/main.pdb
 
-build CMakeFiles/main.dir/Release/boids.cpp.o: CXX_COMPILER__main_unscanned_Release /Users/bixiosun1/Desktop/Progetto2025/vec/boids.cpp || cmake_object_order_depends_target_main_RELEASE
+build CMakeFiles/main.dir/Release/boids.cpp.o: CXX_COMPILER__main_unscanned_Release /Users/bixiosun1/Desktop/progetto2025/boids.cpp || cmake_object_order_depends_target_main_RELEASE
   CONFIG = Release
   DEFINES = -DCMAKE_INTDIR=\"Release\"
   DEP_FILE = CMakeFiles/main.dir/Release/boids.cpp.o.d
@@ -228,6 +230,8 @@ build CMakeFiles/main.dir/Release/boids.cpp.o: CXX_COMPILER__main_unscanned_Rele
   INCLUDES = -isystem /usr/local/opt/sfml@2/include
   OBJECT_DIR = CMakeFiles/main.dir/Release
   OBJECT_FILE_DIR = CMakeFiles/main.dir/Release
+  TARGET_COMPILE_PDB = CMakeFiles/main.dir/Release/
+  TARGET_PDB = Release/main.pdb
 
 
 # =============================================================================
@@ -244,8 +248,9 @@ build Release/main: CXX_EXECUTABLE_LINKER__main_Release CMakeFiles/main.dir/Rele
   OBJECT_DIR = CMakeFiles/main.dir/Release
   POST_BUILD = :
   PRE_LINK = :
+  TARGET_COMPILE_PDB = CMakeFiles/main.dir/Release/
   TARGET_FILE = Release/main
-  TARGET_PDB = main.dbg
+  TARGET_PDB = Release/main.pdb
 
 # =============================================================================
 # Object build statements for EXECUTABLE target boids.t
@@ -256,7 +261,7 @@ build Release/main: CXX_EXECUTABLE_LINKER__main_Release CMakeFiles/main.dir/Rele
 
 build cmake_object_order_depends_target_boids.t_RELEASE: phony || .
 
-build CMakeFiles/boids.t.dir/Release/boids.test.cpp.o: CXX_COMPILER__boids.2et_unscanned_Release /Users/bixiosun1/Desktop/Progetto2025/vec/boids.test.cpp || cmake_object_order_depends_target_boids.t_RELEASE
+build CMakeFiles/boids.t.dir/Release/boids.test.cpp.o: CXX_COMPILER__boids.2et_unscanned_Release /Users/bixiosun1/Desktop/progetto2025/boids.test.cpp || cmake_object_order_depends_target_boids.t_RELEASE
   CONFIG = Release
   DEFINES = -DCMAKE_INTDIR=\"Release\"
   DEP_FILE = CMakeFiles/boids.t.dir/Release/boids.test.cpp.o.d
@@ -264,8 +269,10 @@ build CMakeFiles/boids.t.dir/Release/boids.test.cpp.o: CXX_COMPILER__boids.2et_u
   INCLUDES = -isystem /usr/local/opt/sfml@2/include
   OBJECT_DIR = CMakeFiles/boids.t.dir/Release
   OBJECT_FILE_DIR = CMakeFiles/boids.t.dir/Release
+  TARGET_COMPILE_PDB = CMakeFiles/boids.t.dir/Release/
+  TARGET_PDB = Release/boids.t.pdb
 
-build CMakeFiles/boids.t.dir/Release/boids.cpp.o: CXX_COMPILER__boids.2et_unscanned_Release /Users/bixiosun1/Desktop/Progetto2025/vec/boids.cpp || cmake_object_order_depends_target_boids.t_RELEASE
+build CMakeFiles/boids.t.dir/Release/boids.cpp.o: CXX_COMPILER__boids.2et_unscanned_Release /Users/bixiosun1/Desktop/progetto2025/boids.cpp || cmake_object_order_depends_target_boids.t_RELEASE
   CONFIG = Release
   DEFINES = -DCMAKE_INTDIR=\"Release\"
   DEP_FILE = CMakeFiles/boids.t.dir/Release/boids.cpp.o.d
@@ -273,6 +280,8 @@ build CMakeFiles/boids.t.dir/Release/boids.cpp.o: CXX_COMPILER__boids.2et_unscan
   INCLUDES = -isystem /usr/local/opt/sfml@2/include
   OBJECT_DIR = CMakeFiles/boids.t.dir/Release
   OBJECT_FILE_DIR = CMakeFiles/boids.t.dir/Release
+  TARGET_COMPILE_PDB = CMakeFiles/boids.t.dir/Release/
+  TARGET_PDB = Release/boids.t.pdb
 
 
 # =============================================================================
@@ -289,15 +298,16 @@ build Release/boids.t: CXX_EXECUTABLE_LINKER__boids.2et_Release CMakeFiles/boids
   OBJECT_DIR = CMakeFiles/boids.t.dir/Release
   POST_BUILD = :
   PRE_LINK = :
+  TARGET_COMPILE_PDB = CMakeFiles/boids.t.dir/Release/
   TARGET_FILE = Release/boids.t
-  TARGET_PDB = boids.t.dbg
+  TARGET_PDB = Release/boids.t.pdb
 
 
 #############################################
 # Custom command for CMakeFiles/Experimental-Release
 
 build CMakeFiles/Experimental-Release | ${cmake_ninja_workdir}CMakeFiles/Experimental-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D Experimental
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D Experimental
   pool = console
 
 
@@ -305,7 +315,7 @@ build CMakeFiles/Experimental-Release | ${cmake_ninja_workdir}CMakeFiles/Experim
 # Custom command for CMakeFiles/Nightly-Release
 
 build CMakeFiles/Nightly-Release | ${cmake_ninja_workdir}CMakeFiles/Nightly-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D Nightly
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D Nightly
   pool = console
 
 
@@ -313,7 +323,7 @@ build CMakeFiles/Nightly-Release | ${cmake_ninja_workdir}CMakeFiles/Nightly-Rele
 # Custom command for CMakeFiles/Continuous-Release
 
 build CMakeFiles/Continuous-Release | ${cmake_ninja_workdir}CMakeFiles/Continuous-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D Continuous
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D Continuous
   pool = console
 
 
@@ -321,7 +331,7 @@ build CMakeFiles/Continuous-Release | ${cmake_ninja_workdir}CMakeFiles/Continuou
 # Custom command for CMakeFiles/NightlyMemoryCheck-Release
 
 build CMakeFiles/NightlyMemoryCheck-Release | ${cmake_ninja_workdir}CMakeFiles/NightlyMemoryCheck-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D NightlyMemoryCheck
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D NightlyMemoryCheck
   pool = console
 
 
@@ -329,7 +339,7 @@ build CMakeFiles/NightlyMemoryCheck-Release | ${cmake_ninja_workdir}CMakeFiles/N
 # Custom command for CMakeFiles/NightlyStart-Release
 
 build CMakeFiles/NightlyStart-Release | ${cmake_ninja_workdir}CMakeFiles/NightlyStart-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D NightlyStart
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D NightlyStart
   pool = console
 
 
@@ -337,7 +347,7 @@ build CMakeFiles/NightlyStart-Release | ${cmake_ninja_workdir}CMakeFiles/Nightly
 # Custom command for CMakeFiles/NightlyUpdate-Release
 
 build CMakeFiles/NightlyUpdate-Release | ${cmake_ninja_workdir}CMakeFiles/NightlyUpdate-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D NightlyUpdate
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D NightlyUpdate
   pool = console
 
 
@@ -345,7 +355,7 @@ build CMakeFiles/NightlyUpdate-Release | ${cmake_ninja_workdir}CMakeFiles/Nightl
 # Custom command for CMakeFiles/NightlyConfigure-Release
 
 build CMakeFiles/NightlyConfigure-Release | ${cmake_ninja_workdir}CMakeFiles/NightlyConfigure-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D NightlyConfigure
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D NightlyConfigure
   pool = console
 
 
@@ -353,7 +363,7 @@ build CMakeFiles/NightlyConfigure-Release | ${cmake_ninja_workdir}CMakeFiles/Nig
 # Custom command for CMakeFiles/NightlyBuild-Release
 
 build CMakeFiles/NightlyBuild-Release | ${cmake_ninja_workdir}CMakeFiles/NightlyBuild-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D NightlyBuild
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D NightlyBuild
   pool = console
 
 
@@ -361,7 +371,7 @@ build CMakeFiles/NightlyBuild-Release | ${cmake_ninja_workdir}CMakeFiles/Nightly
 # Custom command for CMakeFiles/NightlyTest-Release
 
 build CMakeFiles/NightlyTest-Release | ${cmake_ninja_workdir}CMakeFiles/NightlyTest-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D NightlyTest
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D NightlyTest
   pool = console
 
 
@@ -369,7 +379,7 @@ build CMakeFiles/NightlyTest-Release | ${cmake_ninja_workdir}CMakeFiles/NightlyT
 # Custom command for CMakeFiles/NightlyCoverage-Release
 
 build CMakeFiles/NightlyCoverage-Release | ${cmake_ninja_workdir}CMakeFiles/NightlyCoverage-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D NightlyCoverage
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D NightlyCoverage
   pool = console
 
 
@@ -377,7 +387,7 @@ build CMakeFiles/NightlyCoverage-Release | ${cmake_ninja_workdir}CMakeFiles/Nigh
 # Custom command for CMakeFiles/NightlyMemCheck-Release
 
 build CMakeFiles/NightlyMemCheck-Release | ${cmake_ninja_workdir}CMakeFiles/NightlyMemCheck-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D NightlyMemCheck
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D NightlyMemCheck
   pool = console
 
 
@@ -385,7 +395,7 @@ build CMakeFiles/NightlyMemCheck-Release | ${cmake_ninja_workdir}CMakeFiles/Nigh
 # Custom command for CMakeFiles/NightlySubmit-Release
 
 build CMakeFiles/NightlySubmit-Release | ${cmake_ninja_workdir}CMakeFiles/NightlySubmit-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D NightlySubmit
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D NightlySubmit
   pool = console
 
 
@@ -393,7 +403,7 @@ build CMakeFiles/NightlySubmit-Release | ${cmake_ninja_workdir}CMakeFiles/Nightl
 # Custom command for CMakeFiles/ExperimentalStart-Release
 
 build CMakeFiles/ExperimentalStart-Release | ${cmake_ninja_workdir}CMakeFiles/ExperimentalStart-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ExperimentalStart
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ExperimentalStart
   pool = console
 
 
@@ -401,7 +411,7 @@ build CMakeFiles/ExperimentalStart-Release | ${cmake_ninja_workdir}CMakeFiles/Ex
 # Custom command for CMakeFiles/ExperimentalUpdate-Release
 
 build CMakeFiles/ExperimentalUpdate-Release | ${cmake_ninja_workdir}CMakeFiles/ExperimentalUpdate-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ExperimentalUpdate
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ExperimentalUpdate
   pool = console
 
 
@@ -409,7 +419,7 @@ build CMakeFiles/ExperimentalUpdate-Release | ${cmake_ninja_workdir}CMakeFiles/E
 # Custom command for CMakeFiles/ExperimentalConfigure-Release
 
 build CMakeFiles/ExperimentalConfigure-Release | ${cmake_ninja_workdir}CMakeFiles/ExperimentalConfigure-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ExperimentalConfigure
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ExperimentalConfigure
   pool = console
 
 
@@ -417,7 +427,7 @@ build CMakeFiles/ExperimentalConfigure-Release | ${cmake_ninja_workdir}CMakeFile
 # Custom command for CMakeFiles/ExperimentalBuild-Release
 
 build CMakeFiles/ExperimentalBuild-Release | ${cmake_ninja_workdir}CMakeFiles/ExperimentalBuild-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ExperimentalBuild
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ExperimentalBuild
   pool = console
 
 
@@ -425,7 +435,7 @@ build CMakeFiles/ExperimentalBuild-Release | ${cmake_ninja_workdir}CMakeFiles/Ex
 # Custom command for CMakeFiles/ExperimentalTest-Release
 
 build CMakeFiles/ExperimentalTest-Release | ${cmake_ninja_workdir}CMakeFiles/ExperimentalTest-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ExperimentalTest
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ExperimentalTest
   pool = console
 
 
@@ -433,7 +443,7 @@ build CMakeFiles/ExperimentalTest-Release | ${cmake_ninja_workdir}CMakeFiles/Exp
 # Custom command for CMakeFiles/ExperimentalCoverage-Release
 
 build CMakeFiles/ExperimentalCoverage-Release | ${cmake_ninja_workdir}CMakeFiles/ExperimentalCoverage-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ExperimentalCoverage
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ExperimentalCoverage
   pool = console
 
 
@@ -441,7 +451,7 @@ build CMakeFiles/ExperimentalCoverage-Release | ${cmake_ninja_workdir}CMakeFiles
 # Custom command for CMakeFiles/ExperimentalMemCheck-Release
 
 build CMakeFiles/ExperimentalMemCheck-Release | ${cmake_ninja_workdir}CMakeFiles/ExperimentalMemCheck-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ExperimentalMemCheck
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ExperimentalMemCheck
   pool = console
 
 
@@ -449,7 +459,7 @@ build CMakeFiles/ExperimentalMemCheck-Release | ${cmake_ninja_workdir}CMakeFiles
 # Custom command for CMakeFiles/ExperimentalSubmit-Release
 
 build CMakeFiles/ExperimentalSubmit-Release | ${cmake_ninja_workdir}CMakeFiles/ExperimentalSubmit-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ExperimentalSubmit
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ExperimentalSubmit
   pool = console
 
 
@@ -457,7 +467,7 @@ build CMakeFiles/ExperimentalSubmit-Release | ${cmake_ninja_workdir}CMakeFiles/E
 # Custom command for CMakeFiles/ContinuousStart-Release
 
 build CMakeFiles/ContinuousStart-Release | ${cmake_ninja_workdir}CMakeFiles/ContinuousStart-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ContinuousStart
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ContinuousStart
   pool = console
 
 
@@ -465,7 +475,7 @@ build CMakeFiles/ContinuousStart-Release | ${cmake_ninja_workdir}CMakeFiles/Cont
 # Custom command for CMakeFiles/ContinuousUpdate-Release
 
 build CMakeFiles/ContinuousUpdate-Release | ${cmake_ninja_workdir}CMakeFiles/ContinuousUpdate-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ContinuousUpdate
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ContinuousUpdate
   pool = console
 
 
@@ -473,7 +483,7 @@ build CMakeFiles/ContinuousUpdate-Release | ${cmake_ninja_workdir}CMakeFiles/Con
 # Custom command for CMakeFiles/ContinuousConfigure-Release
 
 build CMakeFiles/ContinuousConfigure-Release | ${cmake_ninja_workdir}CMakeFiles/ContinuousConfigure-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ContinuousConfigure
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ContinuousConfigure
   pool = console
 
 
@@ -481,7 +491,7 @@ build CMakeFiles/ContinuousConfigure-Release | ${cmake_ninja_workdir}CMakeFiles/
 # Custom command for CMakeFiles/ContinuousBuild-Release
 
 build CMakeFiles/ContinuousBuild-Release | ${cmake_ninja_workdir}CMakeFiles/ContinuousBuild-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ContinuousBuild
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ContinuousBuild
   pool = console
 
 
@@ -489,7 +499,7 @@ build CMakeFiles/ContinuousBuild-Release | ${cmake_ninja_workdir}CMakeFiles/Cont
 # Custom command for CMakeFiles/ContinuousTest-Release
 
 build CMakeFiles/ContinuousTest-Release | ${cmake_ninja_workdir}CMakeFiles/ContinuousTest-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ContinuousTest
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ContinuousTest
   pool = console
 
 
@@ -497,7 +507,7 @@ build CMakeFiles/ContinuousTest-Release | ${cmake_ninja_workdir}CMakeFiles/Conti
 # Custom command for CMakeFiles/ContinuousCoverage-Release
 
 build CMakeFiles/ContinuousCoverage-Release | ${cmake_ninja_workdir}CMakeFiles/ContinuousCoverage-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ContinuousCoverage
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ContinuousCoverage
   pool = console
 
 
@@ -505,7 +515,7 @@ build CMakeFiles/ContinuousCoverage-Release | ${cmake_ninja_workdir}CMakeFiles/C
 # Custom command for CMakeFiles/ContinuousMemCheck-Release
 
 build CMakeFiles/ContinuousMemCheck-Release | ${cmake_ninja_workdir}CMakeFiles/ContinuousMemCheck-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ContinuousMemCheck
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ContinuousMemCheck
   pool = console
 
 
@@ -513,7 +523,7 @@ build CMakeFiles/ContinuousMemCheck-Release | ${cmake_ninja_workdir}CMakeFiles/C
 # Custom command for CMakeFiles/ContinuousSubmit-Release
 
 build CMakeFiles/ContinuousSubmit-Release | ${cmake_ninja_workdir}CMakeFiles/ContinuousSubmit-Release: CUSTOM_COMMAND
-  COMMAND = cd /Users/bixiosun1/Desktop/Progetto2025/vec/build && /usr/local/bin/ctest -C Release -D ContinuousSubmit
+  COMMAND = cd /Users/bixiosun1/Desktop/progetto2025/build && /usr/local/bin/ctest -C Release -D ContinuousSubmit
   pool = console
 
 build boids.t$:Release: phony Release/boids.t
@@ -522,7 +532,7 @@ build main$:Release: phony Release/main
 
 
 #############################################
-# Folder: /Users/bixiosun1/Desktop/Progetto2025/vec/build
+# Folder: /Users/bixiosun1/Desktop/progetto2025/build
 
 build all$:Release: phony Release/main Release/boids.t
 
