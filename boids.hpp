@@ -113,7 +113,13 @@ class Predator {
 };
 
 template <typename BP1, typename BP2>
-float distance(BP1 const &, BP2 const &);
+float distance(BP1 const &bp1, BP2 const &bp2) {
+  Vec2f delta_pos = bp1.get_pos() - bp2.get_pos();
+
+  return delta_pos.norm();
+}  // La definizione è stata scritta qui nell'hpp perché, essendo una funzione
+   // template usata in boids.test.cpp,
+// deve essere visibile al momento della compilazione.
 
 Par init_parametres();
 Par init_parametres(float, float, float, float, float, std::size_t);

@@ -185,13 +185,6 @@ Par init_parametres() {
   return input;
 }
 
-template <typename BP1, typename BP2>
-float distance(BP1 const &bp1, BP2 const &bp2) {
-  Vec2f delta_pos = bp1.get_pos() - bp2.get_pos();
-
-  return delta_pos.norm();
-}
-
 namespace statistics {
 
 Vec2f mean_velocity_algo(std::vector<Boid> const &boids) {

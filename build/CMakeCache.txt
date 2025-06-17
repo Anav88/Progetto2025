@@ -267,7 +267,7 @@ SFML_DIR:PATH=/usr/local/opt/sfml@2/lib/cmake/SFML
 SFML_DOC_DIR:PATH=SFML_DOC_DIR-NOTFOUND
 
 //Name of the computer/site where compile is being run
-SITE:STRING=MacBookPro
+SITE:STRING=MacBookPro.home-life.hub
 
 //Value Computed by CMake
 progettopf_BINARY_DIR:STATIC=/Users/bixiosun1/Desktop/progetto2025/build
