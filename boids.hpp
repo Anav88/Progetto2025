@@ -6,8 +6,9 @@
 
 namespace bob {
 
-int const PRED_DIST_SEP{80};
-int const BOID_DIST_FUGA = 30;
+int const PRED_DIST_SEP{
+    80};  // distanza per cui predatori risentono una forza di allontanamento
+int const BOID_DIST_FUGA = 30;  // distanza per cui i boid fuggono dai predatori
 int const FACT_FUGA{50};
 
 int const MIN_POS{0};
@@ -19,7 +20,8 @@ int const VEL_PRED_SEP{7};
 std::size_t const MAX_PRED{5};
 float const CATCH_RADIUS{0.5f};
 
-constexpr float TIME_STEP{1.f / 60.f};
+constexpr float TIME_STEP{
+    1.f / 60.f};  // delta t che intercorre refresh della finestra
 
 struct Vec2f {
   float x;

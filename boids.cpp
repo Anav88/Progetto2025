@@ -380,15 +380,17 @@ void erase_boid(std::vector<Boid> &boids, std::vector<Predator> &predators,
                 std::vector<sf::CircleShape> &circles) {
   for (auto it_p = predators.begin(); it_p != predators.end(); ++it_p) {
     for (size_t i = 0; i < boids.size(); ++i) {
-      if (distance((*it_p), boids[i]) < CATCH_RADIUS) {
-        boids.erase(
-            boids.begin() +
-            static_cast<std::vector<Boid>::iterator::difference_type>(i));
+      if (distance((*it_p), boids[i]) <
+          CATCH_RADIUS) {  // se i-esimo boid è abbastanza vicino al predatore
+        boids.erase(boids.begin() +
+                    static_cast<std::vector<Boid>::iterator::difference_type>(
+                        i));  // scritto da chat gpt per eliminare il warning
         circles.erase(
             circles.begin() +
             static_cast<
                 std::vector<sf::CircleShape>::iterator::difference_type>(i));
-        --it_p;
+        --it_p;  // eliminato il boid e il cerchio invalido gli iteratori,
+                 // quindi esco dal ciclo e rincomincio
         break;
       }
     }
