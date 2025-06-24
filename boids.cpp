@@ -123,6 +123,26 @@ void Predator::reset_corr() {
 }
 void Predator::limit() { limit_func(pos_); }
 
+template <typename BP1, typename BP2>
+float distance_templ(BP1 const &bp1, BP2 const &bp2) {
+  Vec2f delta_pos = bp1.get_pos() - bp2.get_pos();
+
+  return delta_pos.norm();
+}
+
+float distance(Predator const &p1, Predator const &p2) {
+  return distance_templ(p1, p2);
+}
+float distance(Boid const &b1, Boid const &b2) {
+  return distance_templ(b1, b2);
+}
+float distance(Predator const &p, Boid const &b) {
+  return distance_templ(p, b);
+}
+float distance(Boid const &b, Predator const &p) {
+  return distance_templ(b, p);
+}
+
 Par init_parametres(float s, float a, float c, float d, float ds,
                     std::size_t size) {
   if (s < 0 || s > 1) {
