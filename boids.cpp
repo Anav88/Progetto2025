@@ -1,8 +1,7 @@
 #include "boids.hpp"
 
 #include <algorithm>
-#include <cassert>
-#include <cmath>
+#include <fstream>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -25,7 +24,7 @@ Vec2f operator*(Vec2f const &v1, float f) { return {v1.x * f, v1.y * f}; }
 Vec2f operator*(float f, Vec2f const &v1) { return v1 * f; }
 Vec2f operator/(Vec2f const &v1, float f) {
   if (f == 0.f) {
-    throw std::invalid_argument("It is impossible to divide by 0");
+    throw std::domain_error("It is impossible to divide by 0");
   }
   return {v1.x / f, v1.y / f};
 }
@@ -35,32 +34,37 @@ bool operator==(Vec2f const &v1, Vec2f const &v2) {
 
 float Vec2f::angle() const {
   if (x == 0.f && y == 0.f) {
-    throw std::invalid_argument("The angle is not defined");
+    throw std::domain_error("The angle is not defined");
   }
   return atan2f(y, x);
 }
 float Vec2f::norm() const { return std::sqrt(y * y + x * x); }
 
-void limit_func(Vec2f &pos) {
-  if (pos.x < MIN_POS) {
-    pos.x += MAX_POS;
-  } else if (pos.x > MAX_POS) {
-    pos.x -= MAX_POS;
+Entity::Entity(Vec2f p, Vec2f v) : pos_{p}, vel_{v} {}
+Entity::Entity(Two_Vec vec) : pos_{vec.a}, vel_{vec.b} {}
+Entity::Entity(Vec2f p) : pos_{p}, vel_{Vec2f{0.f, 0.f}} {}
+Entity::Entity() : pos_{Vec2f{0.f, 0.f}}, vel_{Vec2f{0.f, 0.f}} {}
+
+Vec2f Entity::get_pos() const { return pos_; }
+Vec2f Entity::get_vel() const { return vel_; }
+void Entity::limit() {
+  if (pos_.x < MIN_POS) {
+    pos_.x += MAX_POS;
+  } else if (pos_.x > MAX_POS) {
+    pos_.x -= MAX_POS;
   }
 
-  if (pos.y < MIN_POS) {
-    pos.y += MAX_POS;
-  } else if (pos.y > MAX_POS) {
-    pos.y -= MAX_POS;
+  if (pos_.y < MIN_POS) {
+    pos_.y += MAX_POS;
+  } else if (pos_.y > MAX_POS) {
+    pos_.y -= MAX_POS;
   }
 }
 
-Boid::Boid(Vec2f p, Vec2f v) : pos_{p}, vel_{v} {}
-Boid::Boid(Two_Vec vec) : pos_{vec.a}, vel_{vec.b} {}
-Boid::Boid() : pos_{0, 0}, vel_{0, 0} {}
+Boid::Boid(Vec2f p, Vec2f v) : Entity(p, v) {}
+Boid::Boid(Two_Vec vec) : Entity(vec) {}
+Boid::Boid() : Entity() {}
 
-Vec2f Boid::get_pos() const { return pos_; }
-Vec2f Boid::get_vel() const { return vel_; }
 Vec2f Boid::get_corr_vsep() const { return corr_vsep_; }
 Vec2f Boid::get_corr_vall() const { return corr_vall_; }
 Vec2f Boid::get_corr_vcoes() const { return corr_vcoes_; }
@@ -75,7 +79,6 @@ void Boid::correction() {
   this->vel_max();
   pos_ += (vel_ * (TIME_STEP));
 }
-void Boid::limit() { limit_func(pos_); }
 void Boid::reset_corr() {
   corr_vsep_ = {0.f, 0.f};
   corr_vall_ = {0.f, 0.f};
@@ -91,22 +94,20 @@ void Boid::vel_max() {
     vel_.y = max_speed * sinf(angle);
   }
 }
-void Boid::vel_fuga(float f) {
-  corr_vfuga_.x += FACT_FUGA * cosf(f);
-  corr_vfuga_.y += FACT_FUGA * sinf(f);
+void Boid::vel_fuga(float angle, float f) {
+  corr_vfuga_.x += f * cosf(angle);
+  corr_vfuga_.y += f * sinf(angle);
 }
 
-Predator::Predator(Vec2f p) : pos_{p} {}
-Predator::Predator() : pos_{0.f, 0.f} {}
+Predator::Predator(Vec2f p) : Entity(p) {}
+Predator::Predator() : Entity() {}
 
-Vec2f Predator::get_pos() const { return pos_; }
-Vec2f Predator::get_vel() const { return vel_; }
 Vec2f Predator::get_vel_inseg() const { return corr_vinseg_; }
 Vec2f Predator::get_vel_sep() const { return corr_vsep_; }
 
 void Predator::vel_inseg(float f) {
-  corr_vinseg_.x = VEL_PRED * cosf(f);
-  corr_vinseg_.y = VEL_PRED * sinf(f);
+  corr_vinseg_.x = VEL_PRED_INSEG * cosf(f);
+  corr_vinseg_.y = VEL_PRED_INSEG * sinf(f);
 }
 void Predator::vel_sep(float f) {
   corr_vsep_.x += VEL_PRED_SEP * cosf(f);
@@ -121,88 +122,100 @@ void Predator::reset_corr() {
   corr_vinseg_ = {0.f, 0.f};
   corr_vsep_ = {0.f, 0.f};
 }
-void Predator::limit() { limit_func(pos_); }
 
-template <typename BP1, typename BP2>
-float distance_templ(BP1 const &bp1, BP2 const &bp2) {
-  Vec2f delta_pos = bp1.get_pos() - bp2.get_pos();
-
-  return delta_pos.norm();
-}
-
-float distance(Predator const &p1, Predator const &p2) {
-  return distance_templ(p1, p2);
-}
-float distance(Boid const &b1, Boid const &b2) {
-  return distance_templ(b1, b2);
-}
-float distance(Predator const &p, Boid const &b) {
-  return distance_templ(p, b);
-}
-float distance(Boid const &b, Predator const &p) {
-  return distance_templ(b, p);
-}
-
-Par init_parametres(float s, float a, float c, float d, float ds,
-                    std::size_t size) {
-  if (s < 0 || s > 1) {
-    throw std::domain_error("Parameter s must be in the interval [0,1]");
-  }
-  if (a < 0 || a > 1) {
-    throw std::domain_error("Parameter a must be in the interval [0,1]");
-  }
-  if (c < 0 || c > 1) {
-    throw std::domain_error("Parameter c must be in the interval [0,1]");
-  }
-  if (d < 0 || ds < 0) {
-    throw std::domain_error("Parameter d and ds must be positive");
-  }
-  if (d < ds) {
-    throw std::domain_error("Parameter d must be bigger than ds");
-  }
-
-  return Par{s, a, c, d, ds, size};
-}
-Par init_parametres() {
-  Par input;
-  int N;
-  std::cout << "Enter the values of the parameters s, a, c\n";
-  std::cin >> input.s >> input.a >> input.c;
-  if (std::cin.fail()) {
-    throw std::domain_error("Parameter not valid");
-  }
+Par init_parametres(Par input) {
   if (input.s < 0 || input.s > 1) {
-    throw std::domain_error("Parameter s must be in the interval [0,1]");
+    throw std::invalid_argument("Parameter s must be in the interval [0,1]");
   }
   if (input.a < 0 || input.a > 1) {
-    throw std::domain_error("Parameter a must be in the interval [0,1]");
+    throw std::invalid_argument("Parameter a must be in the interval [0,1]");
   }
   if (input.c < 0 || input.c > 1) {
-    throw std::domain_error("Parameter c must be in the interval [0,1]");
-  }
-
-  std::cout << "Enter the values of the parameters d, ds\n";
-  std::cin >> input.d >> input.d_s;
-  if (std::cin.fail()) {
-    throw std::domain_error("Parameter not valid");
+    throw std::invalid_argument("Parameter c must be in the interval [0,1]");
   }
   if (input.d < 0 || input.d_s < 0) {
-    throw std::domain_error("Parameter d and ds must be positive");
+    throw std::invalid_argument("Parameter d and ds must be positive");
   }
   if (input.d < input.d_s) {
-    throw std::domain_error("Parameter d must be bigger than ds");
+    throw std::invalid_argument("Parameter d must be bigger than ds");
   }
-
-  std::cout << "Enter the number of boids\n";
-  std::cin >> N;
-  if (std::cin.fail()) {
-    throw std::domain_error("Parameter not valid");
-  } else if (N < 0) {
-    throw std::domain_error("Number of Boid can't be negative");
+  if (input.boid_dist_fuga < 0) {
+    throw std::invalid_argument("Parameter boid_dist_fuga must be positive");
   }
-  input.size = static_cast<size_t>(N);
+  if (input.f < 0) {
+    throw std::invalid_argument("Parameter f must be positive");
+  }
+  if (input.pred_dist_sep < 0) {
+    throw std::invalid_argument("Parameter pred_dist_sep must be positive");
+  }
 
   return input;
+}
+
+Par init_parametres() {
+  std::filesystem::path p{"parameters.txt"};
+  std::ifstream input_file(p);
+  if (!input_file) {
+    throw std::filesystem::filesystem_error{
+        "read_from", p, std::make_error_code(std::errc::invalid_argument)};
+  }
+  Par data;
+  int N;
+
+  input_file >> data.s >> data.a >> data.c;
+
+  if (input_file.fail()) {
+    throw std::invalid_argument("Parameter not valid");
+  }
+
+  if (data.s < 0 || data.s > 1) {
+    throw std::invalid_argument("Parameter s must be in the interval [0,1]");
+  }
+  if (data.a < 0 || data.a > 1) {
+    throw std::invalid_argument("Parameter a must be in the interval [0,1]");
+  }
+  if (data.c < 0 || data.c > 1) {
+    throw std::invalid_argument("Parameter c must be in the interval [0,1]");
+  }
+
+  input_file >> data.d >> data.d_s >> data.pred_dist_sep;
+  if (input_file.fail()) {
+    throw std::invalid_argument("Parameter not valid");
+  }
+  if (data.d < 0 || data.d_s < 0) {
+    throw std::invalid_argument("Parameter d and ds must be positive");
+  }
+  if (data.d < data.d_s) {
+    throw std::invalid_argument("Parameter d must be bigger than ds");
+  }
+  if (data.pred_dist_sep < 0) {
+    throw std::invalid_argument("pred_dist_sep can't be negative");
+  }
+
+  input_file >> N;
+  if (input_file.fail()) {
+    throw std::invalid_argument("Parameter not valid");
+  }
+  if (N < 0) {
+    throw std::invalid_argument("Number of Boid can't be negative");
+  }
+  data.size = static_cast<size_t>(N);
+
+  input_file >> data.boid_dist_fuga >> data.f;
+  if (input_file.fail()) {
+    throw std::invalid_argument("Parameter not valid");
+  }
+  if (data.boid_dist_fuga < 0) {
+    throw std::invalid_argument("boid_dist_fuga can't be negative");
+  }
+
+  return data;
+}
+
+float distance(Entity const &e1, Entity const &e2) {
+  Vec2f delta_pos = e1.get_pos() - e2.get_pos();
+
+  return delta_pos.norm();
 }
 
 namespace statistics {
@@ -301,7 +314,8 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
           "The boid has no speed within the allowed limits");
     }
 
-    evaluate_boid_corr_fuga(boid_i, predators);
+    evaluate_boid_corr_fuga(boid_i, predators, parametres.boid_dist_fuga,
+                            parametres.f);
 
     Vec2f i_pos = boid_i.get_pos();
     Vec2f i_vel = boid_i.get_vel();
@@ -351,17 +365,18 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
   }
 }
 
-void evaluate_boid_corr_fuga(Boid &boid, std::vector<Predator> &predators) {
+void evaluate_boid_corr_fuga(Boid &boid, std::vector<Predator> &predators,
+                             float boid_dist_fuga, float f) {
   for (auto &pred : predators) {
-    if (distance(boid, pred) < BOID_DIST_FUGA) {
+    if (distance(boid, pred) < boid_dist_fuga) {
       Vec2f delta_pos = boid.get_pos() - pred.get_pos();
-      boid.vel_fuga(delta_pos.angle());
+      boid.vel_fuga(delta_pos.angle(), f);
     }
   }
 }
 
 void evaluate_pred_correction(std::vector<Predator> &predators,
-                              std::vector<Boid> &boids) {
+                              std::vector<Boid> &boids, float pred_dist_sep) {
   for (auto &pred_i : predators) {
     if (pred_i.get_pos().x < MIN_POS || pred_i.get_pos().y < MIN_POS ||
         pred_i.get_pos().x > MAX_POS || pred_i.get_pos().y > MAX_POS) {
@@ -381,7 +396,7 @@ void evaluate_pred_correction(std::vector<Predator> &predators,
     }
 
     for (auto &pred_j : predators) {
-      if (distance(pred_i, pred_j) < PRED_DIST_SEP && (&pred_i != &pred_j)) {
+      if (distance(pred_i, pred_j) < pred_dist_sep && (&pred_i != &pred_j)) {
         Vec2f delta_pos = pred_i.get_pos() - pred_j.get_pos();
         pred_i.vel_sep(delta_pos.angle());
       }
@@ -434,9 +449,8 @@ void update_correction(std::vector<sf::CircleShape> &circles,
   }
 }
 
-template <typename BP>
-void init_circle(BP const &bp, sf::CircleShape &c) {
-  sf::Vector2f pos{bp.get_pos().x, bp.get_pos().y};
+void init_circle(Entity const &e, sf::CircleShape &c) {
+  sf::Vector2f pos{e.get_pos().x, e.get_pos().y};
   c.setPosition(pos);
 }
 }  // namespace bob

@@ -6,16 +6,11 @@
 
 namespace bob {
 
-int const PRED_DIST_SEP{
-    80};  // distanza per cui predatori risentono una forza di allontanamento
-int const BOID_DIST_FUGA = 30;  // distanza per cui i boid fuggono dai predatori
-int const FACT_FUGA{50};
-
 int const MIN_POS{0};
 int const MAX_POS{600};
 
-int const BOID_VEL_LIM{10};
-int const VEL_PRED{30};
+int const BOID_VEL_LIM{30};
+int const VEL_PRED_INSEG{30};
 int const VEL_PRED_SEP{7};
 std::size_t const MAX_PRED{5};
 float const CATCH_RADIUS{0.5f};
@@ -44,6 +39,10 @@ struct Par {
   float d;
   float d_s;
   std::size_t size;
+
+  float boid_dist_fuga;
+  float f;
+  float pred_dist_sep;
 };
 
 Vec2f operator-(Vec2f const &, Vec2f const &);
@@ -54,12 +53,23 @@ Vec2f operator*(float, Vec2f const &);
 Vec2f operator/(Vec2f const &, float);
 bool operator==(Vec2f const &, Vec2f const &);
 
-void limit_func(Vec2f &);
-
-class Boid {
- private:
+class Entity {
+ public:
   Vec2f pos_;
   Vec2f vel_;
+
+  Entity(Vec2f p);
+  Entity(Vec2f p, Vec2f v);
+  Entity(Two_Vec vec);
+  Entity();
+
+  Vec2f get_pos() const;
+  Vec2f get_vel() const;
+  void limit();
+};
+
+class Boid : public Entity {
+ private:
   Vec2f corr_vsep_{0.f, 0.f};
   Vec2f corr_vall_{0.f, 0.f};
   Vec2f corr_vcoes_{0.f, 0.f};
@@ -70,8 +80,6 @@ class Boid {
   Boid(Two_Vec vec);
   Boid();
 
-  Vec2f get_pos() const;
-  Vec2f get_vel() const;
   Vec2f get_corr_vsep() const;
   Vec2f get_corr_vall() const;
   Vec2f get_corr_vcoes() const;
@@ -80,18 +88,15 @@ class Boid {
   void vel_sep(Vec2f const &, float);
   void vel_all(Vec2f const &, float);
   void vel_coes(Vec2f const &, float);
-  void vel_fuga(float);
+  void vel_fuga(float, float);
 
   void correction();
   void reset_corr();
-  void limit();
   void vel_max();
 };
 
-class Predator {
+class Predator : public Entity {
  private:
-  Vec2f pos_;
-  Vec2f vel_{0.f, 0.f};
   Vec2f corr_vinseg_{0.f, 0.f};
   Vec2f corr_vsep_{0.f, 0.f};
 
@@ -99,8 +104,6 @@ class Predator {
   Predator(Vec2f p);
   Predator();
 
-  Vec2f get_vel() const;
-  Vec2f get_pos() const;
   Vec2f get_vel_inseg() const;
   Vec2f get_vel_sep() const;
 
@@ -109,19 +112,12 @@ class Predator {
 
   void correction();
   void reset_corr();
-  void limit();
 };
 
-template <typename BP1, typename BP2>
-float distance_templ(BP1 const &, BP2 const &);
-
-float distance(Predator const &, Predator const &);
-float distance(Boid const &, Boid const &);
-float distance(Predator const &, Boid const &);
-float distance(Boid const &, Predator const &);
+float distance(Entity const &, Entity const &);
 
 Par init_parametres();
-Par init_parametres(float, float, float, float, float, std::size_t);
+Par init_parametres(Par);
 
 namespace statistics {
 Vec2f mean_velocity_algo(std::vector<Boid> const &);
@@ -141,9 +137,10 @@ sf::CircleShape create_pred(float, float);
 
 void evaluate_boid_correction(std::vector<Boid> &, std::vector<Predator> &,
                               Par const &);
-void evaluate_boid_corr_fuga(Boid &, std::vector<Predator> &);
+void evaluate_boid_corr_fuga(Boid &, std::vector<Predator> &, float, float);
 
-void evaluate_pred_correction(std::vector<Predator> &, std::vector<Boid> &);
+void evaluate_pred_correction(std::vector<Predator> &, std::vector<Boid> &,
+                              float);
 
 void erase_boid(std::vector<Boid> &, std::vector<Predator> &,
                 std::vector<sf::CircleShape> &);
@@ -158,7 +155,6 @@ template <typename BP>
 void update_correction(std::vector<sf::CircleShape> &, std::vector<BP> &,
                        sf::RenderWindow &);
 
-template <typename BP>
-void init_circle(BP const &, sf::CircleShape &);
+void init_circle(Entity const &, sf::CircleShape &);
 }  // namespace bob
 #endif

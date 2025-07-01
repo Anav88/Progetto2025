@@ -1,4 +1,3 @@
-#include <cassert>
 #include <iostream>
 #include <vector>
 
@@ -44,12 +43,13 @@ int main() {
           bob::statistics::print_statistics(boids);
         }
       }
-      assert(predators.size() <= bob::MAX_PRED);
+
+      // parametres = bob::init_parametres();
 
       window.clear(sf::Color::White);
 
       bob::evaluate_boid_correction(boids, predators, parametres);
-      bob::evaluate_pred_correction(predators, boids);
+      bob::evaluate_pred_correction(predators, boids, parametres.pred_dist_sep);
 
       bob::erase_boid(boids, predators, circles_boid);
       bob::update_pred(circles_pred, predators, window);

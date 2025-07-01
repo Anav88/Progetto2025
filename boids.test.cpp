@@ -84,11 +84,14 @@ TEST_CASE("Speed angle") {
 }
 
 TEST_CASE("Test parameter initialization") {
-  CHECK_THROWS(init_parametres(0.8f, 0.3f, 0.1f, 15, 20, 3));
-  CHECK_THROWS(init_parametres(1.8f, 0.3f, 0.1f, 15, 10, 3));
-  CHECK_THROWS(init_parametres(0.8f, 1.3f, 0.1f, 15, 10, 3));
-  CHECK_THROWS(init_parametres(0.8f, 0.3f, -1.1f, 15, 10, 3));
-  CHECK_THROWS(init_parametres(0.8f, 0.3f, 0.1f, 15, -10, 3));
+  CHECK_THROWS(init_parametres({0.8f, 0.3f, 0.1f, 15.f, 20.f, 3, 0.f, 0.f,0.f}));
+  CHECK_THROWS(init_parametres({1.8f, 0.3f, 0.1f, 15.f, 10.f, 3, 0.f, 0.f,0.f}));
+  CHECK_THROWS(init_parametres({0.8f, 1.3f, 0.1f, 15.f, 10.f, 3, 0.f, 0.f,0.f}));
+  CHECK_THROWS(init_parametres({0.8f, 0.3f, -1.1f, 15.f, 10.f, 3, 0.f, 0.f,0.f}));
+  CHECK_THROWS(init_parametres({0.8f, 0.3f, 0.1f, 15.f, -10.f, 3, 0.f, 0.f,0.f}));
+  CHECK_THROWS(init_parametres({0.8f, 0.3f, 0.1f, 15.f, -10.f, 3, 0.f, 0.f,-1.f}));
+  CHECK_THROWS(init_parametres({0.8f, 0.3f, 0.1f, 15.f, -10.f, 3, -2.f, 0.f,0.f}));
+  CHECK_THROWS(init_parametres({0.8f, 0.3f, 0.1f, 15.f, -10.f, 3, 0.f, -5.f,0.f}));
 }
 
 TEST_CASE("Checking the behaviours for speeds higher than the maximum") {
@@ -174,7 +177,7 @@ TEST_CASE("Checking evaluate correction Boid functionality") {
     Boid b2(Two_Vec{{2.f, 0.f}, {-1.f, 0.f}});
     std::vector<Boid> boids = {b1, b2};
     std::vector<Predator> predators;
-    Par params = init_parametres(0.8f, 0.f, 0.f, 5, 3, 2);
+    Par params = init_parametres({0.8f, 0.f, 0.f, 5.f, 3.f, 2, 0.f, 0.f,0.f});
 
     evaluate_boid_correction(boids, predators, params);
     Vec2f vel = (-params.s) * (b2.get_pos() - b1.get_pos());
@@ -190,7 +193,7 @@ TEST_CASE("Checking evaluate correction Boid functionality") {
     Boid b3(Two_Vec{{3.f, 3.f}, {5.f, 1.f}});
     std::vector<Boid> boids = {b1, b2, b3};
     std::vector<Predator> predators;
-    Par params = init_parametres(0.f, 0.5f, 0.f, 10, 1, 3);
+    Par params = init_parametres({0.f, 0.5f, 0.f, 10.f, 1.f, 3, 0.f, 0.f,0.f});
 
     evaluate_boid_correction(boids, predators, params);
 
@@ -211,7 +214,7 @@ TEST_CASE("Checking evaluate correction Boid functionality") {
     Boid b3(Two_Vec{{6.f, 4.f}, {0.f, 0.f}});
     std::vector<Boid> boids = {b1, b2, b3};
     std::vector<Predator> predators;
-    Par params = init_parametres(0.f, 0.f, 0.8f, 15, 1, 3);
+    Par params = init_parametres({0.f, 0.f, 0.8f, 15.f, 1.f, 3, 0.f, 0.f,0.f});
 
     evaluate_boid_correction(boids, predators, params);
 
@@ -231,7 +234,7 @@ TEST_CASE("Checking evaluate correction Boid functionality") {
     Boid b3(Two_Vec{{0.f, 1.f}, {0.f, 1.f}});
     std::vector<Boid> boids = {b1, b2, b3};
     std::vector<Predator> predators;
-    Par params = init_parametres(0.6f, 0.5f, 0.3f, 5, 2, 3);  // s, a, c attivi
+    Par params = init_parametres({0.6f, 0.5f, 0.3f, 5.f, 2.f, 3, 0.f, 0.f,0.f});
     evaluate_boid_correction(boids, predators, params);
 
     Vec2f sep =
@@ -259,7 +262,7 @@ TEST_CASE("Checking evaluate correction Boid functionality") {
     Boid b4(Two_Vec{{1.f, 1.f}, {-1.f, -1.f}});
     std::vector<Boid> boids = {b1, b2, b3, b4};
     std::vector<Predator> predators;
-    Par params = init_parametres(1.f, 1.f, 1.f, 5, 2, 4);
+    Par params = init_parametres({1.f, 1.f, 1.f, 5.f, 2.f, 4, 0.f, 0.f,0.f});
 
     evaluate_boid_correction(boids, predators, params);
 
@@ -291,7 +294,7 @@ TEST_CASE("Checking evaluate correction Boid functionality") {
     Boid b5(Two_Vec{{1.f, 1.f}, {-1.f, -1.f}});
     std::vector<Boid> boids = {b1, b2, b3, b4, b5};
     std::vector<Predator> predators;
-    Par params = init_parametres(1.f, 1.f, 1.f, 5, 2, 5);
+    Par params = init_parametres({1.f, 1.f, 1.f, 5.f, 2.f, 5, 0.f, 0.f,0.f});
 
     evaluate_boid_correction(boids, predators, params);
 
@@ -320,7 +323,7 @@ TEST_CASE("Checking evaluate correction Boid functionality") {
       Boid b = Two_Vec{{305.f, -12.f}, {0.f, 0.f}};
       std::vector<Boid> boids{b};
       std::vector<Predator> predators;
-      Par params{0.2f, 0.3f, 0.9f, 6, 3, 1};
+      Par params{0.2f, 0.3f, 0.9f, 6.f, 3.f, 1, 0.f, 0.f,0.f};
 
       CHECK_THROWS(evaluate_boid_correction(boids, predators, params));
     }
@@ -330,7 +333,7 @@ TEST_CASE("Checking evaluate correction Boid functionality") {
       Boid b2 = Two_Vec{{201.f, 812.f}, {0.f, 0.f}};
       std::vector<Boid> boids{b1, b2};
       std::vector<Predator> predators;
-      Par params{0.2f, 0.3f, 0.9f, 6, 3, 2};
+      Par params{0.2f, 0.3f, 0.9f, 6.f, 3.f, 2, 0.f, 0.f,0.f};
 
       CHECK_THROWS(evaluate_boid_correction(boids, predators, params));
     }
@@ -340,7 +343,7 @@ TEST_CASE("Checking evaluate correction Boid functionality") {
     Boid b = Two_Vec{{0.f, 0.f}, {8.f, -14.f}};
     std::vector<Boid> boids{b};
     std::vector<Predator> predators;
-    Par params{0.2f, 0.3f, 0.9f, 6, 3, 1};
+    Par params{0.2f, 0.3f, 0.9f, 6.f, 3.f, 1, 0.f, 0.f,0.f};
 
     CHECK_THROWS(evaluate_boid_correction(boids, predators, params));
   }
@@ -357,9 +360,9 @@ TEST_CASE("Predator actions") {
     p.vel_inseg(angle);
     p.correction();
 
-    CHECK(p.get_vel().x == doctest::Approx(VEL_PRED).epsilon(0.01));
+    CHECK(p.get_vel().x == doctest::Approx(VEL_PRED_INSEG).epsilon(0.01));
     CHECK(p.get_vel().y == doctest::Approx(0.f).epsilon(0.01));
-    CHECK(p.get_pos().x == doctest::Approx(VEL_PRED * TIME_STEP).epsilon(0.01));
+    CHECK(p.get_pos().x == doctest::Approx(VEL_PRED_INSEG * TIME_STEP).epsilon(0.01));
     CHECK(p.get_pos().y == doctest::Approx(0.f).epsilon(0.01));
   }
 
@@ -455,8 +458,8 @@ TEST_CASE("Predator actions") {
     p1.correction();
 
     Vec2f v_expected = {
-        cosf(angle_ins) * VEL_PRED + cosf(angle_sep) * VEL_PRED_SEP,
-        sinf(angle_ins) * VEL_PRED + sinf(angle_sep) * VEL_PRED_SEP};
+        cosf(angle_ins) * VEL_PRED_INSEG + cosf(angle_sep) * VEL_PRED_SEP,
+        sinf(angle_ins) * VEL_PRED_INSEG + sinf(angle_sep) * VEL_PRED_SEP};
 
     CHECK(p1.get_vel().x == doctest::Approx(v_expected.x).epsilon(0.01));
     CHECK(p1.get_vel().y == doctest::Approx(v_expected.y).epsilon(0.01));
@@ -471,7 +474,7 @@ TEST_CASE("Predator actions") {
 
     std::vector<Boid> boids = {b};
     std::vector<Predator> predators = {p};
-    Par params = init_parametres(1.f, 1.f, 1.f, 5, 2, 1);
+    Par params = init_parametres({1.f, 1.f, 1.f, 5.f, 2.f, 1, 20.f, 30.f,0.f});
     evaluate_boid_correction(boids, predators, params);
 
     CHECK(b.get_corr_vsep().x == doctest::Approx(0.f).epsilon(0.01));
@@ -479,9 +482,9 @@ TEST_CASE("Predator actions") {
     CHECK(b.get_corr_vcoes().x == doctest::Approx(0.f).epsilon(0.01));
     CHECK(b.get_corr_vsep().x == doctest::Approx(0.f).epsilon(0.01));
     CHECK(boids[0].get_corr_vfuga().x ==
-          doctest::Approx(FACT_FUGA * cosf(angle)).epsilon(0.01));
+          doctest::Approx(params.f * cosf(angle)).epsilon(0.01));
     CHECK(boids[0].get_corr_vfuga().y ==
-          doctest::Approx(FACT_FUGA * sinf(angle)).epsilon(0.01));
+          doctest::Approx(params.f * sinf(angle)).epsilon(0.01));
   }
 
   SUBCASE("Boid doesn't escape from the distant predator") {
@@ -490,7 +493,7 @@ TEST_CASE("Predator actions") {
 
     std::vector<Boid> boids = {b};
     std::vector<Predator> predators = {p};
-    Par params{0.2f, 0.3f, 0.1f, 100, 50, 1};
+    Par params{0.2f, 0.3f, 0.1f, 100.f, 50.f, 1, 50.f, 30.f,0.f};
     evaluate_boid_correction(boids, predators, params);
 
     CHECK(boids[0].get_corr_vfuga().x == doctest::Approx(0.f).epsilon(0.01));
@@ -505,7 +508,7 @@ TEST_CASE("Predator actions") {
     std::vector<Boid> boids = {b1, b2};
     std::vector<Predator> predators = {p};
 
-    evaluate_pred_correction(predators, boids);
+    evaluate_pred_correction(predators, boids,50.f);
 
     Vec2f vel = predators[0].get_vel_inseg();
     CHECK(vel.x < 0.f);
@@ -515,7 +518,7 @@ TEST_CASE("Predator actions") {
     Predator p = Vec2f{809.f, 103};
     std::vector<Predator> predators = {p};
     std::vector<Boid> boids;
-    CHECK_THROWS(evaluate_pred_correction(predators, boids));
+    CHECK_THROWS(evaluate_pred_correction(predators, boids,50.f));
   }
 }
 
@@ -525,7 +528,7 @@ TEST_CASE("Testing the functionality of reset_corr") {
     b.vel_sep({1.f, 1.f}, 1.f);
     b.vel_all({1.f, 1.f}, 1.f);
     b.vel_coes({1.f, 1.f}, 1.f);
-    b.vel_fuga(0.f);
+    b.vel_fuga(0.f, 0.f);
 
     b.reset_corr();
 
