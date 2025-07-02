@@ -15,13 +15,25 @@ Il progetto è strutturato in cinque file principali:
 L'implementazione si basa su tre tipi aggregati principali:
 - Struttura per vettori 2D - `Vec2f`:
   - Rappresenta posizioni e velocità nello spazio 2D;
-  - Contiene metodi per il calcolo della norma e della direzione;
+  ``` cpp
+  struct Vec2f {
+    float x;
+    float y;
+
+    ...
+
+    float angle() const; // calcola l'angolo formato con l'asse x
+    float norm() const; // calcola la norma del vettore
+  };
+
+  ```
 - Classe base - `Entity`:
   ```cpp
   class Entity {
     protected:
     Vec2f pos_;
     Vec2f vel_;
+
     public:
     ...
 
@@ -41,6 +53,7 @@ L'implementazione si basa su tre tipi aggregati principali:
 
       public:
       ...
+
       //Metodi per il calcolo delle velocità di correzione
       void vel_sep(Vec2f const &, float);
       void vel_all(Vec2f const &, float);
@@ -65,6 +78,7 @@ L'implementazione si basa su tre tipi aggregati principali:
       Vec2f corr_vsep_{0.f, 0.f};
 
       public:
+      ...
   
       //Metodi per il calcolo delle due correzioni
       void vel_inseg(float);
@@ -108,13 +122,13 @@ Il comportamento dei boid è determinato da quattro regole, tre di queste descri
 
 Dove, s, a, c, f sono dei parametri richiesti in input.
 
-Ciascun boid è inizializzato con posizione e velocità casuali, ed è inserito in un vettore. 
+Ogni boid viene inizializzato con una posizione e una velocità generate casualmente, e successivamente aggiunto a un contenitore vettoriale che rappresenta lo stormo.
 ```cpp
 
 void add_boid(std::vector<Boid> &boids_vector) {
   std::generate(boids_vector.begin(), boids_vector.end(),
                 []() { return (Boid(rand_num())); });
-}//dove rand_num è una funzione che genera la posizione e la velocità.
+}//dove rand_num è una funzione che genera una posizione e velocità casuali.
 
 ```
 Per ogni elemento, le correzioni vengono calcolate dalla funzione `evaluate_boid_correction()`.
@@ -159,7 +173,7 @@ Le nuove velocità e posizione sono dunque calcolate secondo le seguenti leggi:
 Il ∆t è stato definito dalla constexpr `TIME_STEP`, pari a 1/60 s. Tale scelta garantisce che ogni aggiornamento sia sincronizzato con il frame rate della finestra fissato a 60 FPS. Queste due operazioni sono eseguite dal metodo `correction()` della classe boid che però, prima di calcolare la nuova posizione, si accerta che la velocità sia nei limiti consentiti, e nel caso contrario riduce la norma della stessa mantenendo però costante la sua direzione.
 
 ### Predator
-I predatori vengono creati al momento dell'interazione dell'utente tramite un click del mouse all'interno della finestra. Il programma limita la presenza a un massimo di cinque predatori: se questo numero è già stato raggiunto, ulteriori tentativi di creazione non producono alcun effetto.
+I predatori vengono creati al momento dell'interazione dell'utente tramite un click del mouse all'interno della finestra. Il programma limita la presenza a un massimo di cinque predatori: se questo numero è già stato raggiunto, ulteriori tentativi di creazione non produrranno alcun effetto.
 #### Regole
 Il suo comportamento è determinato da due regole:
 - Inseguimento: L’agente individua il boid più vicino e lo insegue:
@@ -176,7 +190,7 @@ Il suo comportamento è determinato da due regole:
 
 
 Queste due correzioni sono valutate dalla funzione `evaluate_pred_correction()`. Tramite l'algoritmo `std::min_element()` viene individuato il boid più vicino, e poi applicata la regola dell'inseguimento. Inoltre tale funzione valuta anche l’eventuale vicinanza di due predatori e in caso applica la seconda correzione.
-Nel momento in cui le posizioni del predatore e della preda sono uguali, a meno di un piccolo errore, il boid viene “mangiato”. Tale operazione è effettuata dalla funzione `erase_boid()`.
+Quando la distanza tra predatore e boid è inferiore a una soglia di tolleranza, il boid viene catturato. Tale operazione è effettuata dalla funzione `erase_boid()`.
 
 ## Istruzioni per eseguire il programma
 Per eseguire il programma è necessario avere installato CMake, Ninja, e la libreria esterna SFML. Qualora tali componenti non fossero stati precedentemente installati, ecco i passaggi necessari:
@@ -232,7 +246,7 @@ All’interno della cartella progetto2025 è contenuto un file denominato [param
 - Numero di agenti (Valori int positivi):
   - `N`, numero totale di boid nella simulazione (consigliato: valore moderato).
 - Parametri per la regola della velocità di fuga (valori float positivi):
-  -	`boid_distance_fuga`, distanza entro la quale il boid scappa dal predatore;
+  -	`boid_distance_fuga`, distanza entro la quale il boid si allontana dal predatore;
   -	`fact_fuga`, fattore della velocità di fuga del boid.
 
 Se i parametri non rispettassero i vincoli richiesti, o ne dovesse mancare qualcuno, il programma termina con un messaggio d’errore.
@@ -240,14 +254,21 @@ Se i parametri non rispettassero i vincoli richiesti, o ne dovesse mancare qualc
 ## Output
 Qualora l'input vada a buon fine l'output aspettato sarà il seguente:
 - Finestra 600 x 600 con:
-  - N Boid, cerchi neri;
-  - Predatori, cerchi rossi (creati con un click del mouse)
+  - N Boid, Rappresentati da dei cerchi neri;
+  - Predatori, Rappresentati da dei cerchi rossi (creati con un click del mouse)
 - Statistiche: premere la barra spaziatrice per visualizzare velocità media e deviazione standard nel terminale.
 
+## Esempio di Parametri ed Analisi dei Risultati
+Un esempio raccomandato di parametri è fornito nel file [parameters.txt](parameters.txt). In tale configurazione, il parametro `c` assume un valore significativamente inferiore rispetto ai parametri `s` e `a`, per ridurre l'effetto di attrazione verso il centro di massa del gruppo. La variazione del parametro `d` influisce profondamente sulla dinamica del sistema: aumentando `d`, si osserva una diminuzione del numero di sottogruppi indipendenti, a favore di uno stormo più coeso.
+
+Durante la simulazione, i boid tendono rapidamente a raggrupparsi e a stabilizzarsi in un apparente stato di quiete. Tuttavia, nonostante questo comportamento visivo, gli agenti mantengono una velocità vicina al massimo consentito. La velocità media del sistema si avvicina a zero, suggerendo un equilibrio nella distribuzione delle velocità. Tuttavia, l’elevata deviazione standard delle velocità individuali conferma che il sistema è dinamicamente attivo, con differenze significative nelle direzioni di moto.
+
+L’implementazione della [regola di coesione](README.md#regole) ha evidenziato che, dividere per `n-1` porta a un comportamento anomalo dello stormo. Questo ha suggerito che il `-1` servisse a escludere il boid stesso dal calcolo del centro di massa. Dunque per la struttura del programma, che esclude autonomamente l'agente, è necessaria la divisione per `n`.
+
 ## Implementazione dei test
-Per validare il comportamento del sistema di simulazione dello stormo, sono
-stati implementati test automatici usando il framework Doctest.
-I test verificano:
+Per assicurare che la simulazione si comporti in modo corretto e coerente rispetto alle specifiche, è stata adottata una strategia di test, utilizzando il framework Doctest. L'obiettivo è individuare errori logici, verificare l’integrità dei dati e garantire che il comportamento emergente del sistema sia ragionevole anche in presenza di condizioni limite.
+
+Sono dunque stati eseguiti i test su:
 - Operazioni su `Vec2f`: operatori matematici e metodi `angle()`, `norm()`;
 - Funzione `init_parametres()`: verifica il comportamento con valori fuori limite;
 - Funzione `distance()`: tra boid e predatori;
@@ -256,8 +277,7 @@ I test verificano:
 - Comportamento dei predatori: inseguimento, separazione e fuga;
 - Funzioni statistiche.
 
-I test sono stati spesso valutati anche in casi limite (es. eccezioni), per rivelare
-eventuali errori in situazioni più a rischio.
+La combinazione di questi test costituisce una copertura ampia e ragionevole del sistema. Questa strategia permette di affermare che il comportamento della simulazione è stato verificato in modo sistematico e risulta **esente da errori evidenti**. Ciò nonostante non si può affermare la sua correttezza, bensì che i casi testati non hanno causato alcun errore.
 
 ## Uso di sistemi di Intelligenza Artificiale
 L’intelligenza artificiale è stata utilizzata per generare porzioni di codice, in particolare:

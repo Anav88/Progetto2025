@@ -358,6 +358,11 @@ void evaluate_boid_correction(std::vector<Boid> &boids,
       boid_i.vel_sep(result.sep, parametres.s);
     }
 
+    // if (result.n > 1) {
+    // boid_i.vel_all(result.all / static_cast<float>(result.n-1),
+    // parametres.a); boid_i.vel_coes(result.coes /
+    // static_cast<float>(result.n-1), parametres.c);
+    // }
     if (result.n > 0) {
       boid_i.vel_all(result.all / static_cast<float>(result.n), parametres.a);
       boid_i.vel_coes(result.coes / static_cast<float>(result.n), parametres.c);
