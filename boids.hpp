@@ -9,7 +9,7 @@ namespace bob {
 int const MIN_POS{0};
 int const MAX_POS{600};
 
-int const BOID_VEL_LIM{30};
+int const BOID_VEL_LIM{10};
 int const VEL_PRED_INSEG{30};
 int const VEL_PRED_SEP{7};
 std::size_t const MAX_PRED{5};
@@ -54,10 +54,11 @@ Vec2f operator/(Vec2f const &, float);
 bool operator==(Vec2f const &, Vec2f const &);
 
 class Entity {
- public:
+ protected:
   Vec2f pos_;
   Vec2f vel_;
 
+ public:
   Entity(Vec2f p);
   Entity(Vec2f p, Vec2f v);
   Entity(Two_Vec vec);

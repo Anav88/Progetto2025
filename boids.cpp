@@ -276,8 +276,8 @@ Two_Vec rand_num() {
   return {{pos_x(eng), pos_y(eng)}, {vel_x(eng), vel_y(eng)}};
 }
 
-void add_boid(std::vector<Boid> &add_vec) {
-  std::generate(add_vec.begin(), add_vec.end(),
+void add_boid(std::vector<Boid> &boids) {
+  std::generate(boids.begin(), boids.end(),
                 []() { return (Boid(rand_num())); });
 }
 

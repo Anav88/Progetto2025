@@ -1,78 +1,182 @@
 # SIMULAZIONE VOLO DI STORMI E PREDATORI
-Il progetto è stato sviluppato utilizzando Git ed è disponibile alla seguente repository: https://github.com/Anav88/Progetto2025
 
-Il progetto simula il comportamento collettivo di uno stormo di uccelli (boid) e dei loro predatori, ispirandosi al modello di Craig Reynolds (1987). 
+
+Il progetto simula il comportamento collettivo di uno stormo di uccelli (boid) e dei loro predatori, ispirandosi al modello di Craig Reynolds (1987). Il codice sorgente è disponibile su GitHub: https://github.com/Anav88/Progetto2025
+
 
 ## SCELTE PROGETTUALI ED IMPLEMENTATIVE
-Il progetto è strutturato in quattro file principali:
-- L’header file - [boids.hpp](boids.hpp)
-- Il file di implementazione - [boids.cpp](boids.cpp)
-- Il file contenente i test - [boids.test.cpp](boids.test.cpp)
-- Il main file - [main.cpp](main.cpp)
+Il progetto è strutturato in cinque file principali:
+- Il file header - [`boids.hpp`](boids.hpp)
+- Il file di implementazione - [`boids.cpp`](boids.cpp)
+- Il file contenente i test - [`boids.test.cpp`](boids.test.cpp)
+- Il main file - [`main.cpp`](main.cpp)
+- Il file di lettura input - [`parameters.txt`](parameters.txt)
 
 L'implementazione si basa su tre tipi aggregati principali:
-- Struttura per vettori 2D - Vec2f:
+- Struttura per vettori 2D - `Vec2f`:
   - Rappresenta posizioni e velocità nello spazio 2D;
   - Contiene metodi per il calcolo della norma e della direzione;
-- Classe base - Entity:
-  - Contiene le proprietà base di ogni entità simulata:
-    - Due variabili Vec2f posizione e velocità;
-    - Metodi quale limit() per gestire i bordi dello spazio simulato;
-- Classi derivate - Boid e Predator:
-  - Esse contengono variabili e metodi specifici che caratterizzano l'entità.
+- Classe base - `Entity`:
+  ```cpp
+  class Entity {
+    protected:
+    Vec2f pos_;
+    Vec2f vel_;
+    public:
+    ...
 
-## Boid
+    void limit();
+    //teletrasporta l'entità al lato opposto qualora fuoriesca dai bordi
+  };
+  ```
+- Classi derivate - `Boid` e `Predator`:
+  - Boid: 
+    ```cpp
+    class Boid : public Entity {
+      private:
+      Vec2f corr_vsep_{0.f, 0.f};
+      Vec2f corr_vall_{0.f, 0.f};
+      Vec2f corr_vcoes_{0.f, 0.f};
+      Vec2f corr_vfuga_{0.f, 0.f};
+
+      public:
+      ...
+      //Metodi per il calcolo delle velocità di correzione
+      void vel_sep(Vec2f const &, float);
+      void vel_all(Vec2f const &, float);
+      void vel_coes(Vec2f const &, float);
+      void vel_fuga(float, float);
+
+      //Modifica posizione e velocità
+      void correction();
+      //Azzera le correzioni
+      void reset_corr();
+      //Modifica la velocità qualora la sua norma sia maggiore di quella consentita
+      void vel_max();
+    };
+
+    ```
+   
+  - Predator:
+    ```cpp
+    class Predator : public Entity {
+      private:
+      Vec2f corr_vinseg_{0.f, 0.f};
+      Vec2f corr_vsep_{0.f, 0.f};
+
+      public:
+  
+      //Metodi per il calcolo delle due correzioni
+      void vel_inseg(float);
+      void vel_sep(float);
+
+      //Modifica posizione e velocità
+      void correction();
+      //Azzera le correzioni
+      void reset_corr();
+    };
+
+    ```
+  
+
+### Boid
 Il comportamento dei boid è determinato da quattro regole, tre di queste descrivono le interazioni tra di essi e vengono applicate tenendo conto solo dei boid vicini, la quarta determina invece il rapporto con i predatori:
-### Regole
+#### Regole
 - **Separazione**: evita scontri e sovrapposizioni
+
 ```math
 \vec{v}_{sep} = -s\sum_{j\ne i}(\vec{x}_{b_j}-\vec{x}_{b_i})\quad \text{se}\quad \left|\vec{x}_{b_i}-\vec{x}_{b_j}\right|\lt d_s
 ```
-- ****Allineamento**: uniforma la direzione di movimento complessiva
+
+- **Allineamento**: uniforma la direzione di movimento complessiva
+
 ```math
 \vec{v}_{all} = a(\frac{1}{n-1}\sum_{j\ne i}\vec{v}_{b_j} - \vec{v}_{b_i})
 ```
+
 - **Coesione**: Attrae il boid verso il centro di massa dei vicini
+
 ```math
 \vec{v}_{coes} = c(\vec{x}_{c}-\vec{x}_{b_i}) \quad \text{con}\quad \vec{x}_{c} = \frac{1}{n-1}\sum_{j\ne i}\vec{x}_{b_j}
 ``` 
-- **Fuga**: induce i boid ad allontanarsi dai predatori.
+
+- **Fuga**: induce i boid ad allontanarsi dai predatori
+
 ```math
 |\vec{v}_{fuga}| = f
 ```
+
 Dove, s, a, c, f sono dei parametri richiesti in input.
 
-Ciascun boid è inizializzato con posizione e velocità casuali, ed è inserito in un vettore.
-Per ogni elemento, le correzioni vengono calcolate dalla funzione evaluate_boid_correction().
-Questa chiama a sua volta una funzione specifica per il calcolo della correzione di fuga - evaluate_boid_corr_fuga(), ed inoltre, tramite l’algoritmo della standard library std::accumulate(), calcola le sommatorie e gli n che compaiono nelle formule per le correzioni. Per terminare chiama dei metodi della classe boid che terminano il calcolo delle correzioni.
+Ciascun boid è inizializzato con posizione e velocità casuali, ed è inserito in un vettore. 
+```cpp
+
+void add_boid(std::vector<Boid> &boids_vector) {
+  std::generate(boids_vector.begin(), boids_vector.end(),
+                []() { return (Boid(rand_num())); });
+}//dove rand_num è una funzione che genera la posizione e la velocità.
+
+```
+Per ogni elemento, le correzioni vengono calcolate dalla funzione `evaluate_boid_correction()`.
+Questa chiama a sua volta una funzione specifica per il calcolo della correzione di fuga `evaluate_boid_corr_fuga()`. Inoltre, le sommatorie e gli n che compaiono nelle formule per le correzioni sono calcolati tramite l’algoritmo della standard library `std::accumulate()`. Per terminare chiama dei metodi della classe boid che terminano il calcolo delle correzioni.
+
+```cpp
+
+void evaluate_boid_correction(...){
+
+  ...
+
+  evaluate_boid_corr_fuga(...);
+
+  ...
+  auto result = std::accumulate(
+        boids.begin(), boids.end(),
+        ...,
+        [&](...) {
+          if (&boid_i != &boid_j) {
+            //calcolo delle sommatorie e degli n
+          }
+          return acc;
+        });
+
+  ...
+  boid.vel_sep(...);
+  boid.vel_all(...);
+  boid.vel_coes(...); 
+  //metodi di Boid che completano il calcolo delle correzioni
+}
+
+```
 
 Le nuove velocità e posizione sono dunque calcolate secondo le seguenti leggi:
 ```math
-\vec{v}=\vec{v}_0+\vec{v}_{sep}+\vec{v}_{coes}+\vec{v}_{all}+v_{fuga}\\
+
+\vec{v}=\vec{v}_0+\vec{v}_{sep}+\vec{v}_{coes}+\vec{v}_{all}+v_{fuga} \\
 \vec{x}=\vec{x}_0+\vec{v}*∆t
+
 ```
 
-Il ∆t è stato definito tramite constexpr ed è pari a 1/60 s. Tale valore è stato scelto affinché ogni correzione fosse coerente con il “refresh” della finestra generata da SFML che avviene proprio ogni sessantesimo di secondo. Queste due operazioni sono eseguite dal metodo correction() della classe boid che però, prima di calcolare la nuova posizione, si accerta che la velocità sia nei limiti consentiti, e nel caso contrario riduce la norma della stessa mantenendo però costante la sua direzione.
+Il ∆t è stato definito dalla constexpr `TIME_STEP`, pari a 1/60 s. Tale scelta garantisce che ogni aggiornamento sia sincronizzato con il frame rate della finestra fissato a 60 FPS. Queste due operazioni sono eseguite dal metodo `correction()` della classe boid che però, prima di calcolare la nuova posizione, si accerta che la velocità sia nei limiti consentiti, e nel caso contrario riduce la norma della stessa mantenendo però costante la sua direzione.
 
-## Predator
-I predatori non sono creati all'inizio della simulazione ma solo nel caso in cui l'utente interagisca facendo un click del mouse all'interno della finestra. Il programma impedisce la presenza di più di 5 preddatori, dunque, qualora si fosse già raggiunto il numero consentito e si provasse nuovamente ad eseguire la procedura per formare un nuovo agente, non accadrebbe nulla. 
-### Regole
+### Predator
+I predatori vengono creati al momento dell'interazione dell'utente tramite un click del mouse all'interno della finestra. Il programma limita la presenza a un massimo di cinque predatori: se questo numero è già stato raggiunto, ulteriori tentativi di creazione non producono alcun effetto.
+#### Regole
 Il suo comportamento è determinato da due regole:
-- Inseguimento: L’agente individua il boid più vicino e lo insegue
+- Inseguimento: L’agente individua il boid più vicino e lo insegue:
   ```math
-  v_{fuga_x} = VEL\_PRED\_INSEG * cos(angle) \quad\quad v_{fuga_y} = VEL\_PRED\_INSEG * sin(angle)
+  v_{fuga_x} = \text{VEL\_PRED\_INSEG} * cos(angle) \quad\quad v_{fuga_y} = \text{VEL\_PRED\_INSEG} * sin(angle)
   ```
-  dove angle è l'angolo formato con l'asse delle x dal vettore che collega il predatore con il boid individuato.
+  Dove angle è l'angolo formato con l'asse delle x dal vettore che collega il predatore con il boid individuato, mentre VEL_PRED_INSEG è una costante globale.
 
-- Separazione: Mantiene predatori separati
+- Separazione: Mantiene predatori distanti:
   ```math
-  v_{sep_x} = VEL\_PRED\_SEP * cos(angle) \quad\quad v_{sep_y} = VEL\_PRED\_SEP * sin(angle)
+  v_{sep_x} = \text{VEL\_PRED\_SEP} * cos(angle) \quad\quad v_{sep_y} = \text{VEL\_PRED\_SEP} * sin(angle)
   ```
-  dove angle è l'angolo formato con l'asse delle x dal vettore che collega i due predatori.
+  Dove angle è l'angolo formato con l'asse delle x dal vettore che collega i due predatori, mentre VEL_PRED_SEP è una costante globale.
 
 
-Queste due correzioni sono valutate dalla funzione - evaluate_pred_correction(). L’algoritmo std::min_element() individua il boid più vicino così da poter applicare la regola dell'inseguimento. Inoltre tale funzione valuta anche l’eventuale vicinanza di due predatori. Nel caso di due entità vicine è applicata la seconda correzione. Anche in questo caso il modulo di tale velocità è definito dalla costante VEL_PRED_SEP, e sono modificate le sole componenti.
-Nel momento in cui le posizioni del predatore e della preda sono uguali, a meno di un piccolo errore, il boid viene “mangiato”. Tale operazione è effettuata dalla funzione - erase_boid().
+Queste due correzioni sono valutate dalla funzione `evaluate_pred_correction()`. Tramite l'algoritmo `std::min_element()` viene individuato il boid più vicino, e poi applicata la regola dell'inseguimento. Inoltre tale funzione valuta anche l’eventuale vicinanza di due predatori e in caso applica la seconda correzione.
+Nel momento in cui le posizioni del predatore e della preda sono uguali, a meno di un piccolo errore, il boid viene “mangiato”. Tale operazione è effettuata dalla funzione `erase_boid()`.
 
 ## Istruzioni per eseguire il programma
 Per eseguire il programma è necessario avere installato CMake, Ninja, e la libreria esterna SFML. Qualora tali componenti non fossero stati precedentemente installati, ecco i passaggi necessari:
@@ -91,10 +195,10 @@ Per eseguire il programma è necessario avere installato CMake, Ninja, e la libr
     ```bash
     $ sudo apt install cmake ninja-build libsfml-dev
     ```
-Compilazione ed esecuzione:
+### Compilazione ed esecuzione:
 - Aprire il terminale e spostarsi nella cartella del progetto:
   ```bash
-    $ cd /percorso/progetto2025
+    $ cd /percorso/per/progetto2025 #inserire il percorso corretto
   ```
 - Configurare l’ambiente di build con il comando:
   ```bash
@@ -115,52 +219,50 @@ Compilazione ed esecuzione:
    $ cmake --build build --config Debug --target test
    $ cmake --build build --config Release --target test  
   ```
-## Input Output
+## Input
 All’interno della cartella progetto2025 è contenuto un file denominato [parameters.txt](parameters.txt). Esso contiene i seguenti parametri:
 - Parametri di comportamento (valori float nell’intervallo [0,1]):
-  - s, impiegato nel calcolo della velocità di separazione;
-  -	a, impiegato nel calcolo della velocità di allineamento;
-  -	c, impiegato nel calcolo della velocità di coesione.
+  - `s`, impiegato nel calcolo della velocità di separazione;
+  -	`a`, impiegato nel calcolo della velocità di allineamento;
+  -	`c`, impiegato nel calcolo della velocità di coesione.
 - Distanze di interazione boid-boid, pred-pred (valori float positivi):
-   - d, distanza di interazione per le regole di allineamento e coesione;
-   - d_s, distanza per la separazione, con d_s < d;
-   - pred_dist_sep, distanza per la separazione di due predatori.
+   - `d`, distanza di interazione per le regole di allineamento e coesione;
+   - `d_s`, distanza per la separazione, con d_s < d;
+   - `pred_dist_sep`, distanza per la separazione di due predatori.
 - Numero di agenti (Valori int positivi):
-  - N, numero totale di boid nella simulazione (consigliato: valore moderato).
+  - `N`, numero totale di boid nella simulazione (consigliato: valore moderato).
 - Parametri per la regola della velocità di fuga (valori float positivi):
-  -	boid_distance_fuga, distanza entro la quale il boid scappa dal predatore;
-  -	fact_fuga, fattore della velocità di fuga del boid.
+  -	`boid_distance_fuga`, distanza entro la quale il boid scappa dal predatore;
+  -	`fact_fuga`, fattore della velocità di fuga del boid.
 
-Se i parametri non rispettassero i vincoli richiesti, o ne dovesse mancare qualcuno, il programma termina con un messaggio d’errore. Al contrario il programma apre una finestra 600 x 600 con N boid, rappresentati con dei cerchi neri. Un click del mouse può inoltre far comparire un predatore, raffigurato da un cerchio rosso, nel punto dove è avvenuto l’evento.
-Inoltre, durante l’esecuzione, premendo la barra spaziatrice, si possono visualizzare sul terminale la velocità media e deviazione standard dei boid.
+Se i parametri non rispettassero i vincoli richiesti, o ne dovesse mancare qualcuno, il programma termina con un messaggio d’errore.
+
+## Output
+Qualora l'input vada a buon fine l'output aspettato sarà il seguente:
+- Finestra 600 x 600 con:
+  - N Boid, cerchi neri;
+  - Predatori, cerchi rossi (creati con un click del mouse)
+- Statistiche: premere la barra spaziatrice per visualizzare velocità media e deviazione standard nel terminale.
 
 ## Implementazione dei test
 Per validare il comportamento del sistema di simulazione dello stormo, sono
 stati implementati test automatici usando il framework Doctest.
 I test verificano:
-- Operazioni su Vec2f: operatori matematici e metodi angle(), norm();
-- Funzione init parametres(): verifica il comportamento con valori fuori limite;
-- Funzione distance(): tra boid e predatori;
-- Metodi delle classi: vel max() per Boid, limit() in entrambe le classi;
-- Funzione evaluate boid correction(): testata sia con singole regole che con tutte attive;
+- Operazioni su `Vec2f`: operatori matematici e metodi `angle()`, `norm()`;
+- Funzione `init_parametres()`: verifica il comportamento con valori fuori limite;
+- Funzione `distance()`: tra boid e predatori;
+- Metodi delle classi: `vel_max()` per Boid, `limit()` in entrambe le classi;
+- Funzione `evaluate_boid_correction()`: testata sia con singole regole che con tutte attive;
 - Comportamento dei predatori: inseguimento, separazione e fuga;
 - Funzioni statistiche.
 
 I test sono stati spesso valutati anche in casi limite (es. eccezioni), per rivelare
-eventuali errori.
+eventuali errori in situazioni più a rischio.
 
 ## Uso di sistemi di Intelligenza Artificiale
 L’intelligenza artificiale è stata utilizzata per generare porzioni di codice, in particolare:
-- La funzione Vec2f &operator+= (Vec2f const &);
+- La funzione `Vec2f operator+= (Vec2f const &)`;
 - La condizione dell’istruzione if alla riga 41/42 nel main:
-  if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space)
+  `if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space)`
 
 È stata poi consultata per chiarimenti su metodi, algoritmi e per risolvere alcuni warning in fase di compilazione.
-
-
-
-
-
-
-
-
