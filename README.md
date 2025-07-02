@@ -1,10 +1,26 @@
 # SIMULAZIONE VOLO DI STORMI E PREDATORI
 
+Cardillo Emanuele, Dipietro Alessandro, Stefanini Lorenzo
 
+Data: 3 luglio 2025
+
+- [Introduzione](README.md#introduzione)
+- [Scelte progettuali ed implementative](README.md#scelte-progettuali-ed-implementative)
+  - [Boid](README.md#boid)
+  - [Predator](README.md#predator)
+- [Istruzioni per eseguire il programma](README.md#istruzioni-per-eseguire-il-programma)
+  - [Compilazione ed esecuzione](README.md#compilazione-ed-esecuzione)
+- [Input](README.md#iniput)
+- [Output](README.md#output)
+- [Esempio di parametri ed analisi dei risultati](README.md#esempio-di-parametri-ed-analisi-dei-risultati)
+- [Implementazione dei test](README.md#implementazione-dei-test)
+- [Uso di sistemi di intelligenza artificiale](README.md#uso-di-sistemi-di-intelligenza-artificiale)
+
+## Introduzione 
 Il progetto simula il comportamento collettivo di uno stormo di uccelli (boid) e dei loro predatori, ispirandosi al modello di Craig Reynolds (1987). Il codice sorgente è disponibile su GitHub: https://github.com/Anav88/Progetto2025
 
 
-## SCELTE PROGETTUALI ED IMPLEMENTATIVE
+## Scelte Progettuali ed Implementative 
 Il progetto è strutturato in cinque file principali:
 - Il file header - [`boids.hpp`](boids.hpp)
 - Il file di implementazione - [`boids.cpp`](boids.cpp)
