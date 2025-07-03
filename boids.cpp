@@ -5,6 +5,7 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <filesystem>
 
 namespace bob {
 Vec2f operator-(Vec2f const &v1, Vec2f const &v2) {

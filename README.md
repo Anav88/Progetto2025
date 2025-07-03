@@ -242,7 +242,7 @@ Per eseguire il programma è necessario avere installato CMake, Ninja, e la libr
   ```
 - Eseguire il programma principale:
   ```bash
-    $ cmake --build build --config Debug --target main
+    $ build/Debug/main
   ```
 - Eseguire i test:
   ```bash
