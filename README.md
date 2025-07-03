@@ -17,7 +17,7 @@ Data: 3 luglio 2025
 - [Uso di sistemi di intelligenza artificiale](README.md#uso-di-sistemi-di-intelligenza-artificiale)
 
 ## Introduzione 
-Il progetto simula il comportamento collettivo di uno stormo di uccelli (boid) e dei loro predatori, ispirandosi al modello di Craig Reynolds (1987). Il codice sorgente è disponibile su GitHub: https://github.com/Anav88/Progetto2025
+Il progetto simula il comportamento collettivo di uno stormo di uccelli (boid) e dei loro predatori ispirandosi al modello di Craig Reynolds (1987). Il codice sorgente è disponibile su GitHub: https://github.com/Anav88/Progetto2025
 
 
 ## Scelte Progettuali ed Implementative 
@@ -110,7 +110,7 @@ L'implementazione si basa su tre tipi aggregati principali:
   
 
 ### Boid
-Il comportamento dei boid è determinato da quattro regole, tre di queste descrivono le interazioni tra di essi e vengono applicate tenendo conto solo dei boid vicini, la quarta determina invece il rapporto con i predatori:
+Il comportamento dei boid è determinato da quattro regole. Tre di queste descrivono le interazioni tra di essi e vengono applicate tenendo conto solo dei boid vicini, la quarta determina invece il rapporto con i predatori:
 #### Regole
 - **Separazione**: evita scontri e sovrapposizioni
 
@@ -136,7 +136,7 @@ Il comportamento dei boid è determinato da quattro regole, tre di queste descri
 |\vec{v}_{fuga}| = f
 ```
 
-Dove, s, a, c, f sono dei parametri richiesti in input.
+Dove, s, a, c, f sono dei parametri letti in input.
 
 Ogni boid viene inizializzato con una posizione e una velocità generate casualmente, e successivamente aggiunto a un contenitore vettoriale che rappresenta lo stormo.
 ```cpp
@@ -147,8 +147,7 @@ void add_boid(std::vector<Boid> &boids_vector) {
 }//dove rand_num è una funzione che genera una posizione e velocità casuali.
 
 ```
-Per ogni elemento, le correzioni vengono calcolate dalla funzione `evaluate_boid_correction()`.
-Questa chiama a sua volta una funzione specifica per il calcolo della correzione di fuga `evaluate_boid_corr_fuga()`. Inoltre, le sommatorie e gli n che compaiono nelle formule per le correzioni sono calcolati tramite l’algoritmo della standard library `std::accumulate()`. Per terminare chiama dei metodi della classe boid che terminano il calcolo delle correzioni.
+Per ogni elemento, le correzioni vengono calcolate dalla funzione `evaluate_boid_correction()`. Questa chiama a sua volta una funzione specifica per il calcolo della correzione di fuga, `evaluate_boid_corr_fuga()`. Inoltre, le sommatorie e gli n che compaiono nelle formule per le correzioni sono calcolati tramite l’algoritmo della standard library `std::accumulate()`. Per terminare chiama dei metodi della classe boid che concludono il calcolo delle correzioni.
 
 ```cpp
 
@@ -189,10 +188,10 @@ Le nuove velocità e posizione sono dunque calcolate secondo le seguenti leggi:
 Il ∆t è stato definito dalla constexpr `TIME_STEP`, pari a 1/60 s. Tale scelta garantisce che ogni aggiornamento sia sincronizzato con il frame rate della finestra fissato a 60 FPS. Queste due operazioni sono eseguite dal metodo `correction()` della classe boid che però, prima di calcolare la nuova posizione, si accerta che la velocità sia nei limiti consentiti, e nel caso contrario riduce la norma della stessa mantenendo però costante la sua direzione.
 
 ### Predator
-I predatori vengono creati al momento dell'interazione dell'utente tramite un click del mouse all'interno della finestra. Il programma limita la presenza a un massimo di cinque predatori: se questo numero è già stato raggiunto, ulteriori tentativi di creazione non produrranno alcun effetto.
+I predatori vengono creati al momento dell'interazione dell'utente tramite un click del mouse all'interno della finestra. Il programma limita la presenza a un massimo di cinque predatori. Se questo numero è già stato raggiunto, ulteriori tentativi di creazione non produrranno alcun effetto.
 #### Regole
-Il suo comportamento è determinato da due regole:
-- Inseguimento: L’agente individua il boid più vicino e lo insegue:
+Il comportamento di ciascun predatore è determinato da due regole:
+- Inseguimento: l’agente individua il boid più vicino e lo insegue:
   ```math
   v_{fuga_x} = \text{VEL\_PRED\_INSEG} * cos(angle) \quad\quad v_{fuga_y} = \text{VEL\_PRED\_INSEG} * sin(angle)
   ```
@@ -205,7 +204,7 @@ Il suo comportamento è determinato da due regole:
   Dove angle è l'angolo formato con l'asse delle x dal vettore che collega i due predatori, mentre VEL_PRED_SEP è una costante globale.
 
 
-Queste due correzioni sono valutate dalla funzione `evaluate_pred_correction()`. Tramite l'algoritmo `std::min_element()` viene individuato il boid più vicino, e poi applicata la regola dell'inseguimento. Inoltre tale funzione valuta anche l’eventuale vicinanza di due predatori e in caso applica la seconda correzione.
+Queste due correzioni sono valutate dalla funzione `evaluate_pred_correction()`. Tramite l'algoritmo `std::min_element()` viene individuato il boid più vicino, e poi è applicata la regola dell'inseguimento. Inoltre tale funzione valuta anche l’eventuale vicinanza di due predatori e in caso applica la seconda correzione.
 Quando la distanza tra predatore e boid è inferiore a una soglia di tolleranza, il boid viene catturato. Tale operazione è effettuata dalla funzione `erase_boid()`.
 
 ## Istruzioni per eseguire il programma
@@ -218,7 +217,9 @@ Per eseguire il programma è necessario avere installato CMake, Ninja, e la libr
     ```
   - A seguito dell’operazione è possibile verificare la corretta installazione delle componenti tramite i seguenti comandi:
     ```bash
-    $ brew install cmake ninja sfml@2
+    $ cmake --version
+    $ ninja --version
+    $ brew info sfml@2
     ```
 - Linux
   - Aprire il terminale ed eseguire il seguente comando:
@@ -263,15 +264,15 @@ All’interno della cartella progetto2025 è contenuto un file denominato [param
   - `N`, numero totale di boid nella simulazione (consigliato: valore moderato).
 - Parametri per la regola della velocità di fuga (valori float positivi):
   -	`boid_distance_fuga`, distanza entro la quale il boid si allontana dal predatore;
-  -	`fact_fuga`, fattore della velocità di fuga del boid.
+  -	`f`, fattore della velocità di fuga del boid.
 
-Se i parametri non rispettassero i vincoli richiesti, o ne dovesse mancare qualcuno, il programma termina con un messaggio d’errore.
+Se anche un solo parametro dovesse mancare, o non dovesse rispettare i vincoli richiesti, il programma terminerebbe con un messaggio d’errore.
 
 ## Output
-Qualora l'input vada a buon fine l'output aspettato sarà il seguente:
+Qualora l'input vada a buon fine, l'output aspettato sarà il seguente:
 - Finestra 600 x 600 con:
-  - N Boid, Rappresentati da dei cerchi neri;
-  - Predatori, Rappresentati da dei cerchi rossi (creati con un click del mouse)
+  - N Boid, rappresentati da dei cerchi neri;
+  - Predatori, rappresentati da dei cerchi rossi (creati con un click del mouse)
 - Statistiche: premere la barra spaziatrice per visualizzare velocità media e deviazione standard nel terminale.
 
 ## Esempio di Parametri ed Analisi dei Risultati
@@ -279,7 +280,7 @@ Un esempio raccomandato di parametri è fornito nel file [parameters.txt](parame
 
 Durante la simulazione, i boid tendono rapidamente a raggrupparsi e a stabilizzarsi in un apparente stato di quiete. Tuttavia, nonostante questo comportamento visivo, gli agenti mantengono una velocità vicina al massimo consentito. La velocità media del sistema si avvicina a zero, suggerendo un equilibrio nella distribuzione delle velocità. Tuttavia, l’elevata deviazione standard delle velocità individuali conferma che il sistema è dinamicamente attivo, con differenze significative nelle direzioni di moto.
 
-L’implementazione della [regola di coesione](README.md#regole) ha evidenziato che, dividere per `n-1` porta a un comportamento anomalo dello stormo. Questo ha suggerito che il `-1` servisse a escludere il boid stesso dal calcolo del centro di massa. Dunque per la struttura del programma, che esclude autonomamente l'agente, è necessaria la divisione per `n`.
+L’implementazione della [regola di coesione](README.md#regole) ha evidenziato che, dividere per `n-1`, porta a un comportamento anomalo dello stormo. Questo ha suggerito che il `-1` servisse a escludere il boid stesso dal calcolo del centro di massa. Dunque per la struttura del programma, che esclude autonomamente l'agente, è necessaria la divisione per `n`.
 
 ## Implementazione dei test
 Per assicurare che la simulazione si comporti in modo corretto e coerente rispetto alle specifiche, è stata adottata una strategia di test, utilizzando il framework Doctest. L'obiettivo è individuare errori logici, verificare l’integrità dei dati e garantire che il comportamento emergente del sistema sia ragionevole anche in presenza di condizioni limite.

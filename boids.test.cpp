@@ -89,9 +89,9 @@ TEST_CASE("Test parameter initialization") {
   CHECK_THROWS(init_parametres({0.8f, 1.3f, 0.1f, 15.f, 10.f, 3, 0.f, 0.f,0.f}));
   CHECK_THROWS(init_parametres({0.8f, 0.3f, -1.1f, 15.f, 10.f, 3, 0.f, 0.f,0.f}));
   CHECK_THROWS(init_parametres({0.8f, 0.3f, 0.1f, 15.f, -10.f, 3, 0.f, 0.f,0.f}));
-  CHECK_THROWS(init_parametres({0.8f, 0.3f, 0.1f, 15.f, -10.f, 3, 0.f, 0.f,-1.f}));
   CHECK_THROWS(init_parametres({0.8f, 0.3f, 0.1f, 15.f, -10.f, 3, -2.f, 0.f,0.f}));
   CHECK_THROWS(init_parametres({0.8f, 0.3f, 0.1f, 15.f, -10.f, 3, 0.f, -5.f,0.f}));
+  CHECK_THROWS(init_parametres({0.8f, 0.3f, 0.1f, 15.f, -10.f, 3, 0.f, 0.f,-1.f}));
 }
 
 TEST_CASE("Checking the behaviours for speeds higher than the maximum") {
@@ -394,7 +394,7 @@ TEST_CASE("Predator actions") {
     }
     SUBCASE("2 vertically") {
       Predator p1({100.f, 100.f});
-      Predator p2({100.f, 90.f});  // sopra
+      Predator p2({100.f, 90.f}); 
 
       Vec2f diff_pos1 = p1.get_pos() - p2.get_pos();
       float angle1 = diff_pos1.angle();
@@ -418,7 +418,7 @@ TEST_CASE("Predator actions") {
     }
     SUBCASE("2 diagonally") {
       Predator p1({50.f, 50.f});
-      Predator p2({55.f, 55.f});  // diagonale in alto a destra
+      Predator p2({55.f, 55.f});
 
       Vec2f diff_pos1 = p1.get_pos() - p2.get_pos();
       float angle1 = diff_pos1.angle();
